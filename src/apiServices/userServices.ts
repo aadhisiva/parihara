@@ -113,7 +113,7 @@ export class UserServices {
     async ekycProcess(data) {
         const { ApplicantAadhar } = data;
         let checkAadharStatus = await this.userRepo.checkAadharStatus(ApplicantAadhar);
-        if(checkAadharStatus) return {code: 422, message: "Ekyc verification completed."}; 
+        if(checkAadharStatus) return {code: 422, message: "Ekyc verification completed."};
         let txnDateTime = new Date().getFullYear() + "" + new Date().getTime();
         let bodyData = {
             deptCode: process.env.DEP_CODE,
@@ -132,8 +132,9 @@ export class UserServices {
         if (!res?.data?.Token) {
             return { code: 422, message: "Something went wrong." };
         } else {
+            data.txnDateTime = txnDateTime; 
             await this.userRepo.updateEkyctxnId(data);
-            return `${process.env.EKYC_TOKEN_URL}?key=${process.env.INTEGRATION_KEY}&token=${res?.data?.Token}`
+            return {txnDateTime:txnDateTime, url:`${process.env.EKYC_TOKEN_URL}?key=${process.env.INTEGRATION_KEY}&token=${res?.data?.Token}`};
         };
     };
 
@@ -197,6 +198,14 @@ export class UserServices {
         newData.npciBankName = data.npciBankName;
         newData.npciLastUpdateDate = data.npciLastUpdateDate;
         return await this.userRepo.saveEkycData(newData);
+    };
+
+    async updateEkycProcess(data) {
+       const { SubmissionId, txnDateTime } = data;
+       let checkData = await this.userRepo.fetchEkycData(txnDateTime);
+       if (!checkData) return { code: 422, message: "Ekyc access denied." };
+      if (checkData?.finalStatus == 'F') return { code: 422, message: checkData.errorMessage, data: {} };
+     return await this.userRepo.updateEkycAfter(SubmissionId);
     };
 
 }

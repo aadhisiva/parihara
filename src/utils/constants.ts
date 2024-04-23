@@ -23,7 +23,8 @@ export enum WEBMESSAGES {
     GET_ALLDATA='Get All Data',
     ADDED='New Data Added',
     UPDATE='Update Exist Data', 
-}
+};
+
 export enum MOBILE_MESSAGES {
     SEND_OTP='Send Otp',
     VERIFY_OTP='Verify Otp',
@@ -33,6 +34,9 @@ export enum MOBILE_MESSAGES {
     GET_CHILD_DATA="Get Child Data From External Source",
     GET_CHILD_WITH_AADHAR_HASH="Get Child Data From External Source(With aadhar hash)",
     GET_KUTUMBA_DATA="Get Kutumba Data From External Source",
+    AFTER_EKYC_UPDATE="After Ekyc updation based on submission id.",
+    EKYC="Get Kutumba Data From External Source",
+    EKYC_REDIRECTION="Ekyc Redirection Page"
 };
 
 export enum API_MESSAGES {

@@ -61,6 +61,7 @@ export class UserRepo {
     const { ApplicantAadhar } = data;
     let findData = await pariharaDataRepo.findOneBy({ ApplicantAadhar });
     if(findData) return {code: 422, message: "Already registered this aadhar details."};
+    data.SurveyStatus = "Pending Ekyc"
     data.SubmissionId = await generateUniqueSubmissionId();
     return await pariharaDataRepo.save(data);
   };
@@ -83,12 +84,12 @@ export class UserRepo {
   };
 
   async checkAadharStatus(ApplicantAadhar) {
-    let ekycStatus = "Completed"; 
-    return await pariharaDataRepo.findOneBy({ApplicantAadhar, ekycStatus});
+    let EkycStatus = "Completed"; 
+    return await pariharaDataRepo.findOneBy({ApplicantAadhar, EkycStatus});
   };
 
   async updateEkyctxnId(data) {
-    const {ApplicantAadhar, SubmissionId, txnDateTime} = data;
+    const {SubmissionId, txnDateTime} = data;
     let getData = await pariharaDataRepo.findOneBy({SubmissionId});
     if(!getData) return {code: 422, message: "Data doesn't exist."} 
     let newData = {...getData, ...{txnDateTime}};
@@ -97,5 +98,16 @@ export class UserRepo {
 
   async saveEkycData(data) {
     return await ekycDataRepo.save(data);
+  };
+
+  async fetchEkycData(txnDateTime) {
+    return await ekycDataRepo.findOneBy({txnDateTime});
+  };
+
+  async updateEkycAfter(data) {
+    const {SubmissionId} = data;
+    let findOne = await pariharaDataRepo.findOneBy({SubmissionId});
+    let newData = {...findOne, ...{EkycStatus: "Completed", SurveyStatus: "Pending"}}
+    return await ekycDataRepo.save(newData);
   };
 }

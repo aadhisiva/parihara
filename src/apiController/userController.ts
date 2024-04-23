@@ -52,7 +52,7 @@ userRouter.post('/saveSurveyData', authTokenAndVersion, async (req, res) => {
     try {
         let body = {...req.body, ...{UserId: req.headers.userid}};
         let result = await userServices.saveSurveyData(body);
-        return mobileAppResponse(res, result, body, getRoleAndUserId(req, MOBILE_MESSAGES.VERIFY_OTP));
+        return mobileAppResponse(res, result, body, getRoleAndUserId(req, MOBILE_MESSAGES.ADDED));
     } catch (error) {
         return mobileAppResponse(res, error);
     }
@@ -62,7 +62,7 @@ userRouter.post('/updateSurveyData', authTokenAndVersion, async (req, res) => {
     try {
         let body = {...req.body, ...{UserId: req.headers.userid}};
         let result = await userServices.updateSurveyData(body);
-        return mobileAppResponse(res, result, body, getRoleAndUserId(req, MOBILE_MESSAGES.VERIFY_OTP));
+        return mobileAppResponse(res, result, body, getRoleAndUserId(req, MOBILE_MESSAGES.UPDATE));
     } catch (error) {
         return mobileAppResponse(res, error);
     }
@@ -72,7 +72,7 @@ userRouter.post('/saveSurveyImages', authTokenAndVersion, async (req, res) => {
     try {
         let body = {...req.body, ...{UserId: req.headers.userid}};
         let result = await userServices.saveSurveyImages(body);
-        return mobileAppResponse(res, result, body, getRoleAndUserId(req, MOBILE_MESSAGES.VERIFY_OTP));
+        return mobileAppResponse(res, result, body, getRoleAndUserId(req, MOBILE_MESSAGES.ADDED));
     } catch (error) {
         return mobileAppResponse(res, error);
     }
@@ -82,7 +82,7 @@ userRouter.post('/ekycProcess', authTokenAndVersion, async (req, res) => {
     try {
         let body = {...req.body, ...{UserId: req.headers.userid}};
         let result = await userServices.ekycProcess(body);
-        return mobileAppResponse(res, result, body, getRoleAndUserId(req, MOBILE_MESSAGES.VERIFY_OTP));
+        return mobileAppResponse(res, result, body, getRoleAndUserId(req, MOBILE_MESSAGES.EKYC));
     } catch (error) {
         return mobileAppResponse(res, error);
     }
@@ -92,7 +92,7 @@ userRouter.post('/saveEkycData', authTokenAndVersion, async (req, res) => {
     try {
         let body = req.body;
         let result = await userServices.saveEkycData(body);
-        return mobileAppResponse(res, result, body, getRoleAndUserId(req, MOBILE_MESSAGES.VERIFY_OTP));
+        return mobileAppResponse(res, result, body, getRoleAndUserId(req, MOBILE_MESSAGES.EKYC));
     } catch (error) {
         return mobileAppResponse(res, error);
     }
@@ -101,6 +101,16 @@ userRouter.post('/saveEkycData', authTokenAndVersion, async (req, res) => {
 userRouter.get("/ekyRedirection", async (req: Request, res) => {
     try {
         res.send("");
+    } catch (error) {
+        return mobileAppResponse(res, error);
+    }
+});
+
+userRouter.get("/updateEkycProcess", async (req: Request, res) => {
+    try {
+        let body = req.body;
+        let result = await userServices.updateEkycProcess(body);
+        return mobileAppResponse(res, result, body, getRoleAndUserId(req, MOBILE_MESSAGES.AFTER_EKYC_UPDATE));
     } catch (error) {
         return mobileAppResponse(res, error);
     }

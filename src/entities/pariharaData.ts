@@ -91,7 +91,7 @@ export class PariharaData extends BaseEntity {
   ImageFileName: string;
 
   @Column({ type: 'nvarchar', default: null, length: 100 })
-  ekycStatus: string;
+  EkycStatus: string;
 
   @Column({ type: 'nvarchar', default: null, length: 2000 })
   Remarks: string;
