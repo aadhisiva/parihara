@@ -96,8 +96,26 @@ export class PariharaData extends BaseEntity {
   @Column({ type: 'nvarchar', default: null, length: 2000 })
   Remarks: string;
 
+  @Column({ type: 'nvarchar', default: null, length: 2000 })
+  Video: string;
+
   @Column({ type: 'text' })
-  Image: string;
+  Image1: string;
+
+  @Column({ type: 'text' })
+  Image2: string;
+
+  @Column({ type: 'text' })
+  Image3: string;
+
+  @Column({ type: 'text' })
+  Image4: string;
+
+  @Column({ type: 'text' })
+  Image5: string;
+
+  @Column({ type: 'text' })
+  Image6: string;
 
   @Column({ type: 'nvarchar', default: null, length: 100 })
   SurveyStatus: string;
