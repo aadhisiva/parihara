@@ -20,7 +20,7 @@ const userServices = Container.get(UserServices);
 
 userRouter.post('/signup', authVersion, async (req, res) => {
     try {
-        let body = {...req.body, ...{UserId: req.headers.userid, Version: req.headers.version}};
+        let body = req.body;
         let result = await userServices.signupUser(body);
         return mobileAppResponse(res, result, body, getRoleAndUserId(req, MOBILE_MESSAGES.ADDED));
     } catch (error) {
@@ -30,7 +30,7 @@ userRouter.post('/signup', authVersion, async (req, res) => {
 
 userRouter.post('/login', authVersion, async (req, res) => {
     try {
-        let body = {...req.body, ...{UserId: req.headers.userid, Version: req.headers.version}};
+        let body = req.body;
         let result = await userServices.loginUser(body);
         return mobileAppResponse(res, result, body, getRoleAndUserId(req, MOBILE_MESSAGES.SEND_OTP));
     } catch (error) {
@@ -62,6 +62,26 @@ userRouter.post('/updateSurveyData', authTokenAndVersion, async (req, res) => {
     try {
         let body = {...req.body, ...{UserId: req.headers.userid}};
         let result = await userServices.updateSurveyData(body);
+        return mobileAppResponse(res, result, body, getRoleAndUserId(req, MOBILE_MESSAGES.UPDATE));
+    } catch (error) {
+        return mobileAppResponse(res, error);
+    }
+});
+
+userRouter.post('/getSubmissionList', authTokenAndVersion, async (req, res) => {
+    try {
+        let body = {...req.body, ...{UserId: req.headers.userid}};
+        let result = await userServices.getSubmissionList(body);
+        return mobileAppResponse(res, result, body, getRoleAndUserId(req, MOBILE_MESSAGES.UPDATE));
+    } catch (error) {
+        return mobileAppResponse(res, error);
+    }
+});
+
+userRouter.post('/getSubmissionData', authTokenAndVersion, async (req, res) => {
+    try {
+        let body = {...req.body, ...{UserId: req.headers.userid}};
+        let result = await userServices.getSubmissionData(body);
         return mobileAppResponse(res, result, body, getRoleAndUserId(req, MOBILE_MESSAGES.UPDATE));
     } catch (error) {
         return mobileAppResponse(res, error);

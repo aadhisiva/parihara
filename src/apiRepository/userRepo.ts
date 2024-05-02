@@ -75,6 +75,16 @@ export class UserRepo {
     return await pariharaDataRepo.save(newData);
   };
 
+  async getSubmissionList(data) {
+    const {  UserId , SurveyStatus } = data;
+    return await pariharaDataRepo.find({where : {UserId , SurveyStatus}})
+  };
+
+  async getSubmissionData(data) {
+    const {  SubmissionId } = data;
+    return await pariharaDataRepo.findOneBy({SubmissionId})
+  };
+  
   async saveSurveyImages(data) {
     const {SubmissionId} = data;
     let getData = await pariharaDataRepo.findOneBy({SubmissionId});

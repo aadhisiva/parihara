@@ -96,25 +96,28 @@ export class PariharaData extends BaseEntity {
   @Column({ type: 'nvarchar', default: null, length: 2000 })
   Remarks: string;
 
+  @Column({ type: 'nvarchar', default: null, length: 50 })
+  UserId: string;
+
   @Column({ type: 'nvarchar', default: null, length: 2000 })
   Video: string;
 
-  @Column({ type: 'text' })
+  @Column({ type: 'text', default: null })
   Image1: string;
 
-  @Column({ type: 'text' })
+  @Column({ type: 'text', default: null })
   Image2: string;
 
-  @Column({ type: 'text' })
+  @Column({ type: 'text', default: null })
   Image3: string;
 
-  @Column({ type: 'text' })
+  @Column({ type: 'text', default: null })
   Image4: string;
 
-  @Column({ type: 'text' })
+  @Column({ type: 'text', default: null })
   Image5: string;
 
-  @Column({ type: 'text' })
+  @Column({ type: 'text', default: null })
   Image6: string;
 
   @Column({ type: 'nvarchar', default: null, length: 100 })

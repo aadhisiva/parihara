@@ -24,7 +24,6 @@ export class UserServices {
         // data.Otp = generateOTP(4);
         data.Otp = "1111";
         let checkLoginUser = await this.userRepo.checkLoginUser(data);
-        console.log("checkLoginUser", checkLoginUser);
         if (checkLoginUser) return { code: 422, message: "Your Already Registered With Mobile And Role" };
         let checkUserData = await this.userRepo.addUser(data);
         // let sendSingleSms = await this.otpServices.sendOtpAsSingleSms(
@@ -100,6 +99,20 @@ export class UserServices {
         const { SubmissionId } = data;
         if (!SubmissionId) return { code: 400, message: "Provide SubmissionId." };
         let savedData = await this.userRepo.updateSurveyData(data);
+        return savedData;
+    };
+
+    async getSubmissionList(data: PariharaData) {
+        const { SurveyStatus } = data;
+        if (!SurveyStatus) return { code: 400, message: "Provide SurveyStatus." };
+        let savedData = await this.userRepo.getSubmissionList(data);
+        return savedData;
+    };
+
+    async getSubmissionData(data: PariharaData) {
+        const { SubmissionId } = data;
+        if (!SubmissionId) return { code: 400, message: "Provide SubmissionId." };
+        let savedData = await this.userRepo.getSubmissionData(data);
         return savedData;
     };
 
