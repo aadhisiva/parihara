@@ -22,6 +22,12 @@ export class PariharaData extends BaseEntity {
   RoleId: string;
 
   @Column({ type: 'nvarchar', default: null, length: 100 })
+  LossType: string;
+
+  @Column({ type: 'nvarchar', default: null, length: 100 })
+  NoOfDaysFromDamage: string;
+
+  @Column({ type: 'nvarchar', default: null, length: 100 })
   ReqType: string;
 
   @Column({ type: 'nvarchar', default: null, length: 100 })

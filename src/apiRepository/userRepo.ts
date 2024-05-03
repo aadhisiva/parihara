@@ -76,8 +76,36 @@ export class UserRepo {
   };
 
   async getSubmissionList(data) {
-    const {  UserId , SurveyStatus } = data;
-    return await pariharaDataRepo.find({where : {UserId , SurveyStatus}})
+    const {  UserId , SurveyStatus,  LossType, PageNo = 1, PageSize= 10 } = data;
+    let totalData = await pariharaDataRepo.findAndCount({
+      where: {UserId, LossType, SurveyStatus},
+      select: ["LossType", "Mobile", "CreatedDate", "NoOfDaysFromDamage", "DateOfDamage", "SubmissionId"],
+      skip: (PageNo - 1) * PageSize,
+      take: PageSize
+    });
+    return {
+      totalCount: totalData[1],
+      PageNo,
+      PageSize,
+      totalData: totalData[0]
+    }
+  }
+
+  async getSubmissionListAll(data) {
+    const {  UserId , LossType,  PageNo = 1, PageSize= 10 } = data;   
+    let totalData = await pariharaDataRepo.findAndCount({
+      where: {UserId, LossType},
+      select: ["LossType", "Mobile", "CreatedDate", "NoOfDaysFromDamage", "DateOfDamage", "SubmissionId"],
+      skip: (PageNo - 1) * PageSize,
+      take: PageSize
+    });
+    return {
+      totalCount: totalData[1],
+      PageNo,
+      PageSize,
+      totalData: totalData[0]
+    }
+
   };
 
   async getSubmissionData(data) {

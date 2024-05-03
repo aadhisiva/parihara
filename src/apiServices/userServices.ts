@@ -11,6 +11,7 @@ import { UserData } from "../entities";
 import { AppDataSource } from "../db/config";
 import { EkycData } from "../entities/ekycData";
 import { ekycPostAPi } from "../utils/kutumba/kutumbaData";
+import { daysCalFromDate } from "../utils/helpers";
 
 @Service()
 export class UserServices {
@@ -88,32 +89,40 @@ export class UserServices {
     }
 
     async saveSurveyData(data: PariharaData) {
-        const { RoleId, ApplicantAadhar } = data;
+        const { RoleId, ApplicantAadhar, LossType, DateOfDamage } = data;
         if (!RoleId) return { code: 400, message: "Provide RoleId." };
+        if (!LossType) return { code: 400, message: "Provide LossType." };
+        if (!DateOfDamage) return { code: 400, message: "Provide DateOfDamage." };
         if (!ApplicantAadhar) return { code: 400, message: "Provide ApplicantAadhar." };
-        let savedData = await this.userRepo.saveSurveyData(data);
-        return savedData;
+        data.NoOfDaysFromDamage = daysCalFromDate(DateOfDamage);
+        let getData = await this.userRepo.saveSurveyData(data);
+        return getData;
     }
 
     async updateSurveyData(data: PariharaData) {
         const { SubmissionId } = data;
         if (!SubmissionId) return { code: 400, message: "Provide SubmissionId." };
-        let savedData = await this.userRepo.updateSurveyData(data);
-        return savedData;
+        let getData = await this.userRepo.updateSurveyData(data);
+        return getData;
     };
 
     async getSubmissionList(data: PariharaData) {
-        const { SurveyStatus } = data;
+        const { SurveyStatus, LossType } = data;
         if (!SurveyStatus) return { code: 400, message: "Provide SurveyStatus." };
-        let savedData = await this.userRepo.getSubmissionList(data);
-        return savedData;
+        if (!LossType) return { code: 400, message: "Provide LossType." };
+        if (SurveyStatus == "History") {
+            let getData = await this.userRepo.getSubmissionListAll(data);
+            return getData;
+        }
+        let getData = await this.userRepo.getSubmissionList(data);
+        return getData;
     };
 
     async getSubmissionData(data: PariharaData) {
         const { SubmissionId } = data;
         if (!SubmissionId) return { code: 400, message: "Provide SubmissionId." };
-        let savedData = await this.userRepo.getSubmissionData(data);
-        return savedData;
+        let getData = await this.userRepo.getSubmissionData(data);
+        return getData;
     };
 
     async saveSurveyImages(data: PariharaData) {
@@ -126,7 +135,7 @@ export class UserServices {
     async ekycProcess(data) {
         const { ApplicantAadhar } = data;
         let checkAadharStatus = await this.userRepo.checkAadharStatus(ApplicantAadhar);
-        if(checkAadharStatus) return {code: 422, message: "Ekyc verification completed."};
+        if (checkAadharStatus) return { code: 422, message: "Ekyc verification completed." };
         let txnDateTime = new Date().getFullYear() + "" + new Date().getTime();
         let bodyData = {
             deptCode: process.env.DEP_CODE,
@@ -145,9 +154,9 @@ export class UserServices {
         if (!res?.data?.Token) {
             return { code: 422, message: "Something went wrong." };
         } else {
-            data.txnDateTime = txnDateTime; 
+            data.txnDateTime = txnDateTime;
             await this.userRepo.updateEkyctxnId(data);
-            return {txnDateTime:txnDateTime, url:`${process.env.EKYC_TOKEN_URL}?key=${process.env.INTEGRATION_KEY}&token=${res?.data?.Token}`};
+            return { txnDateTime: txnDateTime, url: `${process.env.EKYC_TOKEN_URL}?key=${process.env.INTEGRATION_KEY}&token=${res?.data?.Token}` };
         };
     };
 
@@ -214,11 +223,11 @@ export class UserServices {
     };
 
     async updateEkycProcess(data) {
-       const { SubmissionId, txnDateTime } = data;
-       let checkData = await this.userRepo.fetchEkycData(txnDateTime);
-       if (!checkData) return { code: 422, message: "Ekyc access denied." };
-      if (checkData?.finalStatus == 'F') return { code: 422, message: checkData.errorMessage, data: {} };
-     return await this.userRepo.updateEkycAfter(SubmissionId);
+        const { SubmissionId, txnDateTime } = data;
+        let checkData = await this.userRepo.fetchEkycData(txnDateTime);
+        if (!checkData) return { code: 422, message: "Ekyc access denied." };
+        if (checkData?.finalStatus == 'F') return { code: 422, message: checkData.errorMessage, data: {} };
+        return await this.userRepo.updateEkycAfter(SubmissionId);
     };
 
 }
