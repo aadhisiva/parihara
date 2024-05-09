@@ -18,7 +18,7 @@ export class PariharaData extends BaseEntity {
   @Column({ type: 'nvarchar', length: 20, nullable: false })
   SubmissionId: string;
 
-  @Column({ type: 'nvarchar', nullable: false, length: 100 })
+  @Column({ type: 'nvarchar', default: null, length: 100 })
   RoleId: string;
 
   @Column({ type: 'nvarchar', default: null, length: 100 })

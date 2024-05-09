@@ -95,7 +95,7 @@ export class UserRepo {
     const {  UserId , LossType,  PageNo = 1, PageSize= 10 } = data;   
     let totalData = await pariharaDataRepo.findAndCount({
       where: {UserId, LossType},
-      select: ["LossType", "Mobile", "CreatedDate", "NoOfDaysFromDamage", "DateOfDamage", "SubmissionId"],
+      select: ["LossType", "ApplicantName", "Mobile", "SurveyStatus", "CreatedDate", "NoOfDaysFromDamage", "DateOfDamage", "SubmissionId"],
       skip: (PageNo - 1) * PageSize,
       take: PageSize
     });
