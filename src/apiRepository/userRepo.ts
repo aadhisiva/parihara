@@ -79,7 +79,7 @@ export class UserRepo {
     const {  UserId , SurveyStatus,  LossType, PageNo = 1, PageSize= 10 } = data;
     let totalData = await pariharaDataRepo.findAndCount({
       where: {UserId, LossType, SurveyStatus},
-      select: ["LossType", "Mobile", "CreatedDate", "NoOfDaysFromDamage", "DateOfDamage", "SubmissionId"],
+      select: ["LossType", "Mobile","ApplicantName", "CreatedDate", "NoOfDaysFromDamage", "DateOfDamage", "SubmissionId", "SurveyStatus"],
       skip: (PageNo - 1) * PageSize,
       take: PageSize
     });
@@ -94,8 +94,8 @@ export class UserRepo {
   async getSubmissionListAll(data) {
     const {  UserId , LossType,  PageNo = 1, PageSize= 10 } = data;   
     let totalData = await pariharaDataRepo.findAndCount({
-      where: {UserId, LossType},
-      select: ["LossType", "ApplicantName", "Mobile", "SurveyStatus", "CreatedDate", "NoOfDaysFromDamage", "DateOfDamage", "SubmissionId"],
+      where: {UserId},
+      select: ["LossType", "ApplicantName", "Mobile", "SurveyStatus", "CreatedDate", "NoOfDaysFromDamage", "DateOfDamage", "SubmissionId", "SurveyStatus"],
       skip: (PageNo - 1) * PageSize,
       take: PageSize
     });
