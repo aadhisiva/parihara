@@ -195,6 +195,27 @@ export class PariharaData extends BaseEntity {
   @Column({ type: 'nvarchar', default: null, length: 100 })
   EkycStatus: string;
 
+  @Column({ type: 'nvarchar', default: null, length: 100 })
+  VA_DamageLength: string;
+
+  @Column({ type: 'nvarchar', default: null, length: 100 })
+  VA_DamageBreath: string;
+
+  @Column({ type: 'nvarchar', default: null, length: 100 })
+  VA_DamageArea: string;
+
+  @Column({ type: 'nvarchar', default: null, length: 500 })
+  VA_AddressProperty: string;
+
+  @Column({ type: 'nvarchar', default: null, length: 100 })
+  VA_ApplicantRight: string;
+
+  @Column({ type: 'nvarchar', default: null, length: 100 })
+  VA_LossValue: string;
+
+  @Column({ type: 'nvarchar', default: null, length: 100 })
+  VA_CompensationValue: string;
+
   @Column({ type: 'nvarchar', default: null, length: 2000 })
   OtherDamageRemarks: string;
 
