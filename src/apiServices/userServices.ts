@@ -89,11 +89,11 @@ export class UserServices {
     }
 
     async saveSurveyData(data: PariharaData) {
-        const { RoleId, ApplicantAadhar, LossType, DateOfDamage } = data;
+        const {RoleId, LossType, DateOfDamage } = data;
         if (!RoleId) return { code: 400, message: "Provide RoleId." };
         if (!LossType) return { code: 400, message: "Provide LossType." };
-        if (!DateOfDamage) return { code: 400, message: "Provide DateOfDamage." };
-        if (!ApplicantAadhar) return { code: 400, message: "Provide ApplicantAadhar." };
+        // if (!DateOfDamage) return { code: 400, message: "Provide DateOfDamage." };
+        // if (!ApplicantAadhar) return { code: 400, message: "Provide ApplicantAadhar." };
         data.NoOfDaysFromDamage = daysCalFromDate(DateOfDamage);
         let getData = await this.userRepo.saveSurveyData(data);
         return getData;
@@ -109,11 +109,11 @@ export class UserServices {
     async getSubmissionList(data: PariharaData) {
         const { SurveyStatus, LossType } = data;
         if (!SurveyStatus) return { code: 400, message: "Provide SurveyStatus." };
-        if (!LossType) return { code: 400, message: "Provide LossType." };
         if (SurveyStatus == "History") {
             let getData = await this.userRepo.getSubmissionListAll(data);
             return getData;
         }
+        if (!LossType) return { code: 400, message: "Provide LossType." };
         let getData = await this.userRepo.getSubmissionList(data);
         return getData;
     };

@@ -21,11 +21,11 @@ export class UserRepo {
 
   async sendOtp(data) {
     const { Mobile } = data;
-    let findOneBy = await userDataRepo.findOneBy({ Mobile });
+    let findOneBy = await userDataRepo.findOneBy({ Mobile: Equal(Mobile) });
     if (!findOneBy) return { code: 404, message: "UserData Not Found." };
     let newData = { ...findOneBy, ...data };
     return await userDataRepo.save(newData);
-  }
+  };
 
   // async getUsersList(data) {
   //   const { Mobile } = data;
@@ -41,7 +41,7 @@ export class UserRepo {
 
   async updateUser(data) {
     const {Mobile, RoleId} = data;
-    let getData = await userDataRepo.findOneBy({RoleId, Mobile});
+    let getData = await userDataRepo.findOneBy({Mobile: Equal(Mobile), RoleId: Equal(RoleId)});
     if(!getData) return {code: 422, message: "Your Data Does't Exist."}
     let newData = {...getData, ...data};
     return await userDataRepo.save(newData);
@@ -49,17 +49,17 @@ export class UserRepo {
 
   async checkLoginUser(data) {
     const {Mobile, RoleId} = data;
-    return await userDataRepo.findOneBy({Mobile, RoleId});
+    return await userDataRepo.findOneBy({Mobile: Equal(Mobile), RoleId: Equal(RoleId)});
   };
 
   async verfiyWithUserId(data) {
     const { UserId } = data;
-    return await userDataRepo.findOneBy({UserId});
+    return await userDataRepo.findOneBy({UserId: Equal(UserId)});
   };
 
   async saveSurveyData(data: PariharaData) {
     const { ApplicantAadhar } = data;
-    let findData = await pariharaDataRepo.findOneBy({ ApplicantAadhar });
+    let findData = await pariharaDataRepo.findOneBy({ ApplicantAadhar: Equal(ApplicantAadhar) });
     if(findData) return {code: 422, message: "Already registered this aadhar details."};
     data.SurveyStatus = "Pending Ekyc"
     data.SubmissionId = await generateUniqueSubmissionId();
@@ -68,7 +68,7 @@ export class UserRepo {
 
   async updateSurveyData(data) {
     const {SubmissionId} = data;
-    let getData = await pariharaDataRepo.findOneBy({SubmissionId});
+    let getData = await pariharaDataRepo.findOneBy({SubmissionId: Equal(SubmissionId)});
     if(!getData) return {code: 422, message: "Data doesn't exist."} 
     let newData = {...getData, ...data};
     await updatedSurveyLogsRepo.save(data);
@@ -78,7 +78,7 @@ export class UserRepo {
   async getSubmissionList(data) {
     const {  UserId , SurveyStatus,  LossType, PageNo = 1, PageSize= 10 } = data;
     let totalData = await pariharaDataRepo.findAndCount({
-      where: {UserId, LossType, SurveyStatus},
+      where: {UserId: Equal(UserId), LossType: Equal(LossType), SurveyStatus: Equal(SurveyStatus)},
       select: ["LossType", "Mobile","ApplicantName", "CreatedDate", "NoOfDaysFromDamage", "DateOfDamage", "SubmissionId", "SurveyStatus"],
       skip: (PageNo - 1) * PageSize,
       take: PageSize
@@ -94,7 +94,7 @@ export class UserRepo {
   async getSubmissionListAll(data) {
     const {  UserId , LossType,  PageNo = 1, PageSize= 10 } = data;   
     let totalData = await pariharaDataRepo.findAndCount({
-      where: {UserId},
+      where: {UserId: Equal(UserId)},
       select: ["LossType", "ApplicantName", "Mobile", "SurveyStatus", "CreatedDate", "NoOfDaysFromDamage", "DateOfDamage", "SubmissionId", "SurveyStatus"],
       skip: (PageNo - 1) * PageSize,
       take: PageSize
@@ -110,12 +110,12 @@ export class UserRepo {
 
   async getSubmissionData(data) {
     const {  SubmissionId } = data;
-    return await pariharaDataRepo.findOneBy({SubmissionId})
+    return await pariharaDataRepo.findOneBy({SubmissionId: Equal(SubmissionId)})
   };
   
   async saveSurveyImages(data) {
     const {SubmissionId} = data;
-    let getData = await pariharaDataRepo.findOneBy({SubmissionId});
+    let getData = await pariharaDataRepo.findOneBy({SubmissionId: Equal(SubmissionId)});
     if(!getData) return {code: 422, message: "Data doesn't exist."} 
     let newData = {...getData, ...data};
     return await newData.save(data);
@@ -123,12 +123,12 @@ export class UserRepo {
 
   async checkAadharStatus(ApplicantAadhar) {
     let EkycStatus = "Completed"; 
-    return await pariharaDataRepo.findOneBy({ApplicantAadhar, EkycStatus});
+    return await pariharaDataRepo.findOneBy({ApplicantAadhar: Equal(ApplicantAadhar), EkycStatus: Equal(EkycStatus)});
   };
 
   async updateEkyctxnId(data) {
     const {SubmissionId, txnDateTime} = data;
-    let getData = await pariharaDataRepo.findOneBy({SubmissionId});
+    let getData = await pariharaDataRepo.findOneBy({SubmissionId: Equal(SubmissionId)});
     if(!getData) return {code: 422, message: "Data doesn't exist."} 
     let newData = {...getData, ...{txnDateTime}};
     return await pariharaDataRepo.save(newData);
@@ -139,12 +139,12 @@ export class UserRepo {
   };
 
   async fetchEkycData(txnDateTime) {
-    return await ekycDataRepo.findOneBy({txnDateTime});
+    return await ekycDataRepo.findOneBy({txnDateTime: Equal(txnDateTime)});
   };
 
   async updateEkycAfter(data) {
     const {SubmissionId} = data;
-    let findOne = await pariharaDataRepo.findOneBy({SubmissionId});
+    let findOne = await pariharaDataRepo.findOneBy({SubmissionId: Equal(SubmissionId)});
     let newData = {...findOne, ...{EkycStatus: "Completed", SurveyStatus: "Pending"}}
     return await ekycDataRepo.save(newData);
   };
