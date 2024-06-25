@@ -18,11 +18,13 @@ export enum RESPONSETYPE {
     FAILED='FAILED'
 }
 export enum WEBMESSAGES {
+    SIGN_UP='Sign Up',
     SEND_OTP='Send Otp',
     VERIFY_OTP='Send Otp',
     GET_ALLDATA='Get All Data',
     ADDED='New Data Added',
-    UPDATE='Update Exist Data', 
+    UPDATE='Update Exist Data',
+    Approved='Approved' 
 };
 
 export enum MOBILE_MESSAGES {

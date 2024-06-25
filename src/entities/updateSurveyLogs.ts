@@ -90,6 +90,18 @@ export class UpdatedSurveyLogs {
   
     @Column({ type: 'text' })
     Image: string;
+
+    @Column({ type: 'nvarchar', default: null, length: 2000 })
+    LossDistrict: string;
+  
+    @Column({ type: 'nvarchar', default: null, length: 2000 })
+    LossTaluk: string;
+  
+    @Column({ type: 'nvarchar', default: null, length: 2000 })
+    LossHobli: string;
+  
+    @Column({ type: 'nvarchar', default: null, length: 2000 })
+    LossVillage: string;
   
     @Column({ type: 'nvarchar', default: null, length: 100 })
     SurveyStatus: string;

@@ -4,6 +4,8 @@ import {
   Version,
   UserData,
   EkycData,
+  MasterData,
+  LoginAccess,
 } from "../entities";
 import { Equal, createConnection } from "typeorm";
 import { PariharaData } from "../entities/pariharaData";
@@ -15,6 +17,7 @@ const versionDataRepo = AppDataSource.getRepository(Version);
 const pariharaDataRepo = AppDataSource.getRepository(PariharaData);
 const updatedSurveyLogsRepo = AppDataSource.getRepository(UpdatedSurveyLogs);
 const ekycDataRepo = AppDataSource.getRepository(EkycData);
+const masterDataRepo = AppDataSource.getRepository(MasterData);
 
 @Service()
 export class UserRepo {
@@ -75,6 +78,7 @@ export class UserRepo {
     return await pariharaDataRepo.save(newData);
   };
 
+  /* *********** old ************** */
   async getSubmissionList(data) {
     const {  UserId , SurveyStatus,  LossType, PageNo = 1, PageSize= 10 } = data;
     let totalData = await pariharaDataRepo.findAndCount({
@@ -89,10 +93,10 @@ export class UserRepo {
       PageSize,
       totalData: totalData[0]
     }
-  }
+  };
 
   async getSubmissionListAll(data) {
-    const {  UserId , LossType,  PageNo = 1, PageSize= 10 } = data;   
+    const {  UserId ,  PageNo = 1, PageSize= 10 } = data;   
     let totalData = await pariharaDataRepo.findAndCount({
       where: {UserId: Equal(UserId)},
       select: ["LossType", "ApplicantName", "Mobile", "SurveyStatus", "CreatedDate", "NoOfDaysFromDamage", "DateOfDamage", "SubmissionId", "SurveyStatus"],
@@ -105,8 +109,107 @@ export class UserRepo {
       PageSize,
       totalData: totalData[0]
     }
-
   };
+
+  
+  async getSubmissionListAllWithLossType(data) {
+    const {  UserId , LossType,  PageNo = 1, PageSize= 10 } = data;   
+    let totalData = await pariharaDataRepo.findAndCount({
+      where: {UserId: Equal(UserId), LossType: Equal(LossType)},
+      select: ["LossType", "ApplicantName", "Mobile", "SurveyStatus", "CreatedDate", "NoOfDaysFromDamage", "DateOfDamage", "SubmissionId", "SurveyStatus"],
+      skip: (PageNo - 1) * PageSize,
+      take: PageSize
+    });
+    return {
+      totalCount: totalData[1],
+      PageNo,
+      PageSize,
+      totalData: totalData[0]
+    }
+  };
+/* *********** Ended old ************** */
+
+  async geAllList(data, access) {
+    const { PageNo = 1, PageSize= 10, LossType } = data;   
+    let totalCount = await pariharaDataRepo.count({
+      where: [{ SurveyStatus: access?.Pending && "Pending"  }, { SurveyStatus: access?.PendingEkyc && "Pending Ekyc"  }, { SurveyStatus: access?.SeekClarification ?? "SeekClarification" }],
+      select: ["LossType", "Mobile", "ApplicantName", "CreatedDate", "NoOfDaysFromDamage", "DateOfDamage", "SubmissionId", "SurveyStatus", 'id'],
+      skip: (PageNo - 1) * PageSize,
+      take: PageSize
+    });
+    let totalData = await pariharaDataRepo.find({
+      where: [{ LossType: Equal(LossType), SurveyStatus: access?.Pending && "Pending"  }, { SurveyStatus: access?.PendingEkyc && "Pending Ekyc"  }, { SurveyStatus: access?.SeekClarification ?? "Seek Clarification" }],
+      select: ["LossType", "Mobile", "ApplicantName", "CreatedDate", "NoOfDaysFromDamage", "DateOfDamage", "SubmissionId", "SurveyStatus", 'id', "SurveyStatus"],
+      skip: (PageNo - 1) * PageSize,
+      take: PageSize
+    });
+    return {
+      totalCount: totalCount,
+      PageNo,
+      PageSize,
+      totalData: totalData
+    }
+  };
+
+  async getAllLossType(data, access) {
+    const { PageNo = 1, PageSize= 10, LossType } = data;   
+    let totalCount = await pariharaDataRepo.count({
+      where: [
+        { SurveyStatus: access?.Pending && "Pending", LossType: Equal(LossType)  }, 
+        { SurveyStatus: access?.PendingEkyc && "Pending Ekyc", LossType: Equal(LossType)  }, 
+        { SurveyStatus: access?.SeekClarification ?? "SeekClarification", LossType: Equal(LossType) }
+      ],
+      select: ["LossType", "Mobile", "ApplicantName", "CreatedDate", "NoOfDaysFromDamage", "DateOfDamage", "SubmissionId", "SurveyStatus", 'id'],
+      skip: (PageNo - 1) * PageSize,
+      take: PageSize
+    });
+    let totalData = await pariharaDataRepo.find({
+      where: [
+        { SurveyStatus: access?.Pending && "Pending"  }, 
+        { SurveyStatus: access?.PendingEkyc && "Pending Ekyc"  }, 
+        { SurveyStatus: access?.SeekClarification ?? "Seek Clarification" }],
+      select: ["LossType", "Mobile", "ApplicantName", "CreatedDate", "NoOfDaysFromDamage", "DateOfDamage", "SubmissionId", "SurveyStatus", 'id', "SurveyStatus"],
+      skip: (PageNo - 1) * PageSize,
+      take: PageSize
+    });
+    return {
+      totalCount: totalCount,
+      PageNo,
+      PageSize,
+      totalData: totalData
+    }
+  };
+
+  async getAllListTypesWise(data, access) {
+    const { PageNo = 1, PageSize= 10, SurveyStatus, UserId, LossType } = data;   
+    let totalCount = await pariharaDataRepo.count({
+      where: { SurveyStatus: SurveyStatus, UserId: UserId, LossType: LossType},
+      select: ["LossType", "Mobile", "ApplicantName", "CreatedDate", "NoOfDaysFromDamage", "DateOfDamage", "SubmissionId", "SurveyStatus", 'id'],
+      skip: (PageNo - 1) * PageSize,
+      take: PageSize
+    });
+    let totalData = await pariharaDataRepo.find({
+      where: { SurveyStatus: SurveyStatus, UserId: UserId, LossType: LossType},
+      select: ["LossType", "Mobile", "ApplicantName", "CreatedDate", "NoOfDaysFromDamage", "DateOfDamage", "SubmissionId", "SurveyStatus", 'id', "SurveyStatus"],
+      skip: (PageNo - 1) * PageSize,
+      take: PageSize
+    });
+    return {
+      totalCount: totalCount,
+      PageNo,
+      PageSize,
+      totalData: totalData
+    }
+  };
+
+  async getUserAccessData(data) {
+    let getData = await userDataRepo.createQueryBuilder('ud')
+    .innerJoinAndSelect(LoginAccess, 'la', "la.RoleId=ud.RoleId")
+    .select(["la.PendingEkyc as PendingEkyc", "la.RoleId as RoleId", "la.Pending as Pending", "la.SeekClarification as SeekClarification"])
+    .where("ud.UserId = :id", {id: data?.UserId})
+    .getRawOne();
+    return getData;
+  }
 
   async getSubmissionData(data) {
     const {  SubmissionId } = data;
@@ -147,5 +250,43 @@ export class UserRepo {
     let findOne = await pariharaDataRepo.findOneBy({SubmissionId: Equal(SubmissionId)});
     let newData = {...findOne, ...{EkycStatus: "Completed", SurveyStatus: "Pending"}}
     return await ekycDataRepo.save(newData);
+  };
+
+  
+  async retriveDistrictWithCodes() {
+    return await masterDataRepo.createQueryBuilder('md')
+    .select("DISTINCT DistrictCode, DistrictName")
+    .getRawMany();
+  };
+
+  async retriveAllData(code) {
+    return await masterDataRepo.find({
+      where: { DistrictCode: code },
+      select: ["DistrictCode", "DistrictName", "HobliCode", "HobliName", "TalukCode", "TalukName", "VillageCode", "VillageName"]
+    });
+  };
+  async retriveOnlyDistrict(code) {
+    return await masterDataRepo.createQueryBuilder('md')
+    .select("DISTINCT DistrictCode, DistrictName")
+    .where("md.DistrictCode= :id", {id: code})
+    .getRawMany();
+  };
+  async retriveOnlyTaluks(code) {
+    return await masterDataRepo.createQueryBuilder('md')
+    .select("DISTINCT TalukCode, TalukName")
+    .where("md.DistrictCode= :id", {id: code})
+    .getRawMany();
+  };
+  async retriveOnlyHobli(code) {
+    return await masterDataRepo.createQueryBuilder('md')
+    .select("DISTINCT HobliCode, HobliName")
+    .where("md.TalukCode= :id", {id: code})
+    .getRawMany();
+  };
+  async retriveOnlyVillages(code) {
+    return await masterDataRepo.createQueryBuilder('md')
+    .select("DISTINCT VillageCode, VillageName")
+    .where("md.HobliCode= :id", {id: code})
+    .getRawMany();
   };
 }

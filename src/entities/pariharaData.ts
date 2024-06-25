@@ -225,6 +225,18 @@ export class PariharaData extends BaseEntity {
   @Column({ type: 'nvarchar', default: null, length: 2000 })
   Video: string;
 
+  @Column({ type: 'nvarchar', default: null, length: 2000 })
+  LossDistrict: string;
+
+  @Column({ type: 'nvarchar', default: null, length: 2000 })
+  LossTaluk: string;
+
+  @Column({ type: 'nvarchar', default: null, length: 2000 })
+  LossHobli: string;
+
+  @Column({ type: 'nvarchar', default: null, length: 2000 })
+  LossVillage: string;
+
   @Column({ type: 'text', default: null })
   Image1: string;
 

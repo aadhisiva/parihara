@@ -4,8 +4,11 @@ import {
     Column,
     CreateDateColumn,
     UpdateDateColumn,
-    BeforeInsert
+    BeforeInsert,
+    ManyToOne,
+    JoinColumn
   } from "typeorm";
+import { LoginRoles } from "./loginRoles";
   
   @Entity({name: "UserData"})
   export class UserData {
@@ -16,8 +19,9 @@ import {
     @Column({ type: 'nvarchar', default: null, length: '50' })
     UserId: string;
 
-    @Column({ type: 'nvarchar', default: null, length: '50' })
-    RoleId: string;
+    @ManyToOne(() =>LoginRoles, lr => lr.id)
+    @JoinColumn({name: "RoleId"})
+    RoleId: number;
 
     @Column({ default: null, type: 'nvarchar', length: '50'})
     Name: string;

@@ -12,6 +12,7 @@ import { AppDataSource } from "../db/config";
 import { EkycData } from "../entities/ekycData";
 import { ekycPostAPi } from "../utils/kutumba/kutumbaData";
 import { daysCalFromDate } from "../utils/helpers";
+import { access } from "fs";
 
 @Service()
 export class UserServices {
@@ -110,11 +111,34 @@ export class UserServices {
         const { SurveyStatus, LossType } = data;
         if (!SurveyStatus) return { code: 400, message: "Provide SurveyStatus." };
         if (SurveyStatus == "History") {
-            let getData = await this.userRepo.getSubmissionListAll(data);
-            return getData;
+            if(!LossType){
+                let getData = await this.userRepo.getSubmissionListAll(data);
+                return getData;
+            }else {
+                let getData = await this.userRepo.getSubmissionListAllWithLossType(data);
+                return getData;  
+            } 
         }
         if (!LossType) return { code: 400, message: "Provide LossType." };
         let getData = await this.userRepo.getSubmissionList(data);
+        return getData;
+    };
+
+    async getAllList(data: PariharaData) {
+        const { SurveyStatus, LossType } = data;
+        if (!SurveyStatus) return { code: 400, message: "Provide SurveyStatus." };
+        let findAccess = await this.userRepo.getUserAccessData(data);
+        if (SurveyStatus == "History") {
+            if(!LossType){
+                let getData = await this.userRepo.geAllList(data, findAccess);
+                return getData;
+            }else {
+                let getData = await this.userRepo.getAllLossType(data, findAccess);
+                return getData;  
+            } 
+        }
+        if (!LossType) return { code: 400, message: "Provide LossType." };
+        let getData = await this.userRepo.getAllListTypesWise(data, findAccess);
         return getData;
     };
 
@@ -230,4 +254,24 @@ export class UserServices {
         return await this.userRepo.updateEkycAfter(SubmissionId);
     };
 
+    
+    async retriveMasters(data) {
+        const { DistrictCode } = data;
+        if (!DistrictCode) {
+            let getData = await this.userRepo.retriveDistrictWithCodes();
+            return getData;
+        } else {
+            let distict = await this.userRepo.retriveOnlyDistrict(DistrictCode);
+            distict[0]['TalukArray'] = await this.userRepo.retriveOnlyTaluks(distict[0]?.DistrictCode);
+            for (let i = 0; i < distict[0]['TalukArray'].length; i++) {
+                let each = distict[0]['TalukArray'][i];
+                each['HobliArray'] = await this.userRepo.retriveOnlyHobli(each.TalukCode);
+                for (let j = 0; j < each['HobliArray'].length; j++) {
+                    let eachHobliObj = each['HobliArray'][j];
+                    eachHobliObj['VillageArray'] = await this.userRepo.retriveOnlyVillages(eachHobliObj.HobliCode);
+                };
+            };
+            return distict;
+        };
+    };
 }

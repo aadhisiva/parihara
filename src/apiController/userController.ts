@@ -78,6 +78,16 @@ userRouter.post('/getSubmissionList', authTokenAndVersion, async (req, res) => {
     }
 });
 
+userRouter.post('/getAllList', authTokenAndVersion, async (req, res) => {
+    try {
+        let body = {...req.body, ...{UserId: req.headers.userid}};
+        let result = await userServices.getAllList(body);
+        return mobileAppResponse(res, result, body, getRoleAndUserId(req, MOBILE_MESSAGES.UPDATE));
+    } catch (error) {
+        return mobileAppResponse(res, error);
+    }
+});
+
 userRouter.post('/getSubmissionData', authTokenAndVersion, async (req, res) => {
     try {
         let body = {...req.body, ...{UserId: req.headers.userid}};
@@ -134,6 +144,16 @@ userRouter.get("/updateEkycProcess", async (req: Request, res) => {
     } catch (error) {
         return mobileAppResponse(res, error);
     }
+});
+
+userRouter.post('/retriveMasters',authTokenAndVersion, async (req, res) => {
+    try {
+        let body = {...req.body, ...{UserId: req?.user?.userid}};
+        let result = await userServices.retriveMasters(body);
+        return mobileAppResponse(res, result, body, getRoleAndUserId(req, MOBILE_MESSAGES.AFTER_EKYC_UPDATE));
+    } catch (error) {
+        return mobileAppResponse(res, error);
+    };
 });
 
 

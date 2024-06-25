@@ -14,7 +14,7 @@ import { AppDataSource } from './db/config';
 import Logger from './loggers/winstonLogger';
 import compression from "compression";
 //controllers
-import { userRouter } from "./apiController";
+import { userRouter, adminRouter } from "./apiController";
 
 // express adding sever to app
 const app = express();
@@ -54,6 +54,7 @@ app.use(morgan('dev'));
   
   // controllers
   app.use('/api/mobile', userRouter);
+  app.use('/api/admin', adminRouter);
   
   // db initialization while running the server 
   AppDataSource.initialize().then(async (connection) => {

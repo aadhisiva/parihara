@@ -7,3 +7,6 @@ export * from "./PariharaRoles";
 export * from "./pariharaData";
 export * from "./updateSurveyLogs";
 export * from "./ekycData";
+export * from "./loginRoles";
+export * from "./loginAccess";
+export * from "./masterData";

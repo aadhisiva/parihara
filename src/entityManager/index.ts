@@ -1,6 +1,9 @@
 import { Admin } from "typeorm";
 import {
   EkycData,
+  LoginAccess,
+  LoginRoles,
+  MasterData,
   MobileLogs,
   OtpLogs,
   PariharaData,
@@ -22,6 +25,9 @@ export const entities = () => {
     PariharaRoles,
     PariharaData,
     UpdatedSurveyLogs,
-    EkycData
+    EkycData,
+    LoginAccess,
+    LoginRoles,
+    MasterData
   ];
 };

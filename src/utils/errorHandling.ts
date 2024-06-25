@@ -101,9 +101,9 @@ export const webAppResponseForLarge = async (res, result, body = {}, page = '', 
     }
 };
 
-export const webAppResponse = async (res, result, body = {}, page = '', msg = '', userid = '', role = '') => {
-    const { code, message, data } = result;
-    if (result instanceof Error) {
+export const webAppResponse = async (res, result:{}, body = {}, page = '', msg = '', userid = '', role = '') => {
+    const { code=undefined, message, data }: any = result;
+    if (result instanceof Error || result == undefined || result == undefined) {
         await saveWebLogs(page, msg, userid, body, result, role, RESPONSETYPE.FAILED)
         return res.status(500).send(ResponseMessages(ResponseCode.EXCEPTION, (message || RESPONSEMSG.EXCEPTION), RESPONSE_EMPTY_DATA));
     } else if (code == 422) {
