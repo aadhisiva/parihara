@@ -8,7 +8,9 @@ import {
   OtpLogs,
   PariharaData,
   PariharaRoles,
+  QuestionMaster,
   UpdatedSurveyLogs,
+  UploadImgAndVideo,
   UserData,
   Version,
   webLogs,
@@ -28,6 +30,8 @@ export const entities = () => {
     EkycData,
     LoginAccess,
     LoginRoles,
-    MasterData
+    MasterData,
+    UploadImgAndVideo,
+    QuestionMaster
   ];
 };

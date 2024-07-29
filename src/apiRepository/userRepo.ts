@@ -6,6 +6,8 @@ import {
   EkycData,
   MasterData,
   LoginAccess,
+  QuestionMaster,
+  UploadImgAndVideo,
 } from "../entities";
 import { Equal, createConnection } from "typeorm";
 import { PariharaData } from "../entities/pariharaData";
@@ -18,6 +20,8 @@ const pariharaDataRepo = AppDataSource.getRepository(PariharaData);
 const updatedSurveyLogsRepo = AppDataSource.getRepository(UpdatedSurveyLogs);
 const ekycDataRepo = AppDataSource.getRepository(EkycData);
 const masterDataRepo = AppDataSource.getRepository(MasterData);
+const questionMasterRepo = AppDataSource.getRepository(QuestionMaster);
+const uploadImgAndVideoRepo = AppDataSource.getRepository(UploadImgAndVideo);
 
 @Service()
 export class UserRepo {
@@ -289,4 +293,21 @@ export class UserRepo {
     .where("md.HobliCode= :id", {id: code})
     .getRawMany();
   };
+
+
+  async uploadImages(name, data) {
+    return await uploadImgAndVideoRepo.save({ImageData: name, ImageName: data, RecordType: 'Image'})
+  }
+
+  async getImage(id) {
+    return await uploadImgAndVideoRepo.findOneBy({id: Equal(id)})
+  }
+
+  async uploadVideos(name, data) {
+    return await uploadImgAndVideoRepo.save({ImageData: name, ImageName: data, RecordType: 'Video'})
+  }
+
+  async getVideo(id) {
+    return await uploadImgAndVideoRepo.findOneBy({id: Equal(id)})
+  }
 }

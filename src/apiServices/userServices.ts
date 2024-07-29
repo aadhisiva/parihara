@@ -274,4 +274,34 @@ export class UserServices {
             return distict;
         };
     };
+
+    async uploadImages(name, data){
+        let savedData = await this.userRepo.uploadImages(name, data);
+        let insertedId = savedData.id;
+
+        // Construct video URL
+        const imageUrl =  `http://${process.env.PRO_URL}/parihara/mobile/getImage/${insertedId}`;
+        return { insertedId: insertedId, imageUrlUrl: imageUrl};
+    }
+
+    async getImage(id){
+        let fetchData = await this.userRepo.getImage(id);
+        if(!fetchData) return {code: 422, message: "Image not found"};
+       return fetchData;
+    }
+
+    async uploadVideos(name, data){
+        let savedData = await this.userRepo.uploadVideos(name, data);
+        let insertedId = savedData.id;
+
+        // Construct video URL
+        const videoUrl =  `http://localhost:${process.env.PRO_URL}/parihara/mobile/getVideo/${insertedId}`;
+        return { insertedId: insertedId, videoUrl: videoUrl};
+    }
+
+    async getVideo(id){
+        let fetchData = await this.userRepo.getVideo(id);
+        if(!fetchData) return {code: 422, message: "Video not found"};
+       return fetchData;
+    }
 }

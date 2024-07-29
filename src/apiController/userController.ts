@@ -8,6 +8,7 @@
 
 import { Container } from 'typedi';
 import express from "express";
+import multer from "multer";
 import { UserServices } from '../apiServices/userServices';
 import { mobileAppResponse } from '../utils/errorHandling';
 import { getRoleAndUserId } from '../utils/resuableCode';
@@ -17,6 +18,10 @@ import { authTokenAndVersion, authVersion } from '../utils/middlewares';
 const userRouter = express.Router()
 
 const userServices = Container.get(UserServices);
+
+
+// Multer setup
+const upload = multer(); // No storage configuration means files are not saved
 
 userRouter.post('/signup', authVersion, async (req, res) => {
     try {
@@ -156,6 +161,57 @@ userRouter.post('/retriveMasters',authTokenAndVersion, async (req, res) => {
     };
 });
 
+userRouter.post('/uploadImage', upload.single('image') ,authTokenAndVersion, async (req, res) => {
+    try {
+        if (!req.file) {
+            return res.status(400).send('No file uploaded');
+        }
+        const imageName = req.file.originalname;
+        const imageData = req.file.buffer;;
+        let result = await userServices.uploadImages(imageName, imageData);
+        return mobileAppResponse(res, result, req.file, getRoleAndUserId(req, MOBILE_MESSAGES.AFTER_EKYC_UPDATE));
+    } catch (error) {
+        return mobileAppResponse(res, error);
+    };
+});
+
+userRouter.post('/getImage/:id',authTokenAndVersion, async (req, res) => {
+    try {
+        const imageId = req.params.id;
+        let result:any = await userServices.getImage(imageId);
+        res.setHeader('Content-Disposition', `inline; filename="${result.ImageName}"`);
+        res.setHeader('Content-Type', 'image/jpeg');
+        res.send(result.ImageData);
+    } catch (error) {
+        return mobileAppResponse(res, error);
+    };
+});
+
+userRouter.post('/uploadVideo',  upload.single('video'), authTokenAndVersion, async (req, res) => {
+    try {
+        if (!req.file) {
+            return res.status(400).send('No file uploaded');
+        }
+        const imageName = req.file.originalname;
+        const imageData = req.file.buffer;;
+        let result = await userServices.uploadVideos(imageName, imageData);
+        return mobileAppResponse(res, result, req.file, getRoleAndUserId(req, MOBILE_MESSAGES.AFTER_EKYC_UPDATE));
+    } catch (error) {
+        return mobileAppResponse(res, error);
+    };
+});
+
+userRouter.post('/getVideo/:id', authTokenAndVersion, async (req, res) => {
+    try {
+        const imageId = req.params.id;
+        let result:any = await userServices.getVideo(imageId);
+        res.setHeader('Content-Disposition', `inline; filename="${result.ImageName}"`);
+        res.setHeader('Content-Type', 'video/mp4');
+        res.send(result.ImageData);
+    } catch (error) {
+        return mobileAppResponse(res, error);
+    };
+});
 
 export {
     userRouter

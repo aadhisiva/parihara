@@ -10,3 +10,5 @@ export * from "./ekycData";
 export * from "./loginRoles";
 export * from "./loginAccess";
 export * from "./masterData";
+export * from "./uploadImgAndVideos";
+export * from "./questionMaster";

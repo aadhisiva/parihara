@@ -7,6 +7,7 @@ import {
   LoginAccess,
   MasterData,
   LoginRoles,
+  QuestionMaster,
 } from "../entities";
 import { Equal } from "typeorm";
 import { PariharaData } from "../entities/pariharaData";
@@ -19,6 +20,7 @@ const loginAccessRepo = AppDataSource.getRepository(LoginAccess);
 const loginRolesRepo = AppDataSource.getRepository(LoginRoles);
 const updatedSurveyLogsRepo = AppDataSource.getRepository(UpdatedSurveyLogs);
 const masterDataRepo = AppDataSource.getRepository(MasterData);
+const questionMasterRepo = AppDataSource.getRepository(QuestionMaster);
 
 @Service()
 export class AdminRepo {
@@ -166,4 +168,31 @@ export class AdminRepo {
     .where("md.HobliCode= :id", {id: code})
     .getRawMany();
   };
+
+
+  async getQuestions(){
+    return await questionMasterRepo.createQueryBuilder('qm')
+    .leftJoinAndSelect(QuestionMaster, 'qmc', "qmc.QuestionId = role.qm.QuestionId")
+    .select(["role.id as id",  "role.RoleName as RoleName", 
+    "role.District as District","role.Taluk as Taluk", "role.Hobli as Hobli", "dp.DepartmentName as DepartmentName", 
+    "role.Village as Village", "role.DepartmentId as DepartmentId"])
+    .getRawMany();
+      
+  }
+
+  async saveQuestions(data){
+    let find = await questionMasterRepo.findOneBy({id: Equal(data?.id)});
+    let newData = {...find, ...data};
+    return await questionMasterRepo.save(newData);
+  }
+
+  async getQuestionDropdown(){
+    return await questionMasterRepo.createQueryBuilder('qm')
+    .leftJoinAndSelect(QuestionMaster, 'qmc', "qmc.QuestionId = role.qm.QuestionId")
+    .select(["role.id as id",  "role.RoleName as RoleName", 
+    "role.District as District","role.Taluk as Taluk", "role.Hobli as Hobli", "dp.DepartmentName as DepartmentName", 
+    "role.Village as Village", "role.DepartmentId as DepartmentId"])
+    .getRawMany();
+      
+  }
 }

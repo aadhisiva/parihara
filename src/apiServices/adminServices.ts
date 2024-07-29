@@ -151,4 +151,17 @@ export class AdminServices {
         };
     };
 
+    async question(data){
+        const {ReqType} = data;
+        if(ReqType == "Get"){
+            return this.adminRepo.getQuestions();
+        } else if(ReqType == "Add") {
+            return this.adminRepo.saveQuestions(data);
+        } else if(ReqType == "Dropdown") {
+            return this.adminRepo.getQuestionDropdown();
+        } else {
+            return {code: 422, message: "Send correct input."}
+        }
+    }
+
 }

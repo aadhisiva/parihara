@@ -48,13 +48,13 @@ app.use(morgan('common', {
 
 app.use(morgan('dev'));
   
-  app.get("/api/run", (req, res) => {
+  app.get("/parihara/run", (req, res) => {
     res.send("running")
   })
   
   // controllers
-  app.use('/api/mobile', userRouter);
-  app.use('/api/admin', adminRouter);
+  app.use('/parihara/mobile', userRouter);
+  app.use('/parihara/admin', adminRouter);
   
   // db initialization while running the server 
   AppDataSource.initialize().then(async (connection) => {
