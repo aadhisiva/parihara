@@ -16,16 +16,13 @@ export class QuestionMaster {
     QuestionId: number;
 
     @Column({ default: null, type: 'nvarchar', length: 500 })
-    QueationText: string;
+    Question: string;
 
     @Column({ default: null, type: 'nvarchar', length: 100 })
-    QueationType: string;
+    QuestionType: string;
 
     @Column({ default: null, type: 'nvarchar', length: 100 })
-    Role: string;
-
-    @Column({ default: null, type: 'nvarchar', length: 100 })
-    SubQuestion: string;
+    DropdownValues: string;
 
     @Column({ default: null, type: 'nvarchar', length: 100 })
     IsSubQuestion: string;

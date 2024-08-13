@@ -2,8 +2,10 @@ import {
     Entity,
     PrimaryGeneratedColumn,
     Column,
-    CreateDateColumn
+    CreateDateColumn,
+    OneToMany
   } from "typeorm";
+import { UserData } from "./userData";
   
   
   @Entity(  { name: "LoginRoles"} )
@@ -13,7 +15,10 @@ import {
     id: number;
   
     @Column({ default: null, type: 'nvarchar', length: 200})
-    Role: string;
+    RoleName: string;
+
+    @OneToMany(() => UserData, ur=>ur.RoleId, { cascade: true, onDelete: "CASCADE" })
+    UserDataFK: UserData[];
 
     @CreateDateColumn()
     createdDate: Date;

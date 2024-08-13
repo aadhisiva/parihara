@@ -1,12 +1,15 @@
 import { Admin } from "typeorm";
 import {
+  AssignMasters,
   EkycData,
+  Kutumba,
   LoginAccess,
   LoginRoles,
   MasterData,
   MobileLogs,
   OtpLogs,
   PariharaData,
+  PariharaImgAndVideo,
   PariharaRoles,
   QuestionMaster,
   UpdatedSurveyLogs,
@@ -14,6 +17,12 @@ import {
   UserData,
   Version,
   webLogs,
+  QuestionMapping,
+  DropdownValues,
+  Districts,
+  Taluks,
+  GramaPanchayat,
+  Villages
 } from "../entities";
 
 export const entities = () => {
@@ -32,6 +41,15 @@ export const entities = () => {
     LoginRoles,
     MasterData,
     UploadImgAndVideo,
-    QuestionMaster
+    QuestionMaster,
+    DropdownValues,
+    QuestionMapping,
+    AssignMasters,
+    Kutumba,
+    PariharaImgAndVideo,
+    Districts,
+    Taluks,
+    GramaPanchayat,
+    Villages
   ];
 };

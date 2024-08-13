@@ -15,7 +15,7 @@ export class PariharaData extends BaseEntity {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column({ type: 'nvarchar', length: 40, nullable: false })
+  @Column({ type: 'nvarchar', length: 40, nullable: true })
   SubmissionId: string;
 
   @Column({ type: 'nvarchar', default: null, length: 100 })
@@ -213,104 +213,95 @@ export class PariharaData extends BaseEntity {
   @Column({ type: 'nvarchar', default: null, length: 100 })
   VA_CompensationValue: string;
 
-  @Column({ type: 'nvarchar', default: null, length: 2000 })
+  @Column({ type: 'nvarchar', default: null, length: 200 })
   OtherDamageRemarks: string;
 
   @Column({ type: 'nvarchar', default: null, length: 50 })
   UserId: string;
 
-  @Column({ type: 'nvarchar', default: null, length: 2000 })
+  @Column({ type: 'nvarchar', default: null, length: 200 })
   LossDistrict: string;
 
-  @Column({ type: 'nvarchar', default: null, length: 2000 })
+  @Column({ type: 'nvarchar', default: null, length: 200 })
   LossTaluk: string;
 
-  @Column({ type: 'nvarchar', default: null, length: 2000 })
+  @Column({ type: 'nvarchar', default: null, length: 200 })
   LossHobli: string;
 
-  @Column({ type: 'nvarchar', default: null, length: 2000 })
+  @Column({ type: 'nvarchar', default: null, length: 200 })
   LossVillage: string;
 
   @Column({ type: 'nvarchar', default: null, length: 100 })
   SurveyStatus: string;
 
-  @Column({ type: 'nvarchar', default: null, length: 2000 })
-  VAQ1: string;
-
-  @Column({ type: 'nvarchar', default: null, length: 2000 })
-  VAQ2: string;
-
-  @Column({ type: 'nvarchar', default: null, length: 2000 })
-  VAQ3: string;
-
-  @Column({ type: 'nvarchar', default: null, length: 2000 })
-  VAQ4: string;
-
-  @Column({ type: 'nvarchar', default: null, length: 2000 })
-  VAQ5: string;
-
-  @Column({ type: 'nvarchar', default: null, length: 2000 })
-  VAQ6: string;
-
-  @Column({ type: 'nvarchar', default: null, length: 2000 })
-  VAQ6_1: string;
-
-  @Column({ type: 'nvarchar', default: null, length: 2000 })
-  VAQ7: string;
-
-  @Column({ type: 'nvarchar', default: null, length: 2000 })
-  VAQ8: string;
-
-  @Column({ type: 'nvarchar', default: null, length: 2000 })
-  VAQ8_1: string;
-
-  @Column({ type: 'nvarchar', default: null, length: 2000 })
-  VAQ9: string;
-
-  @Column({ type: 'nvarchar', default: null, length: 2000 })
-  VAQ10: string;
-
-  @Column({ type: 'nvarchar', default: null, length: 2000 })
-  VAQ11: string;
-
-  @Column({ type: 'nvarchar', default: null, length: 2000 })
-  VAQ12: string;
-
-  @Column({ type: 'nvarchar', default: null, length: 2000 })
-  VAQ13: string;
-
-  @Column({ type: 'nvarchar', default: null, length: 2000 })
-  VAQ14: string;
-
-  @Column({ type: 'nvarchar', default: null, length: 2000 })
-  VAQ15: string;
-
-  @Column({ type: 'nvarchar', default: null, length: 2000 })
-  VAQ16: string;
-
-  @Column({ type: 'nvarchar', default: null, length: 2000 })
-  VAQ17: string;
-
-  @Column({ type: 'nvarchar', default: null, length: 2000 })
-  VAQ18: string;
-
-  @Column({ type: 'nvarchar', default: null, length: 2000 })
-  VAQ19: string;
-
-  @Column({ type: 'nvarchar', default: null, length: 2000 })
-  VAQ20: string;
-
-  @Column({ type: 'nvarchar', default: null, length: 2000 })
-  VAQ21: string;
-
-  @Column({ type: 'nvarchar', default: null, length: 2000 })
+  @Column({ type: 'nvarchar', default: null, length: 200 })
   CropWaterSource: string;
 
-  @Column({ type: 'nvarchar', default: null, length: 2000 })
-  OfficerName: string;
+  @Column({ type: 'nvarchar', default: null, length: 200 })
+  CompensationCategory: string;
 
-  @Column({ type: 'nvarchar', default: null, length: 2000 })
-  OfficerE_sign: string;
+  @Column({ type: 'nvarchar', default: null, length: 200 })
+  HouseCompensationRecived: string;
+
+  @Column({ type: 'nvarchar', default: null, length: 200 })
+  Fallenhouse: string;
+
+  @Column({ type: 'nvarchar', default: null, length: 200 })
+  Govtland: string;
+
+  @Column({ type: 'nvarchar', default: null, length: 200 })
+  Govtdetail: string;
+
+  @Column({ type: 'nvarchar', default: null, length: 200 })
+  PropertyType: string;
+
+  @Column({ type: 'nvarchar', default: null, length: 200 })
+  FamilyCount: string;
+
+  @Column({ type: 'nvarchar', default: null, length: 200 })
+  FamilyHolding: string;
+
+  @Column({ type: 'nvarchar', default: null, length: 200 })
+  BankName: string;
+
+  @Column({ type: 'nvarchar', default: null, length: 200 })
+  BankAccountNumber: string;
+
+  @Column({ type: 'nvarchar', default: null, length: 200 })
+  IFSCCode: string;
+
+  @Column({ type: 'nvarchar', default: null, length: 200 })
+  RCNumber: string;
+
+  @Column({ type: 'nvarchar', default: null, length: 200 })
+  VA_mobile: string;
+
+  @Column({ type: 'nvarchar', default: null, length: 200 })
+  MalkiPropertyNo: string;
+
+  @Column({ type: 'nvarchar', default: null, length: 200 })
+  Disability: string;
+
+  @Column({ type: 'nvarchar', default: null, length: 200 })
+  ApplicantAge: string;
+
+  @Column({ type: 'nvarchar', default: null, length: 200 })
+  Caste: string;
+
+  @Column({ type: 'nvarchar', default: null, length: 200 })
+  AE_mobile: string;
+
+  @Column({ type: 'nvarchar', default: null, length: 200 })
+  PDO_mobile: string;
+
+  @Column({ type: 'nvarchar', default: null, length: 200 })
+  DamageExtent: string;
+
+  @Column({ type: 'nvarchar', default: null, length: 200 })
+  HouseLossPercentage: string;
+
+  @Column({ type: 'nvarchar', default: null, length: 200 })
+  Verify: string;
 
   @CreateDateColumn()
   CreatedDate: Date;

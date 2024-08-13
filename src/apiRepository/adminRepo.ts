@@ -8,6 +8,7 @@ import {
   MasterData,
   LoginRoles,
   QuestionMaster,
+  AssignMasters,
 } from "../entities";
 import { Equal } from "typeorm";
 import { PariharaData } from "../entities/pariharaData";
@@ -21,6 +22,7 @@ const loginRolesRepo = AppDataSource.getRepository(LoginRoles);
 const updatedSurveyLogsRepo = AppDataSource.getRepository(UpdatedSurveyLogs);
 const masterDataRepo = AppDataSource.getRepository(MasterData);
 const questionMasterRepo = AppDataSource.getRepository(QuestionMaster);
+const assignMastersRepo = AppDataSource.getRepository(AssignMasters);
 
 @Service()
 export class AdminRepo {
@@ -32,22 +34,6 @@ export class AdminRepo {
     let newData = { ...findOneBy, ...data };
     return await userDataRepo.save(newData);
   };
-
-  async saveLoginRoles(data) {
-    return await loginRolesRepo.save(data);
-  }
-  
-  async saveRoleAccess(data) {
-    return await loginAccessRepo.save(data);
-  }
-
-  async getAllRoles() {
-    return await loginRolesRepo.find();
-  }
-  
-  async getAllAccess() {
-    return await loginAccessRepo.find();
-  }
 
   // async getUsersList(data) {
   //   const { Mobile } = data;
@@ -63,7 +49,7 @@ export class AdminRepo {
 
   async updateUser(data) {
     const { Mobile, RoleId } = data;
-    let getData = await userDataRepo.findOneBy({ Mobile: Equal(Mobile), RoleId: Equal(RoleId) });
+    let getData = await userDataRepo.findOneBy({ Mobile: Equal(Mobile) });
     if (!getData) return { code: 422, message: "Your Data Does't Exist." }
     let newData = { ...getData, ...data };
     return await userDataRepo.save(newData);
@@ -169,6 +155,29 @@ export class AdminRepo {
     .getRawMany();
   };
 
+  async assignDistricts(data){
+    let findData = await assignMastersRepo.findOneBy({id: Equal(data?.id)});
+    let newData = {...findData, ...data};
+    return await assignMastersRepo.save(newData);
+  };
+
+  async assignTaluks(data){
+    let findData = await assignMastersRepo.findOneBy({id: Equal(data?.id)});
+    let newData = {...findData, ...data};
+    return await assignMastersRepo.save(newData);
+  };
+
+  async assignHobli(data){
+    let findData = await assignMastersRepo.findOneBy({id: Equal(data?.id)});
+    let newData = {...findData, ...data};
+    return await assignMastersRepo.save(newData);
+  };
+
+  async assignVillages(data){
+    let findData = await assignMastersRepo.findOneBy({id: Equal(data?.id)});
+    let newData = {...findData, ...data};
+    return await assignMastersRepo.save(newData);
+  };
 
   async getQuestions(){
     return await questionMasterRepo.createQueryBuilder('qm')
@@ -192,7 +201,26 @@ export class AdminRepo {
     .select(["role.id as id",  "role.RoleName as RoleName", 
     "role.District as District","role.Taluk as Taluk", "role.Hobli as Hobli", "dp.DepartmentName as DepartmentName", 
     "role.Village as Village", "role.DepartmentId as DepartmentId"])
+    .getRawMany();   
+  };
+
+  async getAllRoles(){
+    return await loginRolesRepo.createQueryBuilder('rl')
+    // .leftJoinAndSelect(QuestionMaster, 'qmc', "qmc.QuestionId = role.qm.QuestionId")
+    .select(["rl.id as id", "rl.RoleName as RoleName"])
     .getRawMany();
       
   }
+
+  async addRoles(data){
+    let find = await loginRolesRepo.findOneBy({id: Equal(data?.id)});
+    let newData = {...find, ...data};
+    return await loginRolesRepo.save(newData);
+  }
+
+  async getRolesDropdown(){
+    return await loginRolesRepo.createQueryBuilder('rl')
+    .select(["rl.id as code",  "rl.RoleName as name"])
+    .getRawMany();   
+  };
 }

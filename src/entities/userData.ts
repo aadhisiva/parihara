@@ -4,7 +4,6 @@ import {
     Column,
     CreateDateColumn,
     UpdateDateColumn,
-    BeforeInsert,
     ManyToOne,
     JoinColumn
   } from "typeorm";
@@ -19,9 +18,9 @@ import { LoginRoles } from "./loginRoles";
     @Column({ type: 'nvarchar', default: null, length: '50' })
     UserId: string;
 
-    @ManyToOne(() =>LoginRoles, lr => lr.id)
+    @ManyToOne(() => LoginRoles, dep => dep.UserDataFK)
     @JoinColumn({name: "RoleId"})
-    RoleId: number;
+    RoleId: LoginRoles
 
     @Column({ default: null, type: 'nvarchar', length: '50'})
     Name: string;

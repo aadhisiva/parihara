@@ -9,7 +9,7 @@ const getReqBody = async (data, creteHMAC) => {
         DeptID: "",
         BenID: "",
         RC_Number: rc ? `${rc}` : "",
-        Aadhar_No: aadhar ? await convertAadharToSha256Hex(aadhar) : "",
+        Aadhar_No: aadhar ? aadhar : "",
         ClientCode: process.env.KUTUMA_CLIENT_CODE,
         HashedMac: creteHMAC,
         APIVersion: "1.0",

@@ -103,16 +103,6 @@ userRouter.post('/getSubmissionData', authTokenAndVersion, async (req, res) => {
     }
 });
 
-userRouter.post('/saveSurveyImages', authTokenAndVersion, async (req, res) => {
-    try {
-        let body = {...req.body, ...{UserId: req.headers.userid}};
-        let result = await userServices.saveSurveyImages(body);
-        return mobileAppResponse(res, result, body, getRoleAndUserId(req, MOBILE_MESSAGES.ADDED));
-    } catch (error) {
-        return mobileAppResponse(res, error);
-    }
-});
-
 userRouter.post('/ekycProcess', authTokenAndVersion, async (req, res) => {
     try {
         let body = {...req.body, ...{UserId: req.headers.userid}};
@@ -161,21 +151,35 @@ userRouter.post('/retriveMasters',authTokenAndVersion, async (req, res) => {
     };
 });
 
+userRouter.post('/getKutumbaData',authTokenAndVersion, async (req, res) => {
+    try {
+        let body = {...req.body, ...{UserId: req?.user?.userid}};
+        let result = await userServices.getKutumbaData(body);
+        return mobileAppResponse(res, result, body, getRoleAndUserId(req, MOBILE_MESSAGES.AFTER_EKYC_UPDATE));
+    } catch (error) {
+        return mobileAppResponse(res, error);
+    };
+});
+
 userRouter.post('/uploadImage', upload.single('image') ,authTokenAndVersion, async (req, res) => {
     try {
         if (!req.file) {
             return res.status(400).send('No file uploaded');
-        }
-        const imageName = req.file.originalname;
-        const imageData = req.file.buffer;;
-        let result = await userServices.uploadImages(imageName, imageData);
+        };
+        console.log("req.file",req.file.originalname)
+        let imageObj = {
+            ImageName: req.file.originalname,
+            ImageData: req.file.buffer,
+            UserId: req.header.userid
+        };
+        let result = await userServices.uploadImages(imageObj);
         return mobileAppResponse(res, result, req.file, getRoleAndUserId(req, MOBILE_MESSAGES.AFTER_EKYC_UPDATE));
     } catch (error) {
         return mobileAppResponse(res, error);
     };
 });
 
-userRouter.post('/getImage/:id',authTokenAndVersion, async (req, res) => {
+userRouter.get('/getImage/:id', async (req, res) => {
     try {
         const imageId = req.params.id;
         let result:any = await userServices.getImage(imageId);
@@ -192,16 +196,19 @@ userRouter.post('/uploadVideo',  upload.single('video'), authTokenAndVersion, as
         if (!req.file) {
             return res.status(400).send('No file uploaded');
         }
-        const imageName = req.file.originalname;
-        const imageData = req.file.buffer;;
-        let result = await userServices.uploadVideos(imageName, imageData);
-        return mobileAppResponse(res, result, req.file, getRoleAndUserId(req, MOBILE_MESSAGES.AFTER_EKYC_UPDATE));
+        let videoObj = {
+            ImageName: req.file.originalname,
+            ImageData: req.file.buffer,
+            UserId: req.header.UserId
+        };
+        let result = await userServices.uploadVideos(videoObj);
+        return mobileAppResponse(res, result, req.file, getRoleAndUserId(req, "uploadVideo"));
     } catch (error) {
         return mobileAppResponse(res, error);
     };
 });
 
-userRouter.post('/getVideo/:id', authTokenAndVersion, async (req, res) => {
+userRouter.get('/getVideo/:id', async (req, res) => {
     try {
         const imageId = req.params.id;
         let result:any = await userServices.getVideo(imageId);

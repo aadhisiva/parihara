@@ -20,6 +20,9 @@ export class UploadImgAndVideo {
 
     @Column({ default: null, type: 'nvarchar', length: 100 })
     RecordType: string;
+
+    @Column({ default: null, type: 'nvarchar', length: 100 })
+    UserId: string;
  
     @CreateDateColumn()
     createdDate: Date;

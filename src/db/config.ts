@@ -23,14 +23,16 @@ export const AppDataSource= new DataSource({
   logging: false,
   synchronize: true,
   options: {
-      encrypt: true,
-      trustServerCertificate: true
+    encrypt: true, // For Azure SQL or if encryption is needed
+    trustServerCertificate: true // Set to true if you encounter issues with certificate validation
   },
   pool: {
-    max: 10,
-    min: 0,
-    idleTimeoutMillis: 3000
-  }
+    max: 10, // Maximum number of connections in the pool
+    min: 0,  // Minimum number of connections in the pool
+    idleTimeoutMillis: 30000 // Time (in ms) to keep idle connections in the pool
+  },
+  connectionTimeout: 15000, // Connection timeout in milliseconds
+  requestTimeout: 30000
 });
 
 

@@ -8,6 +8,8 @@ import {
   LoginAccess,
   QuestionMaster,
   UploadImgAndVideo,
+  Kutumba,
+  PariharaImgAndVideo,
 } from "../entities";
 import { Equal, createConnection } from "typeorm";
 import { PariharaData } from "../entities/pariharaData";
@@ -22,6 +24,8 @@ const ekycDataRepo = AppDataSource.getRepository(EkycData);
 const masterDataRepo = AppDataSource.getRepository(MasterData);
 const questionMasterRepo = AppDataSource.getRepository(QuestionMaster);
 const uploadImgAndVideoRepo = AppDataSource.getRepository(UploadImgAndVideo);
+const kutumbaRepo = AppDataSource.getRepository(Kutumba);
+const pariharaImgAndVideoRepo = AppDataSource.getRepository(PariharaImgAndVideo);
 
 @Service()
 export class UserRepo {
@@ -221,11 +225,7 @@ export class UserRepo {
   };
   
   async saveSurveyImages(data) {
-    const {SubmissionId} = data;
-    let getData = await pariharaDataRepo.findOneBy({SubmissionId: Equal(SubmissionId)});
-    if(!getData) return {code: 422, message: "Data doesn't exist."} 
-    let newData = {...getData, ...data};
-    return await newData.save(data);
+    return await pariharaImgAndVideoRepo.save(data);
   };
 
   async checkAadharStatus(ApplicantAadhar) {
@@ -294,17 +294,30 @@ export class UserRepo {
     .getRawMany();
   };
 
+  async saveKutumbaData(data) {
+    const { RC_NUMBER, MBR_HASH_AADHAR } = data;
+    let findData = await kutumbaRepo.findOneBy({ MBR_HASH_AADHAR: Equal(MBR_HASH_AADHAR), RC_NUMBER: Equal(RC_NUMBER) });
+    let newData = { ...findData, ...data };
+    return await kutumbaRepo.save(newData);
+  };
 
-  async uploadImages(name, data) {
-    return await uploadImgAndVideoRepo.save({ImageData: name, ImageName: data, RecordType: 'Image'})
+  async getKutumbaData(rc) {
+    let findData = await kutumbaRepo.find({ where: { RC_NUMBER: Equal(rc) } });
+    return findData;
+  };
+
+  async uploadImages(imageObj) {
+    const { ImageData, ImageName, UserId } = imageObj;
+    return await uploadImgAndVideoRepo.save({ImageData, ImageName, RecordType: 'Image', UserId: UserId})
   }
 
   async getImage(id) {
     return await uploadImgAndVideoRepo.findOneBy({id: Equal(id)})
   }
 
-  async uploadVideos(name, data) {
-    return await uploadImgAndVideoRepo.save({ImageData: name, ImageName: data, RecordType: 'Video'})
+  async uploadVideos(data) {
+    const { ImageData, ImageName, UserId } = data;
+    return await uploadImgAndVideoRepo.save({ImageData, ImageName, RecordType: 'Video', UserId: UserId})
   }
 
   async getVideo(id) {

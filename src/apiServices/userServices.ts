@@ -10,7 +10,7 @@ import { PariharaData } from "../entities/pariharaData";
 import { UserData } from "../entities";
 import { AppDataSource } from "../db/config";
 import { EkycData } from "../entities/ekycData";
-import { ekycPostAPi } from "../utils/kutumba/kutumbaData";
+import { ekycPostAPi, fetchDataFromKutumba } from "../utils/kutumba/kutumbaData";
 import { daysCalFromDate } from "../utils/helpers";
 import { access } from "fs";
 
@@ -89,14 +89,25 @@ export class UserServices {
         return { message: API_MESSAGES.VERIFICATION_SUCCESS, data: {} };
     }
 
-    async saveSurveyData(data: PariharaData) {
+    async saveSurveyData(data) {
         const {RoleId, LossType, DateOfDamage } = data;
         if (!RoleId) return { code: 400, message: "Provide RoleId." };
         if (!LossType) return { code: 400, message: "Provide LossType." };
-        // if (!DateOfDamage) return { code: 400, message: "Provide DateOfDamage." };
-        // if (!ApplicantAadhar) return { code: 400, message: "Provide ApplicantAadhar." };
         data.NoOfDaysFromDamage = daysCalFromDate(DateOfDamage);
-        let getData = await this.userRepo.saveSurveyData(data);
+        let getData: any = await this.userRepo.saveSurveyData(data);
+        let imagesList = data.ImagesList;
+        let error;
+        for(let i=0; i < imagesList.length; i++){
+            let eachList = imagesList[i];
+            eachList['SubmissionId'] = getData.SubmissionId;
+            if (!eachList['SubmissionId']) return { code: 400, message: "Provide SubmissionId." };
+            eachList['UserId'] = data.UserId;
+            let saveImage = await this.userRepo.saveSurveyImages(eachList);
+            if(saveImage?.code == 422){
+                error = saveImage.message;
+            };
+        };
+        if(error) return {code: 422, message: error};
         return getData;
     }
 
@@ -147,13 +158,6 @@ export class UserServices {
         if (!SubmissionId) return { code: 400, message: "Provide SubmissionId." };
         let getData = await this.userRepo.getSubmissionData(data);
         return getData;
-    };
-
-    async saveSurveyImages(data: PariharaData) {
-        const { SubmissionId } = data;
-        if (!SubmissionId) return { code: 400, message: "Provide SubmissionId." };
-        let savedData = await this.userRepo.saveSurveyImages(data);
-        return savedData;
     };
 
     async ekycProcess(data) {
@@ -275,12 +279,33 @@ export class UserServices {
         };
     };
 
-    async uploadImages(name, data){
-        let savedData = await this.userRepo.uploadImages(name, data);
+    async getKutumbaData(data){
+        const { rc, aadhar } = data;
+        if (rc) {
+            let getUserDetails = await fetchDataFromKutumba(data);
+            if (!Array.isArray(getUserDetails))
+                return { code: 422, message: getUserDetails?.StatusText };
+            for (let i = 0; i < getUserDetails.length; i++) {
+                await this.userRepo.saveKutumbaData(getUserDetails[i]);
+            };
+            return await this.userRepo.getKutumbaData(rc);
+        } else {
+            let getUserDetails = await fetchDataFromKutumba(data);
+            if (!Array.isArray(getUserDetails))
+                return { code: 422, message: getUserDetails?.StatusText };
+            for (let i = 0; i < getUserDetails.length; i++) {
+                await this.userRepo.saveKutumbaData(getUserDetails[i]);
+            };
+            return getUserDetails;
+        }
+    }
+
+    async uploadImages(imageObj){
+        let savedData = await this.userRepo.uploadImages(imageObj);
         let insertedId = savedData.id;
 
         // Construct video URL
-        const imageUrl =  `http://${process.env.PRO_URL}/parihara/mobile/getImage/${insertedId}`;
+        const imageUrl =  `${process.env.PRO_URL}/api/mobile/getImage/${insertedId}`;
         return { insertedId: insertedId, imageUrlUrl: imageUrl};
     }
 
@@ -290,12 +315,12 @@ export class UserServices {
        return fetchData;
     }
 
-    async uploadVideos(name, data){
-        let savedData = await this.userRepo.uploadVideos(name, data);
+    async uploadVideos(data){
+        let savedData = await this.userRepo.uploadVideos(data);
         let insertedId = savedData.id;
 
         // Construct video URL
-        const videoUrl =  `http://localhost:${process.env.PRO_URL}/parihara/mobile/getVideo/${insertedId}`;
+        const videoUrl =  `${process.env.PRO_URL}/api/mobile/getVideo/${insertedId}`;
         return { insertedId: insertedId, videoUrl: videoUrl};
     }
 
