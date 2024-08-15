@@ -20,7 +20,7 @@ import {
   QuestionMapping,
   DropdownValues,
   Districts,
-  Taluks,
+  Taluk,
   GramaPanchayat,
   Villages
 } from "../entities";
@@ -48,7 +48,7 @@ export const entities = () => {
     Kutumba,
     PariharaImgAndVideo,
     Districts,
-    Taluks,
+    Taluk,
     GramaPanchayat,
     Villages
   ];

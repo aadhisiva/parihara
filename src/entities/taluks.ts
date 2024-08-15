@@ -6,14 +6,17 @@ import {
 } from "typeorm";
 
 
-@Entity({ name: "Taluks" })
-export class Taluks {
+@Entity({ name: "Taluk" })
+export class Taluk {
 
     @PrimaryGeneratedColumn()
     id: number;
 
     @Column({ default: null, type: 'nvarchar', length: 150 })
-    TalukNameEn: number;
+    TalukNameEn: string;
+
+    @Column({ default: null, type: 'nvarchar', length: 150 })
+    DistrictCode: number;
 
     @Column({ default: null, type: 'nvarchar', length: 150 })
     TalukNameKa: string;
@@ -33,3 +36,4 @@ export class Taluks {
     @CreateDateColumn()
     UpdatedDate: Date;
 };
+

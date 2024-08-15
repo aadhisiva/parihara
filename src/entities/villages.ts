@@ -12,13 +12,22 @@ export class Villages {
     id: number;
 
     @Column({ default: null, type: 'nvarchar', length: 150 })
-    VillageNameEn: number;
+    VillageNameEn: string;
 
     @Column({ default: null, type: 'nvarchar', length: 150 })
     VillageNameKa: string;
 
     @Column({ default: null, type: 'nvarchar', length: 100 })
     VillageCode: string;
+
+    @Column({ default: null, type: 'nvarchar', length: 100 })
+    GpCode: string;
+
+    @Column({ default: null, type: 'nvarchar', length: 100 })
+    DistrictCode: string;
+
+    @Column({ default: null, type: 'nvarchar', length: 100 })
+    TalukCode: string;
 
     @Column({ default: null, type: 'nvarchar', length: 100 })
     LGDVillageCode: string;
@@ -38,3 +47,4 @@ export class Villages {
     @CreateDateColumn()
     UpdatedDate: Date;
 };
+

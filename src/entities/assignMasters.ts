@@ -13,7 +13,7 @@ export class AssignMasters {
     id: number;
 
     @Column({ default: null, type: 'nvarchar', length: 100 })
-    ListType: number;
+    ListType: string;
 
     @Column({ default: null, type: 'nvarchar', length: 50 })
     DistrictCode: string;
@@ -22,7 +22,7 @@ export class AssignMasters {
     TalukCode: string;
 
     @Column({ default: null, type: 'nvarchar', length: 50 })
-    HobliCode: string;
+    GpCode: string;
 
     @Column({ default: null, type: 'nvarchar', length: 50 })
     VillageCode: string;

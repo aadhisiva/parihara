@@ -13,7 +13,7 @@ export class DropdownValues {
     id: number;
 
     @Column({ default: null, type: 'nvarchar', length: 100 })
-    DropdownType: number;
+    DropdownType: string;
 
     @Column({ default: null, type: 'nvarchar', length: 500 })
     DropdownName: string;

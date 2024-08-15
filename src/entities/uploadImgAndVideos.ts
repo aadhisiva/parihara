@@ -13,7 +13,7 @@ export class UploadImgAndVideo {
     id: number;
 
     @Column({ default: null, type: 'nvarchar', length: 1000 })
-    ImageName: number;
+    ImageName: string;
 
     @Column({ default: null, type: 'varbinary', length: 'max' })
     ImageData: string;

@@ -9,6 +9,10 @@ import {
   LoginRoles,
   QuestionMaster,
   AssignMasters,
+  Districts,
+  Taluk,
+  GramaPanchayat,
+  Villages,
 } from "../entities";
 import { Equal } from "typeorm";
 import { PariharaData } from "../entities/pariharaData";
@@ -23,6 +27,10 @@ const updatedSurveyLogsRepo = AppDataSource.getRepository(UpdatedSurveyLogs);
 const masterDataRepo = AppDataSource.getRepository(MasterData);
 const questionMasterRepo = AppDataSource.getRepository(QuestionMaster);
 const assignMastersRepo = AppDataSource.getRepository(AssignMasters);
+const distictRepo = AppDataSource.getRepository(Districts);
+const talukRepo = AppDataSource.getRepository(Taluk);
+const gramaPanchayatRepo = AppDataSource.getRepository(GramaPanchayat);
+const villagesRepo = AppDataSource.getRepository(Villages);
 
 @Service()
 export class AdminRepo {
@@ -179,6 +187,87 @@ export class AdminRepo {
     return await assignMastersRepo.save(newData);
   };
 
+  async getAssignedDistricts(data){
+    return await assignMastersRepo.createQueryBuilder('am')
+    .leftJoinAndSelect(LoginRoles, 'rl', "rl.id = am.RoleId")
+    .leftJoinAndSelect(Districts, 'dd', "dd.DistrictCode = am.DistrictCode")
+    .select(["am.id as id","am.Name as Name", "am.Mobile as Mobile", "rl.RoleName as RoleName", "dd.DistrictNameEn as DistrictNameEn",
+      "dd.DistrictCode as DistrictCode", "rl.id as RoleId"
+    ])
+    .where("am.ListType = :type", {type: "District"})
+    .getRawMany();
+  };
+
+  async getAssignedTaluk(data){
+    return await assignMastersRepo.createQueryBuilder('am')
+    .leftJoinAndSelect(LoginRoles, 'rl', "rl.id = am.RoleId")
+    .leftJoinAndSelect(Districts, 'dd', "dd.DistrictCode = am.DistrictCode")
+    .leftJoinAndSelect(Taluk, 'td', "td.TalukCode = am.TalukCode and td.DistrictCode = am.DistrictCode")
+    .select(["am.id as id","am.Name as Name", "am.Mobile as Mobile", "rl.RoleName as RoleName", "dd.DistrictNameEn as DistrictNameEn",
+      "dd.DistrictCode as DistrictCode", "rl.id as RoleId", "td.TalukNameEn as TalukNameEn", "td.TalukCode as TalukCode"
+    ])
+    .where("am.ListType = :type", {type: "Taluk"})
+    .getRawMany();
+  };
+
+  async getAssignedGp(data){
+    return await assignMastersRepo.createQueryBuilder('am')
+    .leftJoinAndSelect(LoginRoles, 'rl', "rl.id = am.RoleId")
+    .leftJoinAndSelect(Districts, 'dd', "dd.DistrictCode = am.DistrictCode")
+    .leftJoinAndSelect(Taluk, 'td', "td.TalukCode = am.TalukCode and td.DistrictCode = am.DistrictCode")
+    .leftJoinAndSelect(GramaPanchayat, 'gd', "gd.GpCode = am.GpCode and gd.TalukCode = am.TalukCode and gd.DistrictCode = am.DistrictCode")
+    .select(["am.id as id","am.Name as Name", "am.Mobile as Mobile", "rl.RoleName as RoleName", "dd.DistrictNameEn as DistrictNameEn",
+      "dd.DistrictCode as DistrictCode", "rl.id as RoleId", "td.TalukNameEn as TalukNameEn", "gd.GpNameEn as GpNameEn", "td.TalukCode as TalukCode", "gd.GpCode as GpCode"
+    ])
+    .where("am.ListType = :type", {type: "Gp"})
+    .getRawMany();
+  };  
+
+  async getAssignedVillages(data){
+    return await assignMastersRepo.find({
+      where: {
+        ListType: "Village"
+      }
+    });
+  };
+
+  async getDistrictsDD(data){
+    return await distictRepo.createQueryBuilder('dd')
+    .select(["dd.DistrictCode as value", "dd.DistrictNameEn as role"])
+    .getRawMany();
+  };
+  async getTalukDD(code){
+    return await talukRepo.createQueryBuilder('tt')
+    .select(["DISTINCT tt.TalukCode as value", "tt.TalukNameEn as role"])
+    .where("tt.DistrictCode = :dc", {dc: code})
+    .getRawMany();
+  };
+  async getGpDD(UDCode, UTCode){
+    return await gramaPanchayatRepo.createQueryBuilder('gd')
+    .select(["DISTINCT gd.GpCode as value", "gd.GpNameEn as role"])
+    .where("gd.TalukCode = :tc and gd.DistrictCode = :dc", {tc: UTCode, dc: UDCode})
+    .getRawMany();
+  };
+  async getVillagesDD(UDCode, UTCode, UGCode){
+    return await villagesRepo.createQueryBuilder('vd')
+    .select(["DISTINCT vd.VillageCode as value", "vd.VillageNameEn as role"])
+    .where("vd.GpCode = :Gp and vd.DistrictCode = :dc and vd.TalukCOde = :tc", {Gp: UGCode, dc: UDCode, tc: UTCode})
+    .getRawMany();
+  };
+
+  async getDistrictMasters(data){
+    return await distictRepo.find();
+  };
+  async getTalukMasters(data){
+    return await talukRepo.find();
+  };
+  async getGpMasters(data){
+    return await gramaPanchayatRepo.find();
+  };
+  async getVillagemasters(data){
+    return await villagesRepo.find();
+  };
+
   async getQuestions(){
     return await questionMasterRepo.createQueryBuilder('qm')
     .leftJoinAndSelect(QuestionMaster, 'qmc', "qmc.QuestionId = role.qm.QuestionId")
@@ -220,7 +309,23 @@ export class AdminRepo {
 
   async getRolesDropdown(){
     return await loginRolesRepo.createQueryBuilder('rl')
-    .select(["rl.id as code",  "rl.RoleName as name"])
+    .select(["rl.id as value",  "rl.RoleName as role"])
     .getRawMany();   
   };
+
+  async uploadDistrictMasters(data){
+    return await distictRepo.save(data);
+  }
+
+  async uploadTalukMasters(data){
+    return await talukRepo.save(data);
+  }
+
+  async uploadGpMasters(data){
+    return await gramaPanchayatRepo.save(data);
+  }
+
+  async uploadVillageMasters(data){
+    return await villagesRepo.save(data);
+  }
 }

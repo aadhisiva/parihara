@@ -13,7 +13,7 @@ export class QuestionMapping {
     id: number;
 
     @Column({ default: null, type: 'nvarchar', length: 100 })
-    RoleId: number;
+    RoleId: string;
 
     @Column({ default: null, type: 'nvarchar', length: 500 })
     QuestionId: string;

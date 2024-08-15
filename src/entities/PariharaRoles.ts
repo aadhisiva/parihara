@@ -13,7 +13,7 @@ export class PariharaRoles {
     id: number;
 
     @Column({ default: null, type: 'nvarchar', length: "40" })
-    RoleId: number;
+    RoleId: string;
 
     @Column({ default: null, type: 'nvarchar', length: "40" })
     Role: string;

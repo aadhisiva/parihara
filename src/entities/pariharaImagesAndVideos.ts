@@ -13,7 +13,7 @@ export class PariharaImgAndVideo {
     id: number;
 
     @Column({ default: null, type: 'nvarchar', length: 50 })
-    SubmissionId: number;
+    SubmissionId: string;
 
     @Column({ default: null, type: 'nvarchar', length: 50 })
     UserId: number;

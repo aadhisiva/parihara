@@ -13,7 +13,7 @@ export class QuestionMaster {
     id: number;
 
     @Column({ default: null, type: 'nvarchar', length: 100 })
-    QuestionId: number;
+    QuestionId: string;
 
     @Column({ default: null, type: 'nvarchar', length: 500 })
     Question: string;

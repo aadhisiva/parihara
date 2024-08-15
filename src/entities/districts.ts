@@ -13,13 +13,13 @@ export class Districts {
     id: number;
 
     @Column({ default: null, type: 'nvarchar', length: 150 })
-    DistrctNameEn: number;
+    DistrictNameEn: string;
 
     @Column({ default: null, type: 'nvarchar', length: 150 })
-    DistrctNameKa: string;
+    DistrictNameKa: string;
 
     @Column({ default: null, type: 'nvarchar', length: 50 })
-    DistrctCode: string;
+    DistrictCode: string;
 
     @Column({ default: null, type: 'nvarchar', length: 50 })
     LGDDistrictCode: string;

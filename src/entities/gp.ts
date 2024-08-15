@@ -13,13 +13,19 @@ export class GramaPanchayat {
     id: number;
 
     @Column({ default: null, type: 'nvarchar', length: 150 })
-    GpNameEn: number;
+    GpNameEn: string;
 
     @Column({ default: null, type: 'nvarchar', length: 150 })
     GpNameKa: string;
 
     @Column({ default: null, type: 'nvarchar', length: 100 })
     GpCode: string;
+
+    @Column({ default: null, type: 'nvarchar', length: 100 })
+    DistrictCode: string;
+
+    @Column({ default: null, type: 'nvarchar', length: 100 })
+    TalukCode: string;
 
     @Column({ default: null, type: 'nvarchar', length: 100 })
     LGDTalukCode: string;
@@ -36,3 +42,5 @@ export class GramaPanchayat {
     @CreateDateColumn()
     UpdatedDate: Date;
 };
+
+

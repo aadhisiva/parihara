@@ -41,6 +41,10 @@ app.use(function (req, res, next) {
   next();
 });
 
+if (!fs.existsSync('uploads')) {
+  fs.mkdirSync('uploads');
+}
+
 // create for logs śad
 app.use(morgan('common', {
   stream: fs.createWriteStream('./logs/application.log', { flags: 'a' })
