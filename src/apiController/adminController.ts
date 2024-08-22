@@ -51,6 +51,26 @@ adminRouter.post('/sendOtp', async (req, res) => {
     };
 });
 
+adminRouter.post('/checkMobileLogin', async (req, res) => {
+    try {
+        let body = req.body;
+        let result = await adminServices.checkMobileLogin(body);
+        return webAppResponse(res, result, body, '/checkMobileLogin', WEBMESSAGES.SEND_OTP, req?.user?.UserId, req?.user?.RoleId);
+    } catch (error) {
+        return webAppResponse(res, error, req.body, '/checkMobileLogin', WEBMESSAGES.SEND_OTP, req?.user?.UserId, req?.user?.RoleId);
+    };
+});
+
+adminRouter.post('/findAccessById', async (req, res) => {
+    try {
+        let body = req.body;
+        let result = await adminServices.findAccessById(body);
+        return webAppResponse(res, result, body, '/findAccessById', WEBMESSAGES.SEND_OTP, req?.user?.UserId, req?.user?.RoleId);
+    } catch (error) {
+        return webAppResponse(res, error, req.body, '/findAccessById', WEBMESSAGES.SEND_OTP, req?.user?.UserId, req?.user?.RoleId);
+    };
+});
+
 adminRouter.post('/verifyOtp', authenticateToken, async (req, res) => {
     try {
         let body = {...req.body, ...{UserId: req?.user?.UserId}};
@@ -128,6 +148,16 @@ adminRouter.post('/getAssignedMasters',authenticateToken, async (req, res) => {
         return webAppResponse(res, result, body, '/getAssignedMasters', WEBMESSAGES.GET_ALLDATA, req?.user?.UserId, req?.user?.RoleId);
     } catch (error) {
         return webAppResponse(res, error, req.body, '/getAssignedMasters', WEBMESSAGES.GET_ALLDATA, req?.user?.UserId, req?.user?.RoleId);
+    };
+});
+
+adminRouter.post('/assignRoleAccess',authenticateToken, async (req, res) => {
+    try {
+        let body = {...req.body, ...{UserId: req?.user?.UserId}};
+        let result = await adminServices.assignRoleAccess(body);
+        return webAppResponse(res, result, body, '/assignRoleAccess', WEBMESSAGES.GET_ALLDATA, req?.user?.UserId, req?.user?.RoleId);
+    } catch (error) {
+        return webAppResponse(res, error, req.body, '/assignRoleAccess', WEBMESSAGES.GET_ALLDATA, req?.user?.UserId, req?.user?.RoleId);
     };
 });
 

@@ -27,7 +27,7 @@ export class AdminServices {
     //     } else if(data?.Access == "0") {
     //         return await this.adminRepo.getAllAccess();
     //     } 
-        
+
     // }
 
     async signupUser(data: UserData) {
@@ -54,8 +54,8 @@ export class AdminServices {
         // if (sendSingleSms.code !== 200) {
         //     return { code: 422, message: RESPONSEMSG.OTP_FAILED };
         // };
-        const token = jsonWebToken.sign({ UserId: checkUserData.UserId, RoleId: checkUserData.RoleId, Mobile: Mobile }, 
-                process.env.SECRET_KEY, { expiresIn: '24h' });
+        const token = jsonWebToken.sign({ UserId: checkUserData.UserId, RoleId: checkUserData.RoleId, Mobile: Mobile },
+            process.env.SECRET_KEY, { expiresIn: '24h' });
         return {
             message: RESPONSEMSG.OTP, data: { Otp: data?.Otp, token }
         };
@@ -85,9 +85,31 @@ export class AdminServices {
         // }
         const token = jsonWebToken.sign({ UserId: checkUserData.UserId, RoleId: checkUserData.RoleId, Mobile: Mobile }, process.env.SECRET_KEY, { expiresIn: '24h' });
         return {
-            message: RESPONSEMSG.OTP, data: {otp: data?.Otp, token}
+            message: RESPONSEMSG.OTP, data: { otp: data?.Otp, token }
         };
     }
+
+    async checkMobileLogin(data) {
+        const { Mobile } = data;
+        if (!Mobile) return { code: 400, message: "Provide Mobile" };
+        data.Otp = "1111";
+        let finRoleByMobile = await this.adminRepo.checkMobileLogin(data);
+        let fndAccess = await this.adminRepo.checkRoleAccess(data);
+        let resObj = {
+            Mobile,
+            Otp: data.Otp,
+            Token: jsonWebToken.sign({ RoleId: finRoleByMobile[0]?.RoleId, Mobile: Mobile }, process.env.SECRET_KEY, { expiresIn: '24h' }),
+            UserData: finRoleByMobile,
+            RoleAccess: fndAccess
+        }
+        return resObj;
+    };
+
+    async findAccessById(data) {
+        const { RoleId } = data;
+        if (!RoleId) return { code: 400, message: "Provide Mobile" };
+        return await this.adminRepo.checkRoleAccess(data);
+    };
 
     async verifyOtp(data: UserData) {
         const { Otp } = data;
@@ -152,143 +174,164 @@ export class AdminServices {
     };
 
 
-    async assigningProcess(data){
+    async assigningProcess(data) {
         const { ReqType, DistrictCode, TalukCode, VillageCode, HobliCode, ListType } = data;
-        if(!DistrictCode) return {code: 400, message: "Provide DistrictCode"};
-        if(!ListType) return {code: 400, message: "Provide ListType"};
-        if(ReqType == 1){
+        if (!DistrictCode) return { code: 400, message: "Provide DistrictCode" };
+        if (!ListType) return { code: 400, message: "Provide ListType" };
+        if (ReqType == 1) {
             return await this.adminRepo.assignDistricts(data);
-        } else if(ReqType == 2){
-            if(!TalukCode) return {code: 400, message: "Provide TalukCode"};
+        } else if (ReqType == 2) {
+            if (!TalukCode) return { code: 400, message: "Provide TalukCode" };
             return await this.adminRepo.assignTaluks(data);
-        } else if(ReqType == 3){
-            if(!TalukCode) return {code: 400, message: "Provide TalukCode"};
-            if(!HobliCode) return {code: 400, message: "Provide HobliCode"};
+        } else if (ReqType == 3) {
+            if (!TalukCode) return { code: 400, message: "Provide TalukCode" };
+            if (!HobliCode) return { code: 400, message: "Provide HobliCode" };
             return await this.adminRepo.assignHobli(data);
-        } else if(ReqType == 2){
-            if(!HobliCode) return {code: 400, message: "Provide HobliCode"};
-            if(!VillageCode) return {code: 400, message: "Provide VillageCode"};
-            if(!TalukCode) return {code: 400, message: "Provide DistrictCode"};
+        } else if (ReqType == 2) {
+            if (!HobliCode) return { code: 400, message: "Provide HobliCode" };
+            if (!VillageCode) return { code: 400, message: "Provide VillageCode" };
+            if (!TalukCode) return { code: 400, message: "Provide DistrictCode" };
             return await this.adminRepo.assignVillages(data);
-        }  else {
-            return {code: 400, message: "Your request is not found", data: {}};
+        } else {
+            return { code: 400, message: "Your request is not found", data: {} };
         };
     };
 
-    async getAssignedMasters(data){
+    async getAssignedMasters(data) {
         const { ReqType } = data;
-        if(!ReqType) return {code: 400, message: "Provide ReqType"};
-        if(ReqType == 1){
+        if (!ReqType) return { code: 400, message: "Provide ReqType" };
+        if (ReqType == 1) {
             return await this.adminRepo.getAssignedDistricts(data);
-        } else if(ReqType == 2){
+        } else if (ReqType == 2) {
             return await this.adminRepo.getAssignedTaluk(data);
-        } else if(ReqType == 3) {
+        } else if (ReqType == 3) {
             return await this.adminRepo.getAssignedGp(data);
-        } else if(ReqType == 4){
+        } else if (ReqType == 4) {
             return await this.adminRepo.getAssignedVillages(data);
-        }  else {
-            return {code: 400, message: "Your request is not found", data: {}};
+        } else {
+            return { code: 400, message: "Your request is not found", data: {} };
         }
     };
 
-    async getMasterDropdown(data){
-        const { ReqType, UDCode, UTCode, UGCode } = data;
-        if(!ReqType) return {code: 400, message: "Provide ReqType"};
-        if(ReqType == 1){
+    async assignRoleAccess(data) {
+        const { RoleId, ReqType } = data;
+        if (ReqType == "Get") {
+            return await this.adminRepo.getRoleAccess();
+        } else if (ReqType == "Add") {
+            if (!RoleId) return { code: 400, message: "Provide RoleId" };
+            return await this.adminRepo.assignRoleAccess(data);
+        } else {
+            return { code: 400, message: "Your request is not found", data: {} };
+        }
+    };
+
+    async getMasterDropdown(data) {
+        const { ReqType, UDCode, UTCode, UGCode,Mobile, loginType } = data;
+        if (!ReqType) return { code: 400, message: "Provide ReqType" };
+        if (ReqType == 1) {
+            if(loginType == "District"){
+                return await this.adminRepo.getAuthDistrictDD(data);
+            };
             return await this.adminRepo.getDistrictsDD(data);
-        } else if(ReqType == 2){
-            if(!UDCode) return {code: 400, message: "Provide UDCode"};
+        } else if (ReqType == 2) {
+            // if (!UDCode) return { code: 400, message: "Provide UDCode" };
+            if(loginType == "Taluk"){
+                return await this.adminRepo.getAuthTalukDD(Mobile);
+            };
             return await this.adminRepo.getTalukDD(UDCode);
-        } else if(ReqType == 3) {
-            if(!UDCode) return {code: 400, message: "Provide UDCode"};
-            if(!UTCode) return {code: 400, message: "Provide UTCode"};
+        } else if (ReqType == 3) {
+            // if (!UDCode) return { code: 400, message: "Provide UDCode" };
+            // if (!UTCode) return { code: 400, message: "Provide UTCode" };
+            if(loginType == "Gp"){
+                return await this.adminRepo.getAuthGpDD(Mobile);
+            };
             return await this.adminRepo.getGpDD(UDCode, UTCode);
-        } else if(ReqType == 4){
-            if(!UDCode) return {code: 400, message: "Provide UDCode"};
-            if(!UTCode) return {code: 400, message: "Provide UTCode"};
-            if(!UGCode) return {code: 400, message: "Provide UGCode"};
+        } else if (ReqType == 4) {
+            // if (!UDCode) return { code: 400, message: "Provide UDCode" };
+            // if (!UTCode) return { code: 400, message: "Provide UTCode" };
+            // if (!UGCode) return { code: 400, message: "Provide UGCode" };
             return await this.adminRepo.getVillagesDD(UDCode, UTCode, UGCode);
-        }  else {
-            return {code: 400, message: "Your request is not found", data: {}};
+        } else {
+            return { code: 400, message: "Your request is not found", data: {} };
         }
     };
 
-    async getMasters(data){
+    async getMasters(data) {
         const { ReqType } = data;
-        if(!ReqType) return {code: 400, message: "Provide ReqType"};
-        if(ReqType == 1){
+        if (!ReqType) return { code: 400, message: "Provide ReqType" };
+        if (ReqType == 1) {
             return await this.adminRepo.getDistrictMasters(data);
-        } else if(ReqType == 2){
+        } else if (ReqType == 2) {
             return await this.adminRepo.getTalukMasters(data);
-        } else if(ReqType == 3) {
+        } else if (ReqType == 3) {
             return await this.adminRepo.getGpMasters(data);
-        } else if(ReqType == 4){
+        } else if (ReqType == 4) {
             return await this.adminRepo.getVillagemasters(data);
-        }  else {
-            return {code: 400, message: "Your request is not found", data: {}};
+        } else {
+            return { code: 400, message: "Your request is not found", data: {} };
         }
     };
 
-    async question(data){
-        const {ReqType} = data;
-        if(ReqType == "Get"){
+    async question(data) {
+        const { ReqType } = data;
+        if (ReqType == "Get") {
             return this.adminRepo.getQuestions();
-        } else if(ReqType == "Add") {
+        } else if (ReqType == "Add") {
             return this.adminRepo.saveQuestions(data);
-        } else if(ReqType == "Dropdown") {
+        } else if (ReqType == "Dropdown") {
             return this.adminRepo.getQuestionDropdown();
         } else {
-            return {code: 422, message: "Send correct input."}
+            return { code: 422, message: "Send correct input." }
         }
     };
 
-    async addRolesOrGet(data){
-        const {ReqType} = data;
-        if(ReqType == "Get"){
+    async addRolesOrGet(data) {
+        const { ReqType } = data;
+        if (ReqType == "Get") {
             return this.adminRepo.getAllRoles();
-        } else if(ReqType == "Add") {
+        } else if (ReqType == "Add") {
             return this.adminRepo.addRoles(data);
-        } else if(ReqType == "Dropdown") {
+        } else if (ReqType == "Dropdown") {
             return this.adminRepo.getRolesDropdown();
         } else {
-            return {code: 422, message: "Send correct input."}
+            return { code: 422, message: "Send correct input." }
         }
     };
 
-    async uploadDistrictMasters(data){
-            let chunkSize = 50;
-            for (let i = 0; i < data.length; i += chunkSize) {
-                const chunk = data.slice(i, i + chunkSize);
-                await this.adminRepo.uploadDistrictMasters(chunk);
-            }
-            return { code: 200, message: "Uploaded Successfully.", data: {} }
+    async uploadDistrictMasters(data) {
+        let chunkSize = 50;
+        for (let i = 0; i < data.length; i += chunkSize) {
+            const chunk = data.slice(i, i + chunkSize);
+            await this.adminRepo.uploadDistrictMasters(chunk);
+        }
+        return { code: 200, message: "Uploaded Successfully.", data: {} }
     };
 
-    async uploadTalukMasters(data){
-            let chunkSize = 50;
-            for (let i = 0; i < data.length; i += chunkSize) {
-                const chunk = data.slice(i, i + chunkSize);
-                await this.adminRepo.uploadTalukMasters(chunk);
-            }
-            return { code: 200, message: "Uploaded Successfully.", data: {} }
+    async uploadTalukMasters(data) {
+        let chunkSize = 50;
+        for (let i = 0; i < data.length; i += chunkSize) {
+            const chunk = data.slice(i, i + chunkSize);
+            await this.adminRepo.uploadTalukMasters(chunk);
+        }
+        return { code: 200, message: "Uploaded Successfully.", data: {} }
     };
 
-    async uploadGpMasters(data){
-            let chunkSize = 50;
-            for (let i = 0; i < data.length; i += chunkSize) {
-                const chunk = data.slice(i, i + chunkSize);
-                await this.adminRepo.uploadGpMasters(chunk);
-            }
-            return { code: 200, message: "Uploaded Successfully.", data: {} }
+    async uploadGpMasters(data) {
+        let chunkSize = 50;
+        for (let i = 0; i < data.length; i += chunkSize) {
+            const chunk = data.slice(i, i + chunkSize);
+            await this.adminRepo.uploadGpMasters(chunk);
+        }
+        return { code: 200, message: "Uploaded Successfully.", data: {} }
     };
 
-    async uploadVillageMasters(data){
-            let chunkSize = 50;
-            for (let i = 0; i < data.length; i += chunkSize) {
-                const chunk = data.slice(i, i + chunkSize);
-                await this.adminRepo.uploadVillageMasters(chunk);
-            }
-            return { code: 200, message: "Uploaded Successfully.", data: {} }
+    async uploadVillageMasters(data) {
+        let chunkSize = 50;
+        for (let i = 0; i < data.length; i += chunkSize) {
+            const chunk = data.slice(i, i + chunkSize);
+            await this.adminRepo.uploadVillageMasters(chunk);
+        }
+        return { code: 200, message: "Uploaded Successfully.", data: {} }
     };
 
 }

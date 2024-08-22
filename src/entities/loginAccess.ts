@@ -15,7 +15,7 @@ export class LoginAccess {
     @PrimaryGeneratedColumn()
     id: number;
 
-    @ManyToOne(() => LoginRoles, role => role.id)
+    @ManyToOne(() => LoginRoles, role => role.UdToLoginRoles)
     @JoinColumn({ name: "RoleId" })
     RoleId: number;
 
@@ -27,6 +27,24 @@ export class LoginAccess {
 
     @Column({type: 'nvarchar', length: 100, default: null})
     SeekClarification: string;
+
+    @Column({type: 'nvarchar', length: 100, default: null})
+    District: string;
+
+    @Column({type: 'nvarchar', length: 100, default: null})
+    Taluk: string;
+
+    @Column({type: 'nvarchar', length: 100, default: null})
+    Gp: string;
+
+    @Column({type: 'nvarchar', length: 100, default: null})
+    Village: string;
+
+    @Column({type: 'nvarchar', length: 100, default: null})
+    Type: string;
+
+    @Column({type: 'nvarchar', length: 100, default: null})
+    LossType: string;
 
     @CreateDateColumn()
     createdDate: Date;
