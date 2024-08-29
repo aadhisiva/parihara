@@ -94,13 +94,12 @@ export class AdminServices {
         if (!Mobile) return { code: 400, message: "Provide Mobile" };
         data.Otp = "1111";
         let finRoleByMobile = await this.adminRepo.checkMobileLogin(data);
-        let fndAccess = await this.adminRepo.checkRoleAccess(data);
+        if (finRoleByMobile['code'] == 422) return { code: 422, message: finRoleByMobile['message'] };
         let resObj = {
             Mobile,
             Otp: data.Otp,
             Token: jsonWebToken.sign({ RoleId: finRoleByMobile[0]?.RoleId, Mobile: Mobile }, process.env.SECRET_KEY, { expiresIn: '24h' }),
-            UserData: finRoleByMobile,
-            RoleAccess: fndAccess
+            UserData: finRoleByMobile
         }
         return resObj;
     };
@@ -179,19 +178,19 @@ export class AdminServices {
         if (!DistrictCode) return { code: 400, message: "Provide DistrictCode" };
         if (!ListType) return { code: 400, message: "Provide ListType" };
         if (ReqType == 1) {
-            return await this.adminRepo.assignDistricts(data);
+            return await this.adminRepo.assignToRespectivType(data);
         } else if (ReqType == 2) {
             if (!TalukCode) return { code: 400, message: "Provide TalukCode" };
-            return await this.adminRepo.assignTaluks(data);
+            return await this.adminRepo.assignToRespectivType(data);
         } else if (ReqType == 3) {
             if (!TalukCode) return { code: 400, message: "Provide TalukCode" };
             if (!HobliCode) return { code: 400, message: "Provide HobliCode" };
-            return await this.adminRepo.assignHobli(data);
+            return await this.adminRepo.assignToRespectivType(data);
         } else if (ReqType == 2) {
             if (!HobliCode) return { code: 400, message: "Provide HobliCode" };
             if (!VillageCode) return { code: 400, message: "Provide VillageCode" };
             if (!TalukCode) return { code: 400, message: "Provide DistrictCode" };
-            return await this.adminRepo.assignVillages(data);
+            return await this.adminRepo.assignToRespectivType(data);
         } else {
             return { code: 400, message: "Your request is not found", data: {} };
         };
@@ -225,8 +224,32 @@ export class AdminServices {
         }
     };
 
+    async assignLossAndGet(data) {
+        const { RoleId, ReqType } = data;
+        if (ReqType == "Get") {
+            return await this.adminRepo.getRoleToLossAccess();
+        } else if (ReqType == "Add") {
+            if (!RoleId) return { code: 400, message: "Provide RoleId" };
+            return await this.adminRepo.assignRoleToLossAccess(data);
+        } else {
+            return { code: 400, message: "Your request is not found", data: {} };
+        }
+    };
+
+    async assignChildAndGet(data) {
+        const { RoleId, ReqType } = data;
+        if (ReqType == "Get") {
+            return await this.adminRepo.getChildAccess();
+        } else if (ReqType == "Add") {
+            if (!RoleId) return { code: 400, message: "Provide RoleId" };
+            return await this.adminRepo.assignChildAccess(data);
+        } else {
+            return { code: 400, message: "Your request is not found", data: {} };
+        }
+    };
+
     async getMasterDropdown(data) {
-        const { ReqType, UDCode, UTCode, UGCode,Mobile, loginType } = data;
+        const { ReqType, UDCode, UTCode, UGCode,Mobile, loginType, Type } = data;
         if (!ReqType) return { code: 400, message: "Provide ReqType" };
         if (ReqType == 1) {
             if(loginType == "District"){
@@ -234,22 +257,22 @@ export class AdminServices {
             };
             return await this.adminRepo.getDistrictsDD(data);
         } else if (ReqType == 2) {
-            // if (!UDCode) return { code: 400, message: "Provide UDCode" };
             if(loginType == "Taluk"){
-                return await this.adminRepo.getAuthTalukDD(Mobile);
+                return await this.adminRepo.getAuthTalukDD(data);
             };
-            return await this.adminRepo.getTalukDD(UDCode);
+            if (!UDCode) return { code: 400, message: "Provide UDCode" };
+            return await this.adminRepo.getTalukDD(UDCode, Type);
         } else if (ReqType == 3) {
-            // if (!UDCode) return { code: 400, message: "Provide UDCode" };
-            // if (!UTCode) return { code: 400, message: "Provide UTCode" };
             if(loginType == "Gp"){
-                return await this.adminRepo.getAuthGpDD(Mobile);
+                return await this.adminRepo.getAuthGpDD(data);
             };
-            return await this.adminRepo.getGpDD(UDCode, UTCode);
+            if (!UDCode) return { code: 400, message: "Provide UDCode" };
+            if (!UTCode) return { code: 400, message: "Provide UTCode" };
+            return await this.adminRepo.getGpDD(UDCode, UTCode, Type);
         } else if (ReqType == 4) {
-            // if (!UDCode) return { code: 400, message: "Provide UDCode" };
-            // if (!UTCode) return { code: 400, message: "Provide UTCode" };
-            // if (!UGCode) return { code: 400, message: "Provide UGCode" };
+            if (!UDCode) return { code: 400, message: "Provide UDCode" };
+            if (!UTCode) return { code: 400, message: "Provide UTCode" };
+            if (!UGCode) return { code: 400, message: "Provide UGCode" };
             return await this.adminRepo.getVillagesDD(UDCode, UTCode, UGCode);
         } else {
             return { code: 400, message: "Your request is not found", data: {} };
@@ -298,6 +321,9 @@ export class AdminServices {
         }
     };
 
+    async getChildBasedOnParent(data){
+        return this.adminRepo.getChildBasedOnParent(data);
+    }
     async uploadDistrictMasters(data) {
         let chunkSize = 50;
         for (let i = 0; i < data.length; i += chunkSize) {

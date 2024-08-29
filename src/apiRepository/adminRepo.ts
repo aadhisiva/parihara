@@ -13,10 +13,13 @@ import {
   Taluk,
   GramaPanchayat,
   Villages,
+  ChildRole,
+  RoleToLoss,
+  AssignMastersHistory,
 } from "../entities";
 import { Equal } from "typeorm";
 import { PariharaData } from "../entities/pariharaData";
-import { generateUniqueSubmissionId } from "../utils/resuableCode";
+import { generateUniqueId, generateUniqueSubmissionId } from "../utils/resuableCode";
 import { UpdatedSurveyLogs } from "../entities/updateSurveyLogs";
 
 const userDataRepo = AppDataSource.getRepository(UserData);
@@ -27,10 +30,13 @@ const updatedSurveyLogsRepo = AppDataSource.getRepository(UpdatedSurveyLogs);
 const masterDataRepo = AppDataSource.getRepository(MasterData);
 const questionMasterRepo = AppDataSource.getRepository(QuestionMaster);
 const assignMastersRepo = AppDataSource.getRepository(AssignMasters);
+const assignMastersHositoryRepo = AppDataSource.getRepository(AssignMastersHistory);
 const distictRepo = AppDataSource.getRepository(Districts);
 const talukRepo = AppDataSource.getRepository(Taluk);
 const gramaPanchayatRepo = AppDataSource.getRepository(GramaPanchayat);
 const villagesRepo = AppDataSource.getRepository(Villages);
+const childRoleRepo = AppDataSource.getRepository(ChildRole);
+const roleToLossRepo = AppDataSource.getRepository(RoleToLoss);
 
 @Service()
 export class AdminRepo {
@@ -65,22 +71,23 @@ export class AdminRepo {
 
   async checkMobileLogin(data) {
     const { Mobile, Otp } = data;
-    let getData = await userDataRepo.createQueryBuilder('ud')
+    let getData = await assignMastersRepo.createQueryBuilder('ud')
     .leftJoinAndSelect(LoginRoles, 'lr', "lr.id = ud.RoleId")
-    .select(["DISTINCT ud.Mobile Mobile", "ud.Name Name", "lr.RoleName RoleName", "lr.id RoleId"])
+    .select(["DISTINCT ud.Mobile Mobile", "lr.RoleName RoleName", "lr.id RoleId"])
     .where("ud.Mobile = :Mobile", { Mobile })
     .getRawMany();
     if (getData.length == 0) return { code: 422, message: "Access Denied" };
-    let updateOtp = await userDataRepo.findOneBy({Mobile: Equal(Mobile)});
+    let updateOtp = await assignMastersRepo.findOneBy({Mobile: Equal(Mobile)});
     let updateObj = {...updateOtp, ...{Otp}}
-    await userDataRepo.save(updateObj);
+    await assignMastersRepo.save(updateObj);
     return getData;
   };
 
   async checkRoleAccess(data) {
     const { RoleId } = data;
+
     let getData = await loginAccessRepo.findOneBy({RoleId: Equal(RoleId)});
-    if(!getData) return {code: 422, message: "You dont have access to go furthere"}
+    if(!getData) return {code: 422, message: "You dont have access to go further"}
     return getData;
   };
 
@@ -113,11 +120,11 @@ export class AdminRepo {
   };
 
   async FetchLoginAccessData(RoleId) {
-    let totalData = await loginAccessRepo.find({
-      where: { RoleId: Equal(RoleId) },
-      select: ["Pending", "PendingEkyc", "RoleId", "SeekClarification"]
-    });
-    return totalData[0];
+    // let totalData = await loginAccessRepo.find({
+    //   where: { RoleId: Equal(RoleId) },
+    //   select: ["Pending", "PendingEkyc", "RoleId", "SeekClarification"]
+    // });
+    return [0];
   }
 
   async getSubmissionList(data, roles) {
@@ -184,36 +191,46 @@ export class AdminRepo {
     .getRawMany();
   };
 
-  async assignDistricts(data){
-    let findData = await assignMastersRepo.findOneBy({id: Equal(data?.id)});
-    let newData = {...findData, ...data};
-    return await assignMastersRepo.save(newData);
+  async assignToRespectivType(data){
+    if(!data?.id){
+      data.UserId = generateUniqueId();
+      await assignMastersHositoryRepo.save({...data, ...{Status: "Added"}})
+      return await assignMastersRepo.save(data);
+    } else {
+      let findData = await assignMastersRepo.findOneBy({id: Equal(data?.id)});
+      let newData = {...findData, ...data};
+      await assignMastersHositoryRepo.save({...data, ...{Status: "Updated"}})
+      return await assignMastersRepo.save(newData);
+    }
   };
 
-  async assignTaluks(data){
-    let findData = await assignMastersRepo.findOneBy({id: Equal(data?.id)});
-    let newData = {...findData, ...data};
-    return await assignMastersRepo.save(newData);
-  };
+  // async assignTaluks(data){
+  //   if(!data?.id) data.UserId = generateUniqueId();
+  //   let findData = await assignMastersRepo.findOneBy({id: Equal(data?.id)});
+  //   let newData = {...findData, ...data};
+  //   return await assignMastersRepo.save(newData);
+  // };
 
-  async assignHobli(data){
-    let findData = await assignMastersRepo.findOneBy({id: Equal(data?.id)});
-    let newData = {...findData, ...data};
-    return await assignMastersRepo.save(newData);
-  };
+  // async assignHobli(data){
+  //   if(!data?.id) data.UserId = generateUniqueId();
+  //   let findData = await assignMastersRepo.findOneBy({id: Equal(data?.id)});
+  //   let newData = {...findData, ...data};
+  //   return await assignMastersRepo.save(newData);
+  // };
 
-  async assignVillages(data){
-    let findData = await assignMastersRepo.findOneBy({id: Equal(data?.id)});
-    let newData = {...findData, ...data};
-    return await assignMastersRepo.save(newData);
-  };
+  // async assignVillages(data){
+  //   if(!data?.id) data.UserId = generateUniqueId();
+  //   let findData = await assignMastersRepo.findOneBy({id: Equal(data?.id)});
+  //   let newData = {...findData, ...data};
+  //   return await assignMastersRepo.save(newData);
+  // };
 
   async getAssignedDistricts(data){
     return await assignMastersRepo.createQueryBuilder('am')
     .leftJoinAndSelect(LoginRoles, 'rl', "rl.id = am.RoleId")
     .leftJoinAndSelect(Districts, 'dd', "dd.DistrictCode = am.DistrictCode")
     .select(["am.id as id","am.Name as Name", "am.Mobile as Mobile", "rl.RoleName as RoleName", "dd.DistrictNameEn as DistrictNameEn",
-      "dd.DistrictCode as DistrictCode", "rl.id as RoleId"
+      "dd.DistrictCode as DistrictCode", "rl.id as RoleId", "am.Type Type"
     ])
     .where("am.ListType = :type", {type: "District"})
     .getRawMany();
@@ -223,9 +240,9 @@ export class AdminRepo {
     return await assignMastersRepo.createQueryBuilder('am')
     .leftJoinAndSelect(LoginRoles, 'rl', "rl.id = am.RoleId")
     .leftJoinAndSelect(Districts, 'dd', "dd.DistrictCode = am.DistrictCode")
-    .leftJoinAndSelect(Taluk, 'td', "td.TalukCode = am.TalukCode and td.DistrictCode = am.DistrictCode")
+    .leftJoinAndSelect(Taluk, 'td', "td.TalukCode = am.TalukCode and td.DistrictCode = am.DistrictCode and td.Type = am.Type")
     .select(["am.id as id","am.Name as Name", "am.Mobile as Mobile", "rl.RoleName as RoleName", "dd.DistrictNameEn as DistrictNameEn",
-      "dd.DistrictCode as DistrictCode", "rl.id as RoleId", "td.TalukNameEn as TalukNameEn", "td.TalukCode as TalukCode"
+      "dd.DistrictCode as DistrictCode", "rl.id as RoleId", "td.TalukNameEn as TalukNameEn", "td.TalukCode as TalukCode", "am.Type Type"
     ])
     .where("am.ListType = :type", {type: "Taluk"})
     .getRawMany();
@@ -235,10 +252,11 @@ export class AdminRepo {
     return await assignMastersRepo.createQueryBuilder('am')
     .leftJoinAndSelect(LoginRoles, 'rl', "rl.id = am.RoleId")
     .leftJoinAndSelect(Districts, 'dd', "dd.DistrictCode = am.DistrictCode")
-    .leftJoinAndSelect(Taluk, 'td', "td.TalukCode = am.TalukCode and td.DistrictCode = am.DistrictCode")
-    .leftJoinAndSelect(GramaPanchayat, 'gd', "gd.GpCode = am.GpCode and gd.TalukCode = am.TalukCode and gd.DistrictCode = am.DistrictCode")
+    .leftJoinAndSelect(Taluk, 'td', "td.TalukCode = am.TalukCode and td.DistrictCode = am.DistrictCode and td.Type = am.Type")
+    .leftJoinAndSelect(GramaPanchayat, 'gd', "gd.GpCode = am.GpCode and gd.TalukCode = am.TalukCode and gd.DistrictCode = am.DistrictCode and gd.Type = am.Type")
     .select(["am.id as id","am.Name as Name", "am.Mobile as Mobile", "rl.RoleName as RoleName", "dd.DistrictNameEn as DistrictNameEn",
-      "dd.DistrictCode as DistrictCode", "rl.id as RoleId", "td.TalukNameEn as TalukNameEn", "gd.GpNameEn as GpNameEn", "td.TalukCode as TalukCode", "gd.GpCode as GpCode"
+      "dd.DistrictCode as DistrictCode", "rl.id as RoleId", "td.TalukNameEn as TalukNameEn", "gd.GpNameEn as GpNameEn", 
+      "td.TalukCode as TalukCode", "gd.GpCode as GpCode", "am.Type Type"
     ])
     .where("am.ListType = :type", {type: "Gp"})
     .getRawMany();
@@ -250,21 +268,57 @@ export class AdminRepo {
     return await loginAccessRepo.save(newData);
   };
 
+  async assignChildAccess(data){
+    let getOneObj = await childRoleRepo.findOneBy({id: Equal(data?.id)});
+    let newData = {...getOneObj, ...data};
+    return await childRoleRepo.save(newData);
+  };
+  
+
+  async assignRoleToLossAccess(data){
+    let getOneObj = await roleToLossRepo.findOneBy({id: Equal(data?.id)});
+    let newData = {...getOneObj, ...data};
+    return await roleToLossRepo.save(newData);
+  };
+  
   async getRoleAccess(){
     return await loginAccessRepo.createQueryBuilder('la')
     .leftJoinAndSelect(LoginRoles, 'lr', 'lr.id=la.RoleId')
-    .select(["la.id id","la.PendingEkyc PendingEkyc", "la.Pending Pending", "la.SeekClarification SeekClarification","la.District District", 
-      "la.Taluk Taluk", "la.Gp as Gp", "la.Village Village","lr.RoleName RoleName", 'lr.id RoleId', "la.Type Type", "la.LossType LossType"])
+    .select(["la.id id","la.District District", 
+      "la.Taluk Taluk", "la.Gp as Gp", "la.Village Village","lr.RoleName RoleName", 'lr.id RoleId', "la.Type Type"])
+    .getRawMany();
+  }
+
+  async getRoleToLossAccess(){
+    return await roleToLossRepo.createQueryBuilder('la')
+    .leftJoinAndSelect(LoginRoles, 'lr', 'lr.id=la.RoleId')
+    .select(["la.id id","la.LossType LossType", 
+      "la.PendingEkyc PendingEkyc", "la.Pending as Pending", "la.SeekClarification SeekClarification","lr.RoleName RoleName", 'lr.id RoleId'])
+    .getRawMany();
+  }
+
+  async getChildAccess(){
+    return await childRoleRepo.createQueryBuilder('la')
+    .leftJoinAndSelect(LoginRoles, 'lr', 'lr.id=la.RoleId')
+    .leftJoinAndSelect(LoginRoles, 'lr1', 'lr1.id=la.ChildId')
+    .select(["la.id id", "lr.RoleName RoleName", 'lr.id RoleId', "lr1.RoleName ChildName", "la.ChildId ChildId"])
     .getRawMany();
   }
 
 
   async getAssignedVillages(data){
-    return await assignMastersRepo.find({
-      where: {
-        ListType: "Village"
-      }
-    });
+    return await assignMastersRepo.createQueryBuilder('am')
+    .leftJoinAndSelect(LoginRoles, 'rl', "rl.id = am.RoleId")
+    .leftJoinAndSelect(Districts, 'dd', "dd.DistrictCode = am.DistrictCode")
+    .leftJoinAndSelect(Taluk, 'td', "td.TalukCode = am.TalukCode and td.DistrictCode = am.DistrictCode and td.Type = 'Rural'")
+    .leftJoinAndSelect(GramaPanchayat, 'gd', "gd.GpCode = am.GpCode and gd.TalukCode = am.TalukCode and gd.DistrictCode = am.DistrictCode and gd.Type = 'Rural'")
+    .leftJoinAndSelect(Villages, 'vd', "vd.VillageCode=am.VillageCode and vd.GpCode = am.GpCode and vd.TalukCode = am.TalukCode and vd.DistrictCode = am.DistrictCode")
+    .select(["am.id as id","am.Name as Name", "am.Mobile as Mobile", "rl.RoleName as RoleName", "dd.DistrictNameEn as DistrictNameEn",
+      "dd.DistrictCode as DistrictCode", "rl.id as RoleId", "td.TalukNameEn as TalukNameEn", "gd.GpNameEn as GpNameEn", "vd.VillageNameEn VillageNameEn",
+      "td.TalukCode as TalukCode", "gd.GpCode as GpCode", "vd.VillageCode VillageCode"
+    ])
+    .where("am.ListType = :type", {type: "Village"})
+    .getRawMany();
   };
 
   async getDistrictsDD(data){
@@ -274,39 +328,41 @@ export class AdminRepo {
   };
 
   async getAuthDistrictDD(data){
-    const { Mobile, ListType } = data;
+    const { Mobile, ListType, Type } = data;
     return await distictRepo.createQueryBuilder('dd')
     .innerJoinAndSelect(AssignMasters, 'am', 'am.DistrictCode=dd.DistrictCode')
     .select(["dd.DistrictCode as value", "dd.DistrictNameEn as role"])
-    .where("am.Mobile = :Mobile and am.ListType = :ListType", {Mobile, ListType})
+    .where("am.Mobile = :Mobile and am.ListType = :ListType and am.Type = :Type", {Mobile, ListType, Type})
     .getRawMany();
   };
-  async getTalukDD(code){
+  async getTalukDD(code, type){
     return await talukRepo.createQueryBuilder('tt')
     .select(["DISTINCT tt.TalukCode as value", "tt.TalukNameEn as role"])
-    .where("tt.DistrictCode = :dc", {dc: code})
+    .where("tt.DistrictCode = :dc and tt.Type = :type", {dc: code, type})
     .getRawMany();
   };
-  async getAuthTalukDD(Mobile){
+  async getAuthTalukDD(data){
+    const { Mobile, Type, ListType} = data;
     return await talukRepo.createQueryBuilder('tt')
-    .innerJoinAndSelect(AssignMasters, 'am', 'am.TalukCode=tt.TalukCode and am.DistrictCode=tt.DistrictCode')
+    .leftJoinAndSelect(AssignMasters, 'am', 'am.TalukCode=tt.TalukCode and am.DistrictCode=tt.DistrictCode and am.Type=tt.Type')
     .select(["DISTINCT tt.TalukCode as value", "tt.TalukNameEn as role"])
-    .where("am.Mobile = :Mobile and am.ListType = :ListType", {Mobile, ListType: "Taluk"})
+    .where("am.Mobile = :Mobile and am.ListType = :ListType and am.Type = :Type", {Mobile, ListType, Type})
     .getRawMany();
   };
   
-  async getGpDD(UDCode, UTCode){
+  async getGpDD(UDCode, UTCode, type){
     return await gramaPanchayatRepo.createQueryBuilder('gd')
     .select(["DISTINCT gd.GpCode as value", "gd.GpNameEn as role"])
-    .where("gd.TalukCode = :tc and gd.DistrictCode = :dc", {tc: UTCode, dc: UDCode})
+    .where("gd.TalukCode = :tc and gd.DistrictCode = :dc and gd.Type = :type", {tc: UTCode, dc: UDCode, type})
     .getRawMany();
   };
 
-  async getAuthGpDD(Mobile){
+  async getAuthGpDD(data){
+    const { Mobile, Type, ListType} = data;
     return await gramaPanchayatRepo.createQueryBuilder('gd')
     .innerJoinAndSelect(AssignMasters, 'am', 'am.TalukCode=gd.TalukCode and am.DistrictCode=gd.DistrictCode and am.GpCode=gd.GpCode')
     .select(["DISTINCT gd.GpCode as value", "gd.GpNameEn as role"])
-    .where("am.Mobile = :Mobile and am.ListType = :ListType", {Mobile, ListType: "Gp"})
+    .where("am.Mobile = :Mobile and am.ListType = :ListType and gd.Type = :Type", {Mobile, ListType, Type})
     .getRawMany();
   }
   async getVillagesDD(UDCode, UTCode, UGCode){
@@ -358,6 +414,16 @@ export class AdminRepo {
     return await loginRolesRepo.createQueryBuilder('rl')
     // .leftJoinAndSelect(QuestionMaster, 'qmc', "qmc.QuestionId = role.qm.QuestionId")
     .select(["rl.id as id", "rl.RoleName as RoleName"])
+    .getRawMany();
+      
+  }
+
+  async getChildBasedOnParent(data){
+    const { RoleId } = data;
+    return await childRoleRepo.createQueryBuilder('rl')
+    .leftJoinAndSelect(LoginRoles, 'lr', "lr.id = rl.ChildId")
+    .select(["lr.id as value", "lr.RoleName as role"])
+    .where("rl.RoleId = :RoleId", {RoleId: RoleId})
     .getRawMany();
       
   }

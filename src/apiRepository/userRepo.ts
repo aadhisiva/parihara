@@ -10,6 +10,7 @@ import {
   UploadImgAndVideo,
   Kutumba,
   PariharaImgAndVideo,
+  EscomData,
 } from "../entities";
 import { Equal, createConnection } from "typeorm";
 import { PariharaData } from "../entities/pariharaData";
@@ -26,6 +27,7 @@ const questionMasterRepo = AppDataSource.getRepository(QuestionMaster);
 const uploadImgAndVideoRepo = AppDataSource.getRepository(UploadImgAndVideo);
 const kutumbaRepo = AppDataSource.getRepository(Kutumba);
 const pariharaImgAndVideoRepo = AppDataSource.getRepository(PariharaImgAndVideo);
+const escomDataRepo = AppDataSource.getRepository(EscomData);
 
 @Service()
 export class UserRepo {
@@ -299,6 +301,11 @@ export class UserRepo {
     let findData = await kutumbaRepo.findOneBy({ MBR_HASH_AADHAR: Equal(MBR_HASH_AADHAR), RC_NUMBER: Equal(RC_NUMBER) });
     let newData = { ...findData, ...data };
     return await kutumbaRepo.save(newData);
+  };
+
+  async saveEscomData(data) {
+    let findData = await escomDataRepo.save(data);
+    return findData;
   };
 
   async getKutumbaData(rc) {

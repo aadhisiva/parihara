@@ -2,6 +2,7 @@ import { AppDataSource } from "../db/config";
 import { MobileLogs, OtpLogs, PariharaData, webLogs } from "../entities";
 import cryptoJs from "crypto";
 import Logger from "../loggers/winstonLogger";
+import axios from "axios";
 
 // generate random string
 export const generateRandomString = (RequiredLength) => {
@@ -175,3 +176,12 @@ export const checkXlsxKeysExistOrNot= (array, jsonData) => {
   });
   return {error, message};
 };
+
+
+export const GetEscomDataFromApi = async data => {
+ return await axios.post("http://10.10.31.64/GetEscomData/api/GetEscomData", data, {
+  headers: {
+    "Accept": "application/json"
+  }
+ });
+}

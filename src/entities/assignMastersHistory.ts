@@ -6,8 +6,8 @@ import {
 } from "typeorm";
 
 
-@Entity({ name: "AssignMasters" })
-export class AssignMasters {
+@Entity({ name: "AssignMastersHistory" })
+export class AssignMastersHistory {
 
     @PrimaryGeneratedColumn()
     id: number;
@@ -50,6 +50,9 @@ export class AssignMasters {
 
     @Column({ default: null, type: 'nvarchar', length: 50 })
     CreatedRole: string;
+
+    @Column({ default: null, type: 'nvarchar', length: 50 })
+    Status: string;
  
     @CreateDateColumn()
     createdDate: Date;

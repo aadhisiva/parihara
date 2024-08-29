@@ -29,6 +29,9 @@ export class Taluk {
 
     @Column({ default: null, type: 'nvarchar', length: 100 })
     LGDDistrictCode: string;
+
+    @Column({ default: null, type: 'nvarchar', length: 10 })
+    Type: string;
  
     @CreateDateColumn()
     createdDate: Date;

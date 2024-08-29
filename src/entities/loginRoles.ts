@@ -7,6 +7,8 @@ import {
   } from "typeorm";
 import { UserData } from "./userData";
 import { LoginAccess } from "./loginAccess";
+import { ChildRole } from "./childRoles";
+import { RoleToLoss } from "./roleToLoss";
   
   
   @Entity(  { name: "LoginRoles"} )
@@ -23,6 +25,12 @@ import { LoginAccess } from "./loginAccess";
 
     @OneToMany(() => LoginAccess, ur=>ur.RoleId, { cascade: true, onDelete: "CASCADE" })
     UdToLoginRoles: LoginAccess[];
+
+    @OneToMany(() => ChildRole, ur=>ur.RoleId, { cascade: true, onDelete: "CASCADE" })
+    CRToLoginRoles: ChildRole[];
+
+    @OneToMany(() => RoleToLoss, ur=>ur.RoleId, { cascade: true, onDelete: "CASCADE" })
+    RoleToLossFK: RoleToLoss[];
 
     @CreateDateColumn()
     createdDate: Date;

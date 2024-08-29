@@ -22,7 +22,11 @@ import {
   Districts,
   Taluk,
   GramaPanchayat,
-  Villages
+  Villages,
+  ChildRole,
+  RoleToLoss,
+  AssignMastersHistory,
+  EscomData
 } from "../entities";
 
 export const entities = () => {
@@ -50,6 +54,10 @@ export const entities = () => {
     Districts,
     Taluk,
     GramaPanchayat,
-    Villages
+    Villages,
+    ChildRole,
+    RoleToLoss,
+    AssignMastersHistory,
+    EscomData
   ];
 };

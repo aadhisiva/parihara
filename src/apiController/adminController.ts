@@ -161,12 +161,33 @@ adminRouter.post('/assignRoleAccess',authenticateToken, async (req, res) => {
     };
 });
 
+adminRouter.post('/assignLossAndGet',authenticateToken, async (req, res) => {
+    try {
+        let body = {...req.body, ...{UserId: req?.user?.UserId}};
+        let result = await adminServices.assignLossAndGet(body);
+        return webAppResponse(res, result, body, '/assignLossAndGet', WEBMESSAGES.GET_ALLDATA, req?.user?.UserId, req?.user?.RoleId);
+    } catch (error) {
+        return webAppResponse(res, error, req.body, '/assignLossAndGet', WEBMESSAGES.GET_ALLDATA, req?.user?.UserId, req?.user?.RoleId);
+    };
+});
+
+adminRouter.post('/assignChildAndGet',authenticateToken, async (req, res) => {
+    try {
+        let body = {...req.body, ...{UserId: req?.user?.UserId}};
+        let result = await adminServices.assignChildAndGet(body);
+        return webAppResponse(res, result, body, '/assignChildAndGet', WEBMESSAGES.GET_ALLDATA, req?.user?.UserId, req?.user?.RoleId);
+    } catch (error) {
+        return webAppResponse(res, error, req.body, '/assignChildAndGet', WEBMESSAGES.GET_ALLDATA, req?.user?.UserId, req?.user?.RoleId);
+    };
+});
+
 adminRouter.post('/getMasterDropdown',authenticateToken, async (req, res) => {
     try {
         let body = {...req.body, ...{UserId: req?.user?.UserId}};
         let result = await adminServices.getMasterDropdown(body);
         return webAppResponse(res, result, body, '/getMasterDropdown', WEBMESSAGES.GET_ALLDATA, req?.user?.UserId, req?.user?.RoleId);
     } catch (error) {
+        console.log("Error",error);
         return webAppResponse(res, error, req.body, '/getMasterDropdown', WEBMESSAGES.GET_ALLDATA, req?.user?.UserId, req?.user?.RoleId);
     };
 });
@@ -198,6 +219,16 @@ adminRouter.post('/addRolesOrGet',authenticateToken, async (req, res) => {
         return webAppResponse(res, result, body, '/retriveMasters', WEBMESSAGES.GET_ALLDATA, req?.user?.UserId, req?.user?.RoleId);
     } catch (error) {
         return webAppResponse(res, error, req.body, '/retriveMasters', WEBMESSAGES.GET_ALLDATA, req?.user?.UserId, req?.user?.RoleId);
+    };
+});
+
+adminRouter.post('/getChildBasedOnParent',authenticateToken, async (req, res) => {
+    try {
+        let body = {...req.body, ...{UserId: req?.user?.UserId}};
+        let result = await adminServices.getChildBasedOnParent(body);
+        return webAppResponse(res, result, body, '/getChildBasedOnParent', WEBMESSAGES.GET_ALLDATA, req?.user?.UserId, req?.user?.RoleId);
+    } catch (error) {
+        return webAppResponse(res, error, req.body, '/getChildBasedOnParent', WEBMESSAGES.GET_ALLDATA, req?.user?.UserId, req?.user?.RoleId);
     };
 });
 

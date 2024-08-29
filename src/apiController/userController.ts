@@ -161,6 +161,16 @@ userRouter.post('/getKutumbaData',authTokenAndVersion, async (req, res) => {
     };
 });
 
+userRouter.post('/postEscomData', async (req, res) => {
+    try {
+        let body = {...req.body, ...{UserId: req?.user?.userid}};
+        let result = await userServices.postEscomData(body);
+        return mobileAppResponse(res, result, body, getRoleAndUserId(req, "Get Escom Data"));
+    } catch (error) {
+        return mobileAppResponse(res, error);
+    };
+});
+
 userRouter.post('/uploadImage', upload.single('image') ,authTokenAndVersion, async (req, res) => {
     try {
         if (!req.file) {

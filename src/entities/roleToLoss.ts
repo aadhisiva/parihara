@@ -9,31 +9,32 @@ import {
 import { LoginRoles } from "./loginRoles";
 
 
-@Entity({ name: "LoginAccess" })
-export class LoginAccess {
+@Entity({ name: "RoleToLoss" })
+export class RoleToLoss {
 
     @PrimaryGeneratedColumn()
     id: number;
 
-    @ManyToOne(() => LoginRoles, role => role.UdToLoginRoles)
+    @ManyToOne(() => LoginRoles, role => role.RoleToLossFK)
     @JoinColumn({ name: "RoleId" })
     RoleId: number;
 
-    @Column({type: 'nvarchar', length: 100, default: null})
-    District: string;
+    @Column({ default: null, type: 'nvarchar', length: 150 })
+    LossType: number;
 
     @Column({type: 'nvarchar', length: 100, default: null})
-    Taluk: string;
+    PendingEkyc: string;
 
     @Column({type: 'nvarchar', length: 100, default: null})
-    Gp: string;
+    Pending: string;
 
     @Column({type: 'nvarchar', length: 100, default: null})
-    Village: string;
-
-    @Column({type: 'nvarchar', length: 100, default: null})
-    Type: string;
-
+    SeekClarification: string;
+ 
     @CreateDateColumn()
     createdDate: Date;
+
+    @CreateDateColumn()
+    UpdatedDate: Date;
 };
+

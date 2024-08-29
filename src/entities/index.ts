@@ -21,3 +21,7 @@ export  * from "./districts";
 export  * from "./taluks";
 export  * from "./gp";
 export  * from "./villages";
+export  * from "./roleToLoss";
+export  * from "./childRoles";
+export  * from "./assignMastersHistory";
+export  * from "./escomData";

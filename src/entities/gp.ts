@@ -35,6 +35,9 @@ export class GramaPanchayat {
 
     @Column({ default: null, type: 'nvarchar', length: 100 })
     LGDGpCode: string;
+
+    @Column({ default: null, type: 'nvarchar', length: 10 })
+    Type: string;
  
     @CreateDateColumn()
     createdDate: Date;

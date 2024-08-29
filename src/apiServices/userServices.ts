@@ -2,6 +2,7 @@ import { Service } from "typedi";
 import { UserRepo } from "../apiRepository/userRepo";
 import {
     generateUniqueId,
+    GetEscomDataFromApi,
 } from "../utils/resuableCode";
 import { API_MESSAGES } from "../utils/constants";
 import { OtpServices } from "../sms/smsServceResusable";
@@ -13,6 +14,7 @@ import { EkycData } from "../entities/ekycData";
 import { ekycPostAPi, fetchDataFromKutumba } from "../utils/kutumba/kutumbaData";
 import { daysCalFromDate } from "../utils/helpers";
 import { access } from "fs";
+import axios from "axios";
 
 @Service()
 export class UserServices {
@@ -298,6 +300,14 @@ export class UserServices {
             };
             return getUserDetails;
         }
+    };
+
+    async postEscomData(data){
+        let getEscomData = await GetEscomDataFromApi(data);
+        const response = getEscomData.data;
+        if(response.StatusCode !== "200") return {code: 422, message: response.Status};
+        let saveData = await this.userRepo.saveEscomData(response);
+        return saveData;
     }
 
     async uploadImages(imageObj){
