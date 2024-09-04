@@ -2,7 +2,8 @@ import {
     Entity,
     PrimaryGeneratedColumn,
     Column,
-    CreateDateColumn
+    CreateDateColumn,
+    UpdateDateColumn
 } from "typeorm";
 
 @Entity({ name: "Villages" })
@@ -44,7 +45,7 @@ export class Villages {
     @CreateDateColumn()
     createdDate: Date;
 
-    @CreateDateColumn()
+    @UpdateDateColumn()
     UpdatedDate: Date;
 };
 

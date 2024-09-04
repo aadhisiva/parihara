@@ -25,13 +25,13 @@ export class PariharaData extends BaseEntity {
   LossType: string;
 
   @Column({ type: 'nvarchar', default: null, length: 100 })
-  NoOfDaysFromDamage: string;
-
-  @Column({ type: 'nvarchar', default: null, length: 100 })
-  ReqType: string;
-
-  @Column({ type: 'nvarchar', default: null, length: 100 })
   ApplicantName: string;
+
+  @Column({ type: 'nvarchar', default: null, length: 100 })
+  Mobile: string;
+
+  @Column({ type: 'nvarchar', default: null, length: 100 })
+  EkycStatus: string;
 
   @Column({ type: 'nvarchar', default: null, length: 100 })
   ApplicantPropId: string;
@@ -55,22 +55,7 @@ export class PariharaData extends BaseEntity {
   ApplicantHobli: string;
 
   @Column({ type: 'nvarchar', default: null, length: 100 })
-  Latitude: string;
-
-  @Column({ type: 'nvarchar', default: null, length: 100 })
-  Longitude: string;
-
-  @Column({ type: 'nvarchar', default: null, length: 100 })
   ApplicantGuardianName: string;
-
-  @Column({ type: 'nvarchar', default: null, length: 100 })
-  Mobile: string;
-
-  @Column({ type: 'nvarchar', default: null, length: 100 })
-  KhataNo: string;
-
-  @Column({ type: 'nvarchar', default: null, length: 100 })
-  ApplicantDoorNo: string;
 
   @Column({ type: 'nvarchar', default: null, length: 100 })
   ApplicantHouseType: string;
@@ -82,9 +67,6 @@ export class PariharaData extends BaseEntity {
   EstimatedDamageAmt: string;
 
   @Column({ type: 'nvarchar', default: null, length: 100 })
-  IsPropertyTaxId: string;
-
-  @Column({ type: 'nvarchar', default: null, length: 100 })
   DateOfDamage: string;
 
   @Column({ type: 'nvarchar', default: null, length: 100 })
@@ -93,104 +75,6 @@ export class PariharaData extends BaseEntity {
   @Column({ type: 'nvarchar', default: null, length: 100 })
   DamageCauseType: string;
 
-  @Column({ type: 'nvarchar', default: null, length: 100 })
-  FruitsFarmerId: string;
-
-  @Column({ type: 'nvarchar', default: null, length: 100 })
-  FruitsSurveyNo: string;
-
-  @Column({ type: 'nvarchar', default: null, length: 100 })
-  FruitSurnocNo: string;
-
-  @Column({ type: 'nvarchar', default: null, length: 100 })
-  FruitHissaNo: string;
-
-  @Column({ type: 'nvarchar', default: null, length: 100 })
-  FruitArea: string;
-
-  @Column({ type: 'nvarchar', default: null, length: 100 })
-  FruitGruntas: string;
-
-  @Column({ type: 'nvarchar', default: null, length: 100 })
-  Year: string;
-
-  @Column({ type: 'nvarchar', default: null, length: 100 })
-  Season: string;
-
-  @Column({ type: 'nvarchar', default: null, length: 100 })
-  KGISSurveyNo: string;
-
-  @Column({ type: 'nvarchar', default: null, length: 100 })
-  CropType: string;
-
-  @Column({ type: 'nvarchar', default: null, length: 100 })
-  BloomingType: string;
-
-  @Column({ type: 'nvarchar', default: null, length: 100 })
-  NoTreesDamged: string;
-
-  @Column({ type: 'nvarchar', default: null, length: 100 })
-  CropName: string;
-
-  @Column({ type: 'nvarchar', default: null, length: 100 })
-  CropLossArea: string;
-
-  @Column({ type: 'nvarchar', default: null, length: 100 })
-  CropLossGruntas: string;
-
-  @Column({ type: 'nvarchar', default: null, length: 100 })
-  CropLossPercentage: string;
-
-  @Column({ type: 'nvarchar', default: null, length: 100 })
-  ApproxLoss: string;
-
-  @Column({ type: 'nvarchar', default: null, length: 100 })
-  CattleType: string;
-
-  @Column({ type: 'nvarchar', default: null, length: 100 })
-  CattleCount: string;
-
-  @Column({ type: 'nvarchar', default: null, length: 100 })
-  DeathReason: string;
-
-  @Column({ type: 'nvarchar', default: null, length: 100 })
-  CattleDateTimeDeath: string;
-
-  @Column({ type: 'nvarchar', default: null, length: 100 })
-  RationAadharNo: string;
-
-  @Column({ type: 'nvarchar', default: null, length: 100 })
-  DeceasedName: string;
-
-  @Column({ type: 'nvarchar', default: null, length: 100 })
-  Gender: string;
-
-  @Column({ type: 'nvarchar', default: null, length: 100 })
-  Age: string;
-
-  @Column({ type: 'nvarchar', default: null, length: 100 })
-  ApplicantRelationship: string;
-
-  @Column({ type: 'nvarchar', default: null, length: 100 })
-  LifeDateTimeDeath: string;
-
-  @Column({ type: 'nvarchar', default: null, length: 100 })
-  FruitsIdLocation: string;
-
-  @Column({ type: 'nvarchar', default: null, length: 100 })
-  FIRDetails: string;
-
-  @Column({ type: 'nvarchar', default: null, length: 100 })
-  DamgeType: string;
-
-  @Column({ type: 'nvarchar', default: null, length: 100 })
-  SpecifyOther: string;
-
-  @Column({ type: 'nvarchar', default: null, length: 1000 })
-  Remark: string;
-
-  @Column({ type: 'nvarchar', default: null, length: 100 })
-  EkycStatus: string;
 
   @Column({ type: 'nvarchar', default: null, length: 100 })
   VA_DamageLength: string;
@@ -213,9 +97,6 @@ export class PariharaData extends BaseEntity {
   @Column({ type: 'nvarchar', default: null, length: 100 })
   VA_CompensationValue: string;
 
-  @Column({ type: 'nvarchar', default: null, length: 200 })
-  OtherDamageRemarks: string;
-
   @Column({ type: 'nvarchar', default: null, length: 50 })
   UserId: string;
 
@@ -233,9 +114,6 @@ export class PariharaData extends BaseEntity {
 
   @Column({ type: 'nvarchar', default: null, length: 100 })
   SurveyStatus: string;
-
-  @Column({ type: 'nvarchar', default: null, length: 200 })
-  CropWaterSource: string;
 
   @Column({ type: 'nvarchar', default: null, length: 200 })
   CompensationCategory: string;

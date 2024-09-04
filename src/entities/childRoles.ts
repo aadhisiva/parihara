@@ -7,8 +7,6 @@ import {
     ManyToOne,
     JoinColumn
   } from "typeorm";
-import { UserData } from "./userData";
-import { LoginAccess } from "./loginAccess";
 import { LoginRoles } from "./loginRoles";
   
   

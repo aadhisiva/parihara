@@ -31,23 +31,13 @@ const storage = multer.diskStorage({
 });
 const uploadXlsx = multer({storage});
 
-adminRouter.post('/siginIn', async (req, res) => {
+adminRouter.post('/signUp', async (req, res) => {
     try {
         let body = req.body;
         let result = await adminServices.signupUser(body);
-        return webAppResponse(res, result, body, '/siginIn', WEBMESSAGES.SIGN_UP, req?.user?.UserId, req?.user?.RoleId);
+        return webAppResponse(res, result, body, '/signUp', WEBMESSAGES.SIGN_UP, req?.user?.UserId, req?.user?.RoleId);
     } catch (error) {
-        return webAppResponse(res, error, req.body, '/siginIn', WEBMESSAGES.SIGN_UP, req?.user?.UserId, req?.user?.RoleId);
-    };
-});
-
-adminRouter.post('/sendOtp', async (req, res) => {
-    try {
-        let body = req.body;
-        let result = await adminServices.sendOtp(body);
-        return webAppResponse(res, result, body, '/sendOtp', WEBMESSAGES.SEND_OTP, req?.user?.UserId, req?.user?.RoleId);
-    } catch (error) {
-        return webAppResponse(res, error, req.body, '/sendOtp', WEBMESSAGES.SEND_OTP, req?.user?.UserId, req?.user?.RoleId);
+        return webAppResponse(res, error, req.body, '/signUp', WEBMESSAGES.SIGN_UP, req?.user?.UserId, req?.user?.RoleId);
     };
 });
 
@@ -121,7 +111,7 @@ adminRouter.post('/getSubmissionData', authenticateToken, async (req, res) => {
     };
 });
 
-adminRouter.post('/retriveMasters',authenticateToken, async (req, res) => {
+adminRouter.post('/retriveMasters', async (req, res) => {
     try {
         let body = {...req.body, ...{UserId: req?.user?.UserId}};
         let result = await adminServices.retriveMasters(body);

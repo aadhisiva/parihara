@@ -2,7 +2,8 @@ import {
     Entity,
     PrimaryGeneratedColumn,
     Column,
-    CreateDateColumn
+    CreateDateColumn,
+    UpdateDateColumn
 } from "typeorm";
 
 
@@ -42,9 +43,6 @@ export class AssignMasters {
     @Column({ default: null, type: 'nvarchar', length: 6 })
     Otp: string;
 
-    @Column({ default: null, type: 'nvarchar', length: 50 })
-    UserId: string;
-
     @Column({ default: null, type: 'nvarchar', length: 12 })
     CreatedMobile: string;
 
@@ -54,6 +52,6 @@ export class AssignMasters {
     @CreateDateColumn()
     createdDate: Date;
 
-    @CreateDateColumn()
+    @UpdateDateColumn()
     UpdatedDate: Date;
 };

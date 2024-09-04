@@ -107,5 +107,8 @@ export class UpdatedSurveyLogs {
     SurveyStatus: string;
   
     @CreateDateColumn()
+    CreatedDate: Date;
+
+    @UpdateDateColumn()
     UpdatedDate: Date;
 };

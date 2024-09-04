@@ -103,17 +103,17 @@ userRouter.post('/getSubmissionData', authTokenAndVersion, async (req, res) => {
     }
 });
 
-userRouter.post('/ekycProcess', authTokenAndVersion, async (req, res) => {
+userRouter.post('/getEkycToken', authTokenAndVersion, async (req, res) => {
     try {
         let body = {...req.body, ...{UserId: req.headers.userid}};
-        let result = await userServices.ekycProcess(body);
+        let result = await userServices.getEkycToken(body);
         return mobileAppResponse(res, result, body, getRoleAndUserId(req, MOBILE_MESSAGES.EKYC));
     } catch (error) {
         return mobileAppResponse(res, error);
     }
 });
 
-userRouter.post('/saveEkycData', authTokenAndVersion, async (req, res) => {
+userRouter.post('/saveEkycData', async (req, res) => {
     try {
         let body = req.body;
         let result = await userServices.saveEkycData(body);
@@ -131,7 +131,27 @@ userRouter.get("/ekyRedirection", async (req: Request, res) => {
     }
 });
 
-userRouter.get("/updateEkycProcess", async (req: Request, res) => {
+userRouter.post('/getDemoAuthToken', authTokenAndVersion, async (req, res) => {
+    try {
+        let body = {...req.body, ...{UserId: req.headers.userid}};
+        let result = await userServices.getDemoAuthToken(body);
+        return mobileAppResponse(res, result, body, getRoleAndUserId(req, MOBILE_MESSAGES.EKYC));
+    } catch (error) {
+        return mobileAppResponse(res, error);
+    }
+});
+
+userRouter.post('/saveDemoAuthData', async (req, res) => {
+    try {
+        let body = {...req.body, ...{UserId: req.headers.userid}};
+        let result = await userServices.saveDemoAuthResponse(body);
+        return mobileAppResponse(res, result, body, getRoleAndUserId(req, MOBILE_MESSAGES.EKYC));
+    } catch (error) {
+        return mobileAppResponse(res, error);
+    }
+});
+
+userRouter.get("/updateEkycProcess", authTokenAndVersion,async (req: Request, res) => {
     try {
         let body = req.body;
         let result = await userServices.updateEkycProcess(body);
@@ -141,7 +161,7 @@ userRouter.get("/updateEkycProcess", async (req: Request, res) => {
     }
 });
 
-userRouter.post('/retriveMasters',authTokenAndVersion, async (req, res) => {
+userRouter.post('/retriveMasters', authTokenAndVersion, async (req, res) => {
     try {
         let body = {...req.body, ...{UserId: req?.user?.userid}};
         let result = await userServices.retriveMasters(body);
@@ -161,7 +181,7 @@ userRouter.post('/getKutumbaData',authTokenAndVersion, async (req, res) => {
     };
 });
 
-userRouter.post('/postEscomData', async (req, res) => {
+userRouter.post('/postEscomData', authTokenAndVersion, async (req, res) => {
     try {
         let body = {...req.body, ...{UserId: req?.user?.userid}};
         let result = await userServices.postEscomData(body);

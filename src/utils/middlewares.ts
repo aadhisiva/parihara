@@ -1,7 +1,6 @@
 import { AppDataSource } from "../db/config";
-import { UserData, Version } from "../entities";
+import { VaSurveyData, Version } from "../entities";
 import { API_VERSION_ISSUE, HEADERS_ISSUE } from "./constants";
-import jwt from 'jsonwebtoken';
 
 export async function authVersion(req, res, next) {
     // Read the version from the request header
@@ -41,7 +40,7 @@ export async function authTokenAndVersion(req, res, next) {
     let getVersion = await AppDataSource.getRepository(Version).find();
     let checkVersion = authVersion == getVersion[0]?.Version;
     if (!checkVersion) return res.status(200).send({ code: 403, status: "Failed", message: API_VERSION_ISSUE });
-    let getUser = await AppDataSource.getRepository(UserData).findOneBy({ UserId });
+    let getUser = await AppDataSource.getRepository(VaSurveyData).findOneBy({ UserId });
     if (!getUser) return res.status(200).send({ code: 422, message: "User Doesn't Exist." });
     // Verify the token
     // let verifyToken = (getUser?.Token == token) && getUser?.TokenExpirationTime == generateCurrentTime();

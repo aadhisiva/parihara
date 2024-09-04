@@ -2,7 +2,8 @@ import {
     Entity,
     PrimaryGeneratedColumn,
     Column,
-    CreateDateColumn
+    CreateDateColumn,
+    UpdateDateColumn
 } from "typeorm";
 
 
@@ -21,6 +22,6 @@ export class QuestionMapping {
     @CreateDateColumn()
     createdDate: Date;
 
-    @CreateDateColumn()
+    @UpdateDateColumn()
     UpdatedDate: Date;
 };

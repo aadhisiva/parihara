@@ -2,7 +2,8 @@ import {
     Entity,
     PrimaryGeneratedColumn,
     Column,
-    CreateDateColumn
+    CreateDateColumn,
+    UpdateDateColumn
 } from "typeorm";
 
 
@@ -30,6 +31,6 @@ export class PariharaRoles {
     @CreateDateColumn()
     createdDate: Date;
 
-    @CreateDateColumn()
+    @UpdateDateColumn()
     UpdatedDate: Date;
 };

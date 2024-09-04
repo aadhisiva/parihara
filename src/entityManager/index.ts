@@ -5,7 +5,6 @@ import {
   Kutumba,
   LoginAccess,
   LoginRoles,
-  MasterData,
   MobileLogs,
   OtpLogs,
   PariharaData,
@@ -14,7 +13,6 @@ import {
   QuestionMaster,
   UpdatedSurveyLogs,
   UploadImgAndVideo,
-  UserData,
   Version,
   webLogs,
   QuestionMapping,
@@ -26,14 +24,16 @@ import {
   ChildRole,
   RoleToLoss,
   AssignMastersHistory,
-  EscomData
+  EscomData,
+  VaSurveyData,
+  DemoAuthEkyc
 } from "../entities";
 
 export const entities = () => {
   return [
     MobileLogs,
     OtpLogs,
-    UserData,
+    VaSurveyData,
     webLogs,
     Version,
     Admin,
@@ -43,7 +43,6 @@ export const entities = () => {
     EkycData,
     LoginAccess,
     LoginRoles,
-    MasterData,
     UploadImgAndVideo,
     QuestionMaster,
     DropdownValues,
@@ -58,6 +57,7 @@ export const entities = () => {
     ChildRole,
     RoleToLoss,
     AssignMastersHistory,
-    EscomData
+    EscomData,
+    DemoAuthEkyc
   ];
 };

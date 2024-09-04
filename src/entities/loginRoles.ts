@@ -5,7 +5,7 @@ import {
     CreateDateColumn,
     OneToMany
   } from "typeorm";
-import { UserData } from "./userData";
+import { VaSurveyData } from "./VaSurveyData";
 import { LoginAccess } from "./loginAccess";
 import { ChildRole } from "./childRoles";
 import { RoleToLoss } from "./roleToLoss";
@@ -20,8 +20,8 @@ import { RoleToLoss } from "./roleToLoss";
     @Column({ default: null, type: 'nvarchar', length: 200})
     RoleName: string;
 
-    @OneToMany(() => UserData, ur=>ur.RoleId, { cascade: true, onDelete: "CASCADE" })
-    UserDataFK: UserData[];
+    @OneToMany(() => VaSurveyData, ur=>ur.RoleId, { cascade: true, onDelete: "CASCADE" })
+    VaSurveyDataFK: VaSurveyData[];
 
     @OneToMany(() => LoginAccess, ur=>ur.RoleId, { cascade: true, onDelete: "CASCADE" })
     UdToLoginRoles: LoginAccess[];

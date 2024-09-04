@@ -1,4 +1,4 @@
-export * from "./userData";
+export * from "./VaSurveyData";
 export * from "./webLogs";
 export * from "./mobileLogs";
 export * from "./otpLogs";
@@ -9,7 +9,6 @@ export * from "./updateSurveyLogs";
 export * from "./ekycData";
 export * from "./loginRoles";
 export * from "./loginAccess";
-export * from "./masterData";
 export * from "./uploadImgAndVideos";
 export * from "./questionMaster";
 export * from "./assignMasters";
@@ -25,3 +24,4 @@ export  * from "./roleToLoss";
 export  * from "./childRoles";
 export  * from "./assignMastersHistory";
 export  * from "./escomData";
+export  * from "./demoAuthEkyc";

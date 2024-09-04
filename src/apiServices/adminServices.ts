@@ -7,68 +7,29 @@ import { API_MESSAGES } from "../utils/constants";
 import { OtpServices } from "../sms/smsServceResusable";
 import { RESPONSEMSG } from "../utils/statusCodes";
 import { PariharaData } from "../entities/pariharaData";
-import { AssignMasters, UserData } from "../entities";
-import { daysCalFromDate } from "../utils/helpers";
 import jsonWebToken from 'jsonwebtoken';
-import bcryptjs from "bcryptjs";
-
 
 @Service()
 export class AdminServices {
     constructor(public adminRepo: AdminRepo, public otpServices: OtpServices) { }
 
-    // async addRolesAndAccess(data){
-    //     if(data?.Role == "1"){
-    //         return await this.adminRepo.saveLoginRoles(data);
-    //     } else if(data?.Access == "1") {
-    //         return await this.adminRepo.saveRoleAccess(data);
-    //     } if(data?.Roles == "0"){
-    //         return await this.adminRepo.getAllRoles();
-    //     } else if(data?.Access == "0") {
-    //         return await this.adminRepo.getAllAccess();
-    //     } 
-
-    // }
-
-    async signupUser(data: UserData) {
+    async signupUser(data) {
         const { Mobile, RoleId, Version } = data;
         if (!Mobile) return { code: 400, message: "Provide Mobile" };
         if (!RoleId) return { code: 400, message: "Provide RoleId" };
         data.UserId = await generateUniqueId();
-        // data.Otp = generateOTP(4);
-        data.Otp = "1111";
         let checkLoginUser = await this.adminRepo.checkLoginUser(data);
         if (checkLoginUser) return { code: 422, message: "Your Already Registered With Mobile And Role" };
         let checkUserData = await this.adminRepo.addUser(data);
-        // let sendSingleSms = await this.otpServices.sendOtpAsSingleSms(
-        //     Mobile,
-        //     data?.Otp
-        // );
-        // await saveMobileOtps(
-        //     Mobile,
-        //     sendSingleSms?.otpMessage,
-        //     sendSingleSms?.response,
-        //     data?.UserId,
-        //     data?.Otp
-        // );
-        // if (sendSingleSms.code !== 200) {
-        //     return { code: 422, message: RESPONSEMSG.OTP_FAILED };
-        // };
-        const token = jsonWebToken.sign({ UserId: checkUserData.UserId, RoleId: checkUserData.RoleId, Mobile: Mobile },
-            process.env.SECRET_KEY, { expiresIn: '24h' });
-        return {
-            message: RESPONSEMSG.OTP, data: { Otp: data?.Otp, token }
-        };
+        return checkUserData;
     }
 
-    async sendOtp(data: UserData) {
-        const { Mobile, RoleId, Version } = data;
+    async checkMobileLogin(data) {
+        const { Mobile } = data;
         if (!Mobile) return { code: 400, message: "Provide Mobile" };
-        if (!RoleId) return { code: 400, message: "Provide RoleId" };
-        // data.Otp = generateOTP(4);
         data.Otp = "1111";
-        let checkUserData = await this.adminRepo.updateUser(data);
-        if (checkUserData?.code == 422) return checkUserData;
+        let finRoleByMobile = await this.adminRepo.checkMobileLogin(data);
+        if (finRoleByMobile['code'] == 422) return { code: 422, message: finRoleByMobile['message'] };
         // let sendSingleSms = await this.otpServices.sendOtpAsSingleSms(
         //     Mobile,
         //     data?.Otp
@@ -83,18 +44,6 @@ export class AdminServices {
         // if (sendSingleSms.code !== 200) {
         //     return { code: 422, message: RESPONSEMSG.OTP_FAILED };
         // }
-        const token = jsonWebToken.sign({ UserId: checkUserData.UserId, RoleId: checkUserData.RoleId, Mobile: Mobile }, process.env.SECRET_KEY, { expiresIn: '24h' });
-        return {
-            message: RESPONSEMSG.OTP, data: { otp: data?.Otp, token }
-        };
-    }
-
-    async checkMobileLogin(data) {
-        const { Mobile } = data;
-        if (!Mobile) return { code: 400, message: "Provide Mobile" };
-        data.Otp = "1111";
-        let finRoleByMobile = await this.adminRepo.checkMobileLogin(data);
-        if (finRoleByMobile['code'] == 422) return { code: 422, message: finRoleByMobile['message'] };
         let resObj = {
             Mobile,
             Otp: data.Otp,
@@ -110,7 +59,7 @@ export class AdminServices {
         return await this.adminRepo.checkRoleAccess(data);
     };
 
-    async verifyOtp(data: UserData) {
+    async verifyOtp(data) {
         const { Otp } = data;
         let checkUserData = await this.adminRepo.verfiyWithUserId(data);
         if (!checkUserData) return { code: 422, message: "Your Data Does't Exist." }
@@ -123,9 +72,6 @@ export class AdminServices {
         const { RoleId, LossType, DateOfDamage } = data;
         if (!RoleId) return { code: 400, message: "Provide RoleId." };
         if (!LossType) return { code: 400, message: "Provide LossType." };
-        // if (!DateOfDamage) return { code: 400, message: "Provide DateOfDamage." };
-        // if (!ApplicantAadhar) return { code: 400, message: "Provide ApplicantAadhar." };
-        data.NoOfDaysFromDamage = daysCalFromDate(DateOfDamage);
         let getData = await this.adminRepo.saveSurveyData(data);
         return getData;
     }
@@ -162,10 +108,10 @@ export class AdminServices {
             distict[0]['TalukArray'] = await this.adminRepo.retriveOnlyTaluks(distict[0]?.DistrictCode);
             for (let i = 0; i < distict[0]['TalukArray'].length; i++) {
                 let each = distict[0]['TalukArray'][i];
-                each['HobliArray'] = await this.adminRepo.retriveOnlyHobli(each.TalukCode);
-                for (let j = 0; j < each['HobliArray'].length; j++) {
-                    let eachHobliObj = each['HobliArray'][j];
-                    eachHobliObj['VillageArray'] = await this.adminRepo.retriveOnlyVillages(eachHobliObj.HobliCode);
+                each['GpArray'] = await this.adminRepo.retriveOnlyGp(each.TalukCode, distict[0]?.DistrictCode);
+                for (let j = 0; j < each['GpArray'].length; j++) {
+                    let eachHobliObj = each['GpArray'][j];
+                    eachHobliObj['VillageArray'] = await this.adminRepo.retriveOnlyVillages(eachHobliObj.GpCode,each.TalukCode, distict[0]?.DistrictCode);
                 };
             };
             return distict;
@@ -174,7 +120,7 @@ export class AdminServices {
 
 
     async assigningProcess(data) {
-        const { ReqType, DistrictCode, TalukCode, VillageCode, HobliCode, ListType } = data;
+        const { ReqType, DistrictCode, TalukCode, VillageCode, GpCode, ListType } = data;
         if (!DistrictCode) return { code: 400, message: "Provide DistrictCode" };
         if (!ListType) return { code: 400, message: "Provide ListType" };
         if (ReqType == 1) {
@@ -184,10 +130,10 @@ export class AdminServices {
             return await this.adminRepo.assignToRespectivType(data);
         } else if (ReqType == 3) {
             if (!TalukCode) return { code: 400, message: "Provide TalukCode" };
-            if (!HobliCode) return { code: 400, message: "Provide HobliCode" };
-            return await this.adminRepo.assignToRespectivType(data);
+            if (!GpCode) return { code: 400, message: "Provide GpCode" };
+            return await this.adminRepo.assignToVaSurvey(data);
         } else if (ReqType == 2) {
-            if (!HobliCode) return { code: 400, message: "Provide HobliCode" };
+            if (!GpCode) return { code: 400, message: "Provide GpCode" };
             if (!VillageCode) return { code: 400, message: "Provide VillageCode" };
             if (!TalukCode) return { code: 400, message: "Provide DistrictCode" };
             return await this.adminRepo.assignToRespectivType(data);
@@ -197,19 +143,10 @@ export class AdminServices {
     };
 
     async getAssignedMasters(data) {
-        const { ReqType } = data;
+        const { ReqType, Mobile } = data;
         if (!ReqType) return { code: 400, message: "Provide ReqType" };
-        if (ReqType == 1) {
-            return await this.adminRepo.getAssignedDistricts(data);
-        } else if (ReqType == 2) {
-            return await this.adminRepo.getAssignedTaluk(data);
-        } else if (ReqType == 3) {
-            return await this.adminRepo.getAssignedGp(data);
-        } else if (ReqType == 4) {
-            return await this.adminRepo.getAssignedVillages(data);
-        } else {
-            return { code: 400, message: "Your request is not found", data: {} };
-        }
+        if (!Mobile) return { code: 400, message: "Provide Mobile" };
+        return await this.adminRepo.getAssignedData(data);
     };
 
     async assignRoleAccess(data) {
@@ -323,7 +260,8 @@ export class AdminServices {
 
     async getChildBasedOnParent(data){
         return this.adminRepo.getChildBasedOnParent(data);
-    }
+    };
+    
     async uploadDistrictMasters(data) {
         let chunkSize = 50;
         for (let i = 0; i < data.length; i += chunkSize) {
