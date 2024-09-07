@@ -43,7 +43,17 @@ userRouter.post('/login', authVersion, async (req, res) => {
     }
 });
 
-userRouter.post('/verifyOtp', authTokenAndVersion, async (req, res) => {
+userRouter.post('/senOtpForAuth', async (req, res) => {
+    try {
+        let body = req.body;
+        let result = await userServices.sendOtpForAuth(body);
+        return mobileAppResponse(res, result, body, getRoleAndUserId(req, MOBILE_MESSAGES.SEND_OTP));
+    } catch (error) {
+        return mobileAppResponse(res, error);
+    }
+});
+
+userRouter.post('/verifyOtp', authVersion, async (req, res) => {
     try {
         let body = {...req.body, ...{UserId: req.headers.userid}};
         let result = await userServices.verifyOtp(body);
@@ -57,6 +67,16 @@ userRouter.post('/saveSurveyData', authTokenAndVersion, async (req, res) => {
     try {
         let body = {...req.body, ...{UserId: req.headers.userid}};
         let result = await userServices.saveSurveyData(body);
+        return mobileAppResponse(res, result, body, getRoleAndUserId(req, MOBILE_MESSAGES.ADDED));
+    } catch (error) {
+        return mobileAppResponse(res, error);
+    }
+});
+
+userRouter.post('/assignedGpDetails', authVersion, async (req, res) => {
+    try {
+        let body = {...req.body, ...{UserId: req.headers.userid}};
+        let result = await userServices.assignedGpDetails(body);
         return mobileAppResponse(res, result, body, getRoleAndUserId(req, MOBILE_MESSAGES.ADDED));
     } catch (error) {
         return mobileAppResponse(res, error);
@@ -103,7 +123,7 @@ userRouter.post('/getSubmissionData', authTokenAndVersion, async (req, res) => {
     }
 });
 
-userRouter.post('/getEkycToken', authTokenAndVersion, async (req, res) => {
+userRouter.post('/getEkycToken', async (req, res) => {
     try {
         let body = {...req.body, ...{UserId: req.headers.userid}};
         let result = await userServices.getEkycToken(body);
@@ -151,10 +171,20 @@ userRouter.post('/saveDemoAuthData', async (req, res) => {
     }
 });
 
-userRouter.get("/updateEkycProcess", authTokenAndVersion,async (req: Request, res) => {
+userRouter.post("/updateEkycProcess", authTokenAndVersion,async (req: Request, res) => {
     try {
         let body = req.body;
         let result = await userServices.updateEkycProcess(body);
+        return mobileAppResponse(res, result, body, getRoleAndUserId(req, MOBILE_MESSAGES.AFTER_EKYC_UPDATE));
+    } catch (error) {
+        return mobileAppResponse(res, error);
+    }
+});
+
+userRouter.post("/updateDemoAuthProcess", authTokenAndVersion,async (req: Request, res) => {
+    try {
+        let body = req.body;
+        let result = await userServices.updateDemoAuthProcess(body);
         return mobileAppResponse(res, result, body, getRoleAndUserId(req, MOBILE_MESSAGES.AFTER_EKYC_UPDATE));
     } catch (error) {
         return mobileAppResponse(res, error);
@@ -185,6 +215,16 @@ userRouter.post('/postEscomData', authTokenAndVersion, async (req, res) => {
     try {
         let body = {...req.body, ...{UserId: req?.user?.userid}};
         let result = await userServices.postEscomData(body);
+        return mobileAppResponse(res, result, body, getRoleAndUserId(req, "Get Escom Data"));
+    } catch (error) {
+        return mobileAppResponse(res, error);
+    };
+});
+
+userRouter.get('/getEdMinorityData', async (req, res) => {
+    try {
+        let body = {...{id: req.query.id}, ...{UserId: req?.user?.userid}};
+        let result = await userServices.getEdMinorityData(body);
         return mobileAppResponse(res, result, body, getRoleAndUserId(req, "Get Escom Data"));
     } catch (error) {
         return mobileAppResponse(res, error);

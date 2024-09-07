@@ -29,15 +29,22 @@ app.use(express.urlencoded({ extended: true }));
 app.use(compression()); // for response in low sizes
 
 // cors setup for communication of sever and client
-app.use(cors());
+app.use(
+  cors({
+    origin: ["http://parihara3.karnataka.gov.in", "https://parihara3.karnataka.gov.in", "http://103.138.197.135", "http://localhost:5173"]
+  }
+  ));
 
 //setting req headers and res headers 
 app.use(function (req, res, next) {
-  res.header("X-Frame-Options", "SAMEORIGIN");
   res.header("X-XSS-Protection", "1; mode=block'");
   res.header("X-Content-Type-Options", "nosniff");
   res.header("strict-transport-security", "max-age=63072000; includeSubdomains; preload");
-  res.header('Content-Security-Policy', '<policy-directive>; <policy-directive>')
+  res.setHeader('X-Frame-Options', 'DENY');
+  res.removeHeader('X-Powered-By');
+  // Set Content-Security-Policy header to restrict embedding and other policies
+  res.setHeader('Content-Security-Policy', "frame-ancestors 'self'; default-src 'self'; script-src 'self'; style-src 'self';");
+
   next();
 });
 
@@ -51,23 +58,23 @@ app.use(morgan('common', {
 }));
 
 app.use(morgan('dev'));
-  
-  app.get("/api/run", (req, res) => {
-    res.send("running")
-  })
-  
-  // controllers
-  app.use('/api/mobile', userRouter);
-  app.use('/api/admin', adminRouter);
-  
-  // db initialization while running the server 
-  AppDataSource.initialize().then(async (connection) => {
-    app.listen(port, () => {
-      Logger.info(`⚡️[Database]: Database connected....+++++++ ${port}`);
-    });
-  }).catch(error => {
-    Logger.error("connection error :::::::", error);
-    throw new Error("new Connection ERROR " + JSON.stringify(error));
-  })
+
+app.get("/api/run", (req, res) => {
+  res.send("running")
+})
+
+// controllers
+app.use('/api/mobile', userRouter);
+app.use('/api/admin', adminRouter);
+
+// db initialization while running the server 
+AppDataSource.initialize().then(async (connection) => {
+  app.listen(port, () => {
+    Logger.info(`⚡️[Database]: Database connected....+++++++ ${port}`);
+  });
+}).catch(error => {
+  Logger.error("connection error :::::::", error);
+  throw new Error("new Connection ERROR " + JSON.stringify(error));
+})
 
 

@@ -15,6 +15,7 @@ import {
   GramaPanchayat,
   Taluk,
   Villages,
+  RDMinority,
 } from "../entities";
 import { Equal, createConnection } from "typeorm";
 import { PariharaData } from "../entities/pariharaData";
@@ -36,6 +37,7 @@ const distictRepo = AppDataSource.getRepository(Districts);
 const talukRepo = AppDataSource.getRepository(Taluk);
 const gramaPanchayatRepo = AppDataSource.getRepository(GramaPanchayat);
 const villagesRepo = AppDataSource.getRepository(Villages);
+const rdMinorityRepo = AppDataSource.getRepository(RDMinority);
 
 @Service()
 export class UserRepo {
@@ -61,47 +63,56 @@ export class UserRepo {
   };
 
   async updateUser(data) {
-    const {Mobile, RoleId} = data;
-    let getData = await vaSurveyDataRepo.findOneBy({Mobile: Equal(Mobile), RoleId: Equal(RoleId)});
-    if(!getData) return {code: 422, message: "Your Data Does't Exist."}
-    let newData = {...getData, ...data};
-    return await vaSurveyDataRepo.save(newData);
+    const { Mobile, RoleId } = data;
+    let getData = await vaSurveyDataRepo.findOneBy({ Mobile: Equal(Mobile), RoleId: Equal(RoleId) });
+    if (!getData) return { code: 422, message: "Your Data Does't Exist." }
+    let newData = { ...getData, ...data };
+    await vaSurveyDataRepo.save(newData);
+    return await vaSurveyDataRepo.createQueryBuilder('vs')
+      .innerJoinAndSelect(Districts, 'dd', 'dd.DistrictCode=vs.DistrictCode')
+      .innerJoinAndSelect(Taluk, 'td', 'td.DistrictCode=vs.DistrictCode and td.TalukCode=vs.TalukCode and td.Type=vs.Type')
+      .innerJoinAndSelect(GramaPanchayat, 'gp', 'gp.DistrictCode=vs.DistrictCode and gp.TalukCode=vs.TalukCode and gp.GpCode=vs.GpCode and gp.Type=vs.Type')
+      .select(["vs.DistrictCode DistrictCode, vs.TalukCode TalukCode, vs.GpCode GpCode, vs.Type Type", "vs.UserId UserId",
+        "CONCAT('D-',dd.DistrictNameEn,'-T-',td.TalukNameEn,'-G-',gp.GpNameEn) as assignedGp"
+      ])
+      .where("vs.Mobile = :Mobile and vs.RoleId = :RoleId", { Mobile, RoleId })
+      .getRawMany();
   };
 
   async checkLoginUser(data) {
-    const {Mobile, RoleId} = data;
-    return await vaSurveyDataRepo.findOneBy({Mobile: Equal(Mobile), RoleId: Equal(RoleId)});
+    const { Mobile, RoleId } = data;
+    return await vaSurveyDataRepo.findOneBy({ Mobile: Equal(Mobile), RoleId: Equal(RoleId) });
   };
 
   async verfiyWithUserId(data) {
-    const { UserId } = data;
-    return await vaSurveyDataRepo.findOneBy({UserId: Equal(UserId)});
+    const { Mobile } = data;
+    return await vaSurveyDataRepo.findOneBy({ Mobile: Equal(Mobile) });
   };
 
   async saveSurveyData(data: PariharaData) {
     const { ApplicantAadhar } = data;
     let findData = await pariharaDataRepo.findOneBy({ ApplicantAadhar: Equal(ApplicantAadhar) });
-    if(findData) return {code: 422, message: "Already registered this aadhar details."};
-    data.SurveyStatus = "Pending Ekyc"
+    if (findData) return { code: 422, message: "Already registered application with aadhar." };
+    data.SurveyStatus = "Pending Ekyc";
     data.SubmissionId = await generateUniqueSubmissionId();
     return await pariharaDataRepo.save(data);
   };
 
   async updateSurveyData(data) {
-    const {SubmissionId} = data;
-    let getData = await pariharaDataRepo.findOneBy({SubmissionId: Equal(SubmissionId)});
-    if(!getData) return {code: 422, message: "Data doesn't exist."} 
-    let newData = {...getData, ...data};
+    const { SubmissionId } = data;
+    let getData = await pariharaDataRepo.findOneBy({ SubmissionId: Equal(SubmissionId) });
+    if (!getData) return { code: 422, message: "Data doesn't exist." }
+    let newData = { ...getData, ...data };
     await updatedSurveyLogsRepo.save(data);
     return await pariharaDataRepo.save(newData);
   };
 
   /* *********** old ************** */
   async getSubmissionList(data) {
-    const {  UserId , SurveyStatus,  LossType, PageNo = 1, PageSize= 10 } = data;
+    const { UserId, SurveyStatus, LossType, PageNo = 1, PageSize = 10 } = data;
     let totalData = await pariharaDataRepo.findAndCount({
-      where: {UserId: Equal(UserId), LossType: Equal(LossType), SurveyStatus: Equal(SurveyStatus)},
-      select: ["LossType", "Mobile","ApplicantName", "CreatedDate", "DateOfDamage", "SubmissionId", "SurveyStatus"],
+      where: { UserId: Equal(UserId), LossType: Equal(LossType), SurveyStatus: Equal(SurveyStatus) },
+      select: ["LossType", "Mobile", "ApplicantName", "CreatedDate", "DateOfDamage", "SubmissionId", "SurveyStatus"],
       skip: (PageNo - 1) * PageSize,
       take: PageSize
     });
@@ -114,9 +125,9 @@ export class UserRepo {
   };
 
   async getSubmissionListAll(data) {
-    const {  UserId ,  PageNo = 1, PageSize= 10 } = data;   
+    const { UserId, PageNo = 1, PageSize = 10 } = data;
     let totalData = await pariharaDataRepo.findAndCount({
-      where: {UserId: Equal(UserId)},
+      where: { UserId: Equal(UserId) },
       select: ["LossType", "ApplicantName", "Mobile", "SurveyStatus", "CreatedDate", "DateOfDamage", "SubmissionId", "SurveyStatus"],
       skip: (PageNo - 1) * PageSize,
       take: PageSize
@@ -129,11 +140,11 @@ export class UserRepo {
     }
   };
 
-  
+
   async getSubmissionListAllWithLossType(data) {
-    const {  UserId , LossType,  PageNo = 1, PageSize= 10 } = data;   
+    const { UserId, LossType, PageNo = 1, PageSize = 10 } = data;
     let totalData = await pariharaDataRepo.findAndCount({
-      where: {UserId: Equal(UserId), LossType: Equal(LossType)},
+      where: { UserId: Equal(UserId), LossType: Equal(LossType) },
       select: ["LossType", "ApplicantName", "Mobile", "SurveyStatus", "CreatedDate", "DateOfDamage", "SubmissionId", "SurveyStatus"],
       skip: (PageNo - 1) * PageSize,
       take: PageSize
@@ -145,18 +156,18 @@ export class UserRepo {
       totalData: totalData[0]
     }
   };
-/* *********** Ended old ************** */
+  /* *********** Ended old ************** */
 
   async geAllList(data, access) {
-    const { PageNo = 1, PageSize= 10, LossType } = data;   
+    const { PageNo = 1, PageSize = 10, LossType } = data;
     let totalCount = await pariharaDataRepo.count({
-      where: [{ SurveyStatus: access?.Pending && "Pending"  }, { SurveyStatus: access?.PendingEkyc && "Pending Ekyc"  }, { SurveyStatus: access?.SeekClarification ?? "SeekClarification" }],
+      where: [{ SurveyStatus: access?.Pending && "Pending" }, { SurveyStatus: access?.PendingEkyc && "Pending Ekyc" }, { SurveyStatus: access?.SeekClarification ?? "SeekClarification" }],
       select: ["LossType", "Mobile", "ApplicantName", "CreatedDate", "DateOfDamage", "SubmissionId", "SurveyStatus", 'id'],
       skip: (PageNo - 1) * PageSize,
       take: PageSize
     });
     let totalData = await pariharaDataRepo.find({
-      where: [{ LossType: Equal(LossType), SurveyStatus: access?.Pending && "Pending"  }, { SurveyStatus: access?.PendingEkyc && "Pending Ekyc"  }, { SurveyStatus: access?.SeekClarification ?? "Seek Clarification" }],
+      where: [{ LossType: Equal(LossType), SurveyStatus: access?.Pending && "Pending" }, { SurveyStatus: access?.PendingEkyc && "Pending Ekyc" }, { SurveyStatus: access?.SeekClarification ?? "Seek Clarification" }],
       select: ["LossType", "Mobile", "ApplicantName", "CreatedDate", "DateOfDamage", "SubmissionId", "SurveyStatus", 'id', "SurveyStatus"],
       skip: (PageNo - 1) * PageSize,
       take: PageSize
@@ -170,11 +181,11 @@ export class UserRepo {
   };
 
   async getAllLossType(data, access) {
-    const { PageNo = 1, PageSize= 10, LossType } = data;   
+    const { PageNo = 1, PageSize = 10, LossType } = data;
     let totalCount = await pariharaDataRepo.count({
       where: [
-        { SurveyStatus: access?.Pending && "Pending", LossType: Equal(LossType)  }, 
-        { SurveyStatus: access?.PendingEkyc && "Pending Ekyc", LossType: Equal(LossType)  }, 
+        { SurveyStatus: access?.Pending && "Pending", LossType: Equal(LossType) },
+        { SurveyStatus: access?.PendingEkyc && "Pending Ekyc", LossType: Equal(LossType) },
         { SurveyStatus: access?.SeekClarification ?? "SeekClarification", LossType: Equal(LossType) }
       ],
       select: ["LossType", "Mobile", "ApplicantName", "CreatedDate", "DateOfDamage", "SubmissionId", "SurveyStatus", 'id'],
@@ -183,8 +194,8 @@ export class UserRepo {
     });
     let totalData = await pariharaDataRepo.find({
       where: [
-        { SurveyStatus: access?.Pending && "Pending"  }, 
-        { SurveyStatus: access?.PendingEkyc && "Pending Ekyc"  }, 
+        { SurveyStatus: access?.Pending && "Pending" },
+        { SurveyStatus: access?.PendingEkyc && "Pending Ekyc" },
         { SurveyStatus: access?.SeekClarification ?? "Seek Clarification" }],
       select: ["LossType", "Mobile", "ApplicantName", "CreatedDate", "DateOfDamage", "SubmissionId", "SurveyStatus", 'id', "SurveyStatus"],
       skip: (PageNo - 1) * PageSize,
@@ -199,15 +210,15 @@ export class UserRepo {
   };
 
   async getAllListTypesWise(data, access) {
-    const { PageNo = 1, PageSize= 10, SurveyStatus, UserId, LossType } = data;   
+    const { PageNo = 1, PageSize = 10, SurveyStatus, UserId, LossType } = data;
     let totalCount = await pariharaDataRepo.count({
-      where: { SurveyStatus: SurveyStatus, UserId: UserId, LossType: LossType},
+      where: { SurveyStatus: SurveyStatus, UserId: UserId, LossType: LossType },
       select: ["LossType", "Mobile", "ApplicantName", "CreatedDate", "DateOfDamage", "SubmissionId", "SurveyStatus", 'id'],
       skip: (PageNo - 1) * PageSize,
       take: PageSize
     });
     let totalData = await pariharaDataRepo.find({
-      where: { SurveyStatus: SurveyStatus, UserId: UserId, LossType: LossType},
+      where: { SurveyStatus: SurveyStatus, UserId: UserId, LossType: LossType },
       select: ["LossType", "Mobile", "ApplicantName", "CreatedDate", "DateOfDamage", "SubmissionId", "SurveyStatus", 'id', "SurveyStatus"],
       skip: (PageNo - 1) * PageSize,
       take: PageSize
@@ -222,32 +233,38 @@ export class UserRepo {
 
   async getUserAccessData(data) {
     let getData = await vaSurveyDataRepo.createQueryBuilder('ud')
-    .innerJoinAndSelect(LoginAccess, 'la', "la.RoleId=ud.RoleId")
-    .select(["la.PendingEkyc as PendingEkyc", "la.RoleId as RoleId", "la.Pending as Pending", "la.SeekClarification as SeekClarification"])
-    .where("ud.UserId = :id", {id: data?.UserId})
-    .getRawOne();
+      .innerJoinAndSelect(LoginAccess, 'la', "la.RoleId=ud.RoleId")
+      .select(["la.PendingEkyc as PendingEkyc", "la.RoleId as RoleId", "la.Pending as Pending", "la.SeekClarification as SeekClarification"])
+      .where("ud.UserId = :id", { id: data?.UserId })
+      .getRawOne();
     return getData;
   }
 
   async getSubmissionData(data) {
-    const {  SubmissionId } = data;
-    return await pariharaDataRepo.findOneBy({SubmissionId: Equal(SubmissionId)})
+    const { SubmissionId } = data;
+    return await pariharaDataRepo.findOneBy({ SubmissionId: Equal(SubmissionId) })
   };
-  
+
   async saveSurveyImages(data) {
     return await pariharaImgAndVideoRepo.save(data);
   };
 
+  async assignedGpDetails(data) {
+    const { DistrictCode, TalukCode,GpCode, Type } = data;
+    let query = `execute getAssignedGpData @0,@1,@2,@3`;
+    return await AppDataSource.query(query, [DistrictCode, TalukCode, GpCode, Type])
+  }
+
   async checkAadharStatus(ApplicantAadhar) {
-    let EkycStatus = "Completed"; 
-    return await pariharaDataRepo.findOneBy({ApplicantAadhar: Equal(ApplicantAadhar), EkycStatus: Equal(EkycStatus)});
+    let EkycStatus = "Completed";
+    return await pariharaDataRepo.findOneBy({ ApplicantAadhar: Equal(ApplicantAadhar), EkycStatus: Equal(EkycStatus) });
   };
 
   async updateEkyctxnId(data) {
-    const {SubmissionId, txnDateTime} = data;
-    let getData = await pariharaDataRepo.findOneBy({SubmissionId: Equal(SubmissionId)});
-    if(!getData) return {code: 422, message: "Data doesn't exist."} 
-    let newData = {...getData, ...{txnDateTime}};
+    const { SubmissionId, txnDateTime } = data;
+    let getData = await pariharaDataRepo.findOneBy({ SubmissionId: Equal(SubmissionId) });
+    if (!getData) return { code: 422, message: "Data doesn't exist." }
+    let newData = { ...getData, ...{ txnDateTime } };
     return await pariharaDataRepo.save(newData);
   };
 
@@ -256,10 +273,14 @@ export class UserRepo {
   };
 
   async fetchEkycData(txnDateTime) {
-    return await ekycDataRepo.findOneBy({txnDateTime: Equal(txnDateTime)});
+    return await ekycDataRepo.findOneBy({ txnDateTime: Equal(txnDateTime) });
   };
 
-  
+  async fetchDemoEkycData(txnDateTime) {
+    return await demoAuthEkycRepo.findOneBy({ TxnDateTime: Equal(txnDateTime) });
+  };
+
+
   async retriveDistrictWithCodes() {
     return await distictRepo.createQueryBuilder('md')
       .select("DISTINCT DistrictCode, DistrictNameEn DistrictName")
@@ -274,34 +295,35 @@ export class UserRepo {
   // };
   async retriveOnlyDistrict(code) {
     return await distictRepo.createQueryBuilder('md')
-    .select("DISTINCT DistrictCode, DistrictNameEn DistrictName")
-    .where("md.DistrictCode= :id", {id: code})
-    .getRawMany();
+      .select("DISTINCT DistrictCode, DistrictNameEn DistrictName")
+      .where("md.DistrictCode= :id", { id: code })
+      .getRawMany();
   };
   async retriveOnlyTaluks(code) {
     return await talukRepo.createQueryBuilder('md')
-    .select("DISTINCT TalukCode, TalukNameEn TalukName")
-    .where("md.DistrictCode= :id", {id: code})
-    .getRawMany();
+      .select("DISTINCT TalukCode, TalukNameEn TalukName")
+      .where("md.DistrictCode= :id", { id: code })
+      .getRawMany();
   };
   async retriveOnlyGp(code, dcode) {
     return await gramaPanchayatRepo.createQueryBuilder('md')
-    .select("DISTINCT GpCode, GpNameEn GpName")
-    .where("md.TalukCode= :id and md.DistrictCode = :dcode", {id: code, dcode})
-    .getRawMany();
+      .select("DISTINCT GpCode, GpNameEn GpName")
+      .where("md.TalukCode= :id and md.DistrictCode = :dcode", { id: code, dcode })
+      .getRawMany();
   };
   async retriveOnlyVillages(code, tcode, dcode) {
     return await villagesRepo.createQueryBuilder('md')
-    .select("DISTINCT VillageCode, VillageNameEn VillageName")
-    .where("md.GpCode= :id and md.DistrictCode = :dcode and md.TalukCode = :tcode", {id: code, dcode, tcode})
-    .getRawMany();
+      .select("DISTINCT VillageCode, VillageNameEn VillageName")
+      .where("md.GpCode= :id and md.DistrictCode = :dcode and md.TalukCode = :tcode", { id: code, dcode, tcode })
+      .getRawMany();
   };
 
   async updateEkycAfter(data) {
-    const {SubmissionId} = data;
-    let findOne = await pariharaDataRepo.findOneBy({SubmissionId: Equal(SubmissionId)});
-    let newData = {...findOne, ...{EkycStatus: "Completed", SurveyStatus: "Pending"}}
-    return await ekycDataRepo.save(newData);
+    const { SubmissionId, txnDateTime } = data;
+    let findOne = await pariharaDataRepo.findOneBy({ SubmissionId: Equal(SubmissionId) });
+    let newData = { ...findOne, ...{ EkycStatus: "Completed", SurveyStatus: "Pending", txnDateTime: txnDateTime } }
+    await updatedSurveyLogsRepo.save(data);
+    return await pariharaDataRepo.save(newData);
   };
 
   async saveKutumbaData(data) {
@@ -311,13 +333,19 @@ export class UserRepo {
     return await kutumbaRepo.save(newData);
   };
 
-  async saveDemoAuthResponse(data){
+  async saveDemoAuthResponse(data) {
     return await demoAuthEkycRepo.save(data);
   };
 
   async saveEscomData(data) {
     let findData = await escomDataRepo.save(data);
     return findData;
+  };
+
+  async saveRdMinority(data) {
+    let findData = await rdMinorityRepo.findOneBy({GSCNo: Equal(data?.GSCNo)});
+    let newData = {...findData, ...data};
+    return await rdMinorityRepo.save(newData);
   };
 
   async getKutumbaData(rc) {
@@ -327,19 +355,19 @@ export class UserRepo {
 
   async uploadImages(imageObj) {
     const { ImageData, ImageName, UserId } = imageObj;
-    return await uploadImgAndVideoRepo.save({ImageData, ImageName, RecordType: 'Image', UserId: UserId})
+    return await uploadImgAndVideoRepo.save({ ImageData, ImageName, RecordType: 'Image', UserId: UserId })
   }
 
   async getImage(id) {
-    return await uploadImgAndVideoRepo.findOneBy({id: Equal(id)})
+    return await uploadImgAndVideoRepo.findOneBy({ id: Equal(id) })
   }
 
   async uploadVideos(data) {
     const { ImageData, ImageName, UserId } = data;
-    return await uploadImgAndVideoRepo.save({ImageData, ImageName, RecordType: 'Video', UserId: UserId})
+    return await uploadImgAndVideoRepo.save({ ImageData, ImageName, RecordType: 'Video', UserId: UserId })
   }
 
   async getVideo(id) {
-    return await uploadImgAndVideoRepo.findOneBy({id: Equal(id)})
+    return await uploadImgAndVideoRepo.findOneBy({ id: Equal(id) })
   }
 }

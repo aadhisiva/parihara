@@ -1,8 +1,11 @@
 import { Service } from "typedi";
 import { UserRepo } from "../apiRepository/userRepo";
 import {
+    generateOTP,
     generateUniqueId,
     GetEscomDataFromApi,
+    GetRdMinorityData,
+    saveMobileOtps,
 } from "../utils/resuableCode";
 import { API_MESSAGES } from "../utils/constants";
 import { OtpServices } from "../sms/smsServceResusable";
@@ -11,7 +14,7 @@ import { PariharaData } from "../entities/pariharaData";
 import { EkycData } from "../entities/ekycData";
 import { fetchDataFromKutumba } from "../utils/kutumba/kutumbaData";
 import { daysCalFromDate } from "../utils/helpers";
-import { getDemoEkycDataFfromDBT, getEkycDataFfromDBT, mapToEkycDetails } from "../utils/ekyc";
+import { getDemoEkycDataFfromDBT, getEkycDataFfromDBT, mapToDemoAuthEkycDetails, mapToEkycDetails } from "../utils/ekyc";
 
 @Service()
 export class UserServices {
@@ -56,7 +59,7 @@ export class UserServices {
         // data.Otp = generateOTP(4);
         data.Otp = "1111";
         let checkUserData = await this.userRepo.updateUser(data);
-        if (checkUserData?.code == 422) return checkUserData;
+        if (checkUserData['code'] == 422) return checkUserData;
         // let sendSingleSms = await this.otpServices.sendOtpAsSingleSms(
         //     Mobile,
         //     data?.Otp
@@ -72,15 +75,32 @@ export class UserServices {
         //     return { code: 422, message: RESPONSEMSG.OTP_FAILED };
         // }
         return {
-            message: RESPONSEMSG.OTP, data: {
-                UserId: checkUserData.UserId,
-                RoleId: checkUserData.RoleId
-            }
+            message: RESPONSEMSG.OTP, data: checkUserData
         };
+    };
+
+    async sendOtpForAuth(data){
+        data.Otp = generateOTP(4);
+        const {Mobile, Otp, UserId} = data;
+        // let sendSingleSms = await this.otpServices.sendOtpAsSingleSms(
+        //     Mobile,
+        //     Otp
+        // );
+        // await saveMobileOtps(
+        //     Mobile,
+        //     sendSingleSms?.otpMessage,
+        //     sendSingleSms?.response,
+        //     UserId,
+        //     Otp
+        // );
+        // if (sendSingleSms.code !== 200) {
+        //     return { code: 422, message: RESPONSEMSG.OTP_FAILED };
+        // };
+        return {message: RESPONSEMSG.OTP ,data: Otp}
     }
 
     async verifyOtp(data) {
-        const { Otp } = data;
+        const { Otp, Mobile } = data;
         let checkUserData = await this.userRepo.verfiyWithUserId(data);
         if (!checkUserData) return { code: 422, message: "Your Data Does't Exist." }
         let checkOtp = checkUserData.Otp == Otp;
@@ -92,9 +112,9 @@ export class UserServices {
         const { RoleId, LossType, DateOfDamage } = data;
         if (!RoleId) return { code: 400, message: "Provide RoleId." };
         if (!LossType) return { code: 400, message: "Provide LossType." };
-        data.NoOfDaysFromDamage = daysCalFromDate(DateOfDamage);
         let getData: any = await this.userRepo.saveSurveyData(data);
-        let imagesList = data.ImagesList;
+        if(getData?.code == 422) return {code: getData?.code, message: getData?.message};
+        let imagesList = data?.ImagesList;
         let error;
         for (let i = 0; i < imagesList.length; i++) {
             let eachList = imagesList[i];
@@ -108,7 +128,13 @@ export class UserServices {
         };
         if (error) return { code: 422, message: error };
         return getData;
-    }
+    };
+
+    async assignedGpDetails(data) {
+        let result = await this.userRepo.assignedGpDetails(data);
+        if(result?.length == 0) return {code: 422, message: "Access denied"};
+        return result;
+    };
 
     async updateSurveyData(data: PariharaData) {
         const { SubmissionId } = data;
@@ -172,7 +198,6 @@ export class UserServices {
     
 
     async saveEkycData(data) {
-        console.log("ekyRes", data)
         const mappedData = mapToEkycDetails(data);
         return await this.userRepo.saveEkycData(mappedData);
     };
@@ -182,6 +207,14 @@ export class UserServices {
         let checkData = await this.userRepo.fetchEkycData(txnDateTime);
         if (!checkData) return { code: 422, message: "Ekyc access denied." };
         if (checkData?.finalStatus == 'F') return { code: 422, message: checkData.errorMessage, data: {} };
+        return await this.userRepo.updateEkycAfter(SubmissionId);
+    };
+
+    async updateDemoAuthProcess(data) {
+        const { SubmissionId, txnDateTime } = data;
+        let checkData = await this.userRepo.fetchDemoEkycData(txnDateTime);
+        if (!checkData) return { code: 422, message: "Demo Ekyc access denied." };
+        if((checkData?.NameMatchStatus !== "S") || !(checkData?.NameMatchScore > 50+'')) return {code: 422, message: "As per aadhaar, Your name has not matched."};
         return await this.userRepo.updateEkycAfter(SubmissionId);
     };
 
@@ -214,8 +247,7 @@ async retriveMasters(data) {
     };
 
     async saveDemoAuthResponse(data) {
-        console.log("Demo Auth", data);
-        const mappedData = mapToEkycDetails(data);
+        const mappedData = mapToDemoAuthEkycDetails(data);
         return await this.userRepo.saveDemoAuthResponse(mappedData);
     };
 
@@ -265,6 +297,15 @@ async retriveMasters(data) {
         const response = getEscomData.data;
         if (response.StatusCode !== "200") return { code: 422, message: response.Status };
         let saveData = await this.userRepo.saveEscomData(response);
+        return saveData;
+    };
+
+    async getEdMinorityData(data) {
+        let getRdData = await GetRdMinorityData(data.id);
+        if(getRdData['code'] == 422) return {code: getRdData['code'], message: getRdData['message']}
+        const result = getRdData['data'];
+        if(!result.ApplicantDetails) return {code: 422, message: "Record Not Found"}
+        let saveData = await this.userRepo.saveRdMinority(result?.ApplicantDetails);
         return saveData;
     }
 

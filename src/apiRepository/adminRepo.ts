@@ -66,12 +66,12 @@ export class AdminRepo {
 
   async checkLoginUser(data) {
     const { Mobile, RoleId } = data;
-    return await vaSurveyDataRepo.findOneBy({ Mobile: Equal(Mobile), RoleId: Equal(RoleId) });
+    return await assignMastersRepo.findOneBy({ Mobile: Equal(Mobile), RoleId: Equal(RoleId) });
   };
 
   async verfiyWithUserId(data) {
-    const { UserId } = data;
-    return await vaSurveyDataRepo.findOneBy({ UserId: Equal(UserId) });
+    const { Mobile } = data;
+    return await assignMastersRepo.findOneBy({ Mobile: Equal(Mobile) });
   };
 
   async saveSurveyData(data: PariharaData) {

@@ -26,7 +26,8 @@ import {
   AssignMastersHistory,
   EscomData,
   VaSurveyData,
-  DemoAuthEkyc
+  DemoAuthEkyc,
+  RDMinority
 } from "../entities";
 
 export const entities = () => {
@@ -58,6 +59,7 @@ export const entities = () => {
     RoleToLoss,
     AssignMastersHistory,
     EscomData,
-    DemoAuthEkyc
+    DemoAuthEkyc,
+    RDMinority
   ];
 };

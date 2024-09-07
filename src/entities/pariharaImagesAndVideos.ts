@@ -19,7 +19,7 @@ export class PariharaImgAndVideo {
     @Column({ default: null, type: 'nvarchar', length: 50 })
     UserId: number;
 
-    @Column({ default: null, type: 'varbinary', length: 200 })
+    @Column({ default: null, type: 'nvarchar', length: 200 })
     Url: string;
 
     @Column({ default: null, type: 'nvarchar', length: 100 })

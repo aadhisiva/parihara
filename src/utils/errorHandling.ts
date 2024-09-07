@@ -103,24 +103,24 @@ export const webAppResponseForLarge = async (res, result, body = {}, page = '', 
 
 export const webAppResponse = async (res, result:{}, body = {}, page = '', msg = '', userid = '', role = '') => {
     const { code=undefined, message, data }: any = result;
-    if (result instanceof Error || result == undefined || result == undefined) {
-        await saveWebLogs(page, msg, userid, body, result, role, RESPONSETYPE.FAILED)
+    if (result instanceof Error || result == undefined) {
+        await saveWebLogs(page, msg, userid, body, "Error while returned data.", String(role), RESPONSETYPE.FAILED)
         return res.status(500).send(ResponseMessages(ResponseCode.EXCEPTION, (message || RESPONSEMSG.EXCEPTION), RESPONSE_EMPTY_DATA));
     } else if (code == 422) {
-        await saveWebLogs(page, msg, userid, body, result, role, RESPONSETYPE.FAILED)
+        await saveWebLogs(page, msg, userid, body, "Error while returned data.", String(role), RESPONSETYPE.FAILED)
         return res.status(code).send(ResponseMessages(ResponseCode.UNPROCESS, (message || RESPONSEMSG.UNPROCESS), RESPONSE_EMPTY_DATA));
     } else if (code == 404) {
-        await saveWebLogs(page, msg, userid, body, result, role, RESPONSETYPE.FAILED)
+        await saveWebLogs(page, msg, userid, body, "Error while returned data.", String(role), RESPONSETYPE.FAILED)
         let response = ResponseMessages(ResponseCode.NOTFOUND, (message || RESPONSEMSG.ACCESS_DENIED), RESPONSE_EMPTY_DATA);
-        res.status(code).send(response);
+        return res.status(code).send(response);
     } else if (code == 400) {
-        await saveWebLogs(page, msg, userid, body, result, role, RESPONSETYPE.FAILED)
+        await saveWebLogs(page, msg, userid, body, "Error while returned data.", String(role), RESPONSETYPE.FAILED)
         return res.status(code).send(ResponseMessages(ResponseCode.VALIDATE, (message || RESPONSEMSG.VALIDATE_FIELDS), RESPONSE_EMPTY_DATA));
     } else {
-        await saveWebLogs(page, msg, userid, body, result, role, RESPONSETYPE.SUCCESS)
+        await saveWebLogs(page, msg, userid, body, "Successfully returned data.", String(role), RESPONSETYPE.SUCCESS)
         if (!data) {
             return res.status(200).send(ResponseMessages(ResponseCode.SUCCESS, (message || RESPONSEMSG.RETRIVE_SUCCESS), result));
-        }
+        };
         return res.status(200).send(ResponseMessages(ResponseCode.SUCCESS, (message || RESPONSEMSG.RETRIVE_SUCCESS), data));
     }
 };

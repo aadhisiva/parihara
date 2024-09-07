@@ -1,6 +1,7 @@
 import { AppDataSource } from "../db/config";
 import { VaSurveyData, Version } from "../entities";
 import { API_VERSION_ISSUE, HEADERS_ISSUE } from "./constants";
+import jwt from "jsonwebtoken";
 
 export async function authVersion(req, res, next) {
     // Read the version from the request header
@@ -14,20 +15,19 @@ export async function authVersion(req, res, next) {
 
 // Middleware function to verify JWT token
 export const authenticateToken = async (req, res, next) => {
-    // const authHeader = req.headers.authorization;
-    // const token = authHeader && authHeader.split(' ')[1];
+    const authHeader = req.headers.authorization;
+    const token = authHeader && authHeader.split(' ')[1];
 
-    // if (!token) {
-    //     return res.status(401).json({ code: 401, message: 'Access denied. No token provided.' });
-    // }
+    if (!token) {
+        return res.status(401).json({ code: 401, message: 'Access denied. No token provided.' });
+    }
 
-    // jwt.verify(token, process.env.SECRET_KEY, async (err, user) => {
-    //     if (err) {
-    //         return res.status(403).json({ code: 403, message: 'Failed to authenticate.' });
-    //     }
-    //     req.user = user;
-    //     next();
-    // });
+    jwt.verify(token, process.env.SECRET_KEY, async (err, user) => {
+        if (err) {
+            return res.status(403).json({ code: 403, message: 'Failed to authenticate.' });
+        }
+        req.user = user;
+    });
     next();
 };
 

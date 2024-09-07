@@ -44,10 +44,16 @@ export class AdminServices {
         // if (sendSingleSms.code !== 200) {
         //     return { code: 422, message: RESPONSEMSG.OTP_FAILED };
         // }
+        
+        // Options for the token
+        const options = {
+            expiresIn: '12h', // Token expiration time
+            algorithm: 'HS256', // Use a secure algorithm (HS256 is symmetric, RS256 is asymmetric)
+        };
+
         let resObj = {
             Mobile,
-            Otp: data.Otp,
-            Token: jsonWebToken.sign({ RoleId: finRoleByMobile[0]?.RoleId, Mobile: Mobile }, process.env.SECRET_KEY, { expiresIn: '24h' }),
+            Token: jsonWebToken.sign({ RoleId: finRoleByMobile[0]?.RoleId }, process.env.SECRET_KEY, options),
             UserData: finRoleByMobile
         }
         return resObj;
@@ -60,9 +66,11 @@ export class AdminServices {
     };
 
     async verifyOtp(data) {
-        const { Otp } = data;
+        const { Otp, Mobile } = data;
+        if(!Mobile) return {code: 422, message: "Provide Mobile"};
         let checkUserData = await this.adminRepo.verfiyWithUserId(data);
-        if (!checkUserData) return { code: 422, message: "Your Data Does't Exist." }
+        console.log("check", checkUserData)
+        if (!checkUserData) return { code: 422, message: "Your Data Does't Exist." };
         let checkOtp = checkUserData.Otp == Otp;
         if (!checkOtp) return { code: 422, message: API_MESSAGES.VERIFICATION_FAILED };
         return { message: API_MESSAGES.VERIFICATION_SUCCESS, data: {} };

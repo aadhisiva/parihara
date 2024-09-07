@@ -25,3 +25,4 @@ export  * from "./childRoles";
 export  * from "./assignMastersHistory";
 export  * from "./escomData";
 export  * from "./demoAuthEkyc";
+export  * from "./rdMinority";

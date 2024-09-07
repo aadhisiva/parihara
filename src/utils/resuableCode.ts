@@ -104,12 +104,12 @@ export const saveMobileOtps = async (Mobile, text, response, UserId = '', otp) =
 // convert aadhar no to hash for getting details from kutumba
 export const convertAadharToSha256Hex = async (data) => {
   try {
-      let hash = cryptoJs.createHash(process.env.HASHING256);
-      hash.update(data);
-      return hash.digest("hex").toUpperCase();
+    let hash = cryptoJs.createHash(process.env.HASHING256);
+    hash.update(data);
+    return hash.digest("hex").toUpperCase();
   } catch (e) {
-      Logger.error("[******* convertAadharToSha256Hex *******]", e);
-      return e.message;
+    Logger.error("[******* convertAadharToSha256Hex *******]", e);
+    return e.message;
   }
 };
 
@@ -118,21 +118,21 @@ export const HashHMACHex = (hMACKey, InputValue) => {
   let hashHMACHex = '';
 
   const HashHMAC = (message, hmac) => {
-      return hmac.update(message).digest();
+    return hmac.update(message).digest();
   };
   const HashEncode = (hash) => {
-      return Buffer.from(hash).toString('base64');
+    return Buffer.from(hash).toString('base64');
   };
   try {
-      const keyByte = Buffer.from(hMACKey, 'ascii');
-      const hmacsha256 = cryptoJs.createHmac('sha256', keyByte);
-      const messageBytes = Buffer.from(InputValue, 'ascii');
+    const keyByte = Buffer.from(hMACKey, 'ascii');
+    const hmacsha256 = cryptoJs.createHmac('sha256', keyByte);
+    const messageBytes = Buffer.from(InputValue, 'ascii');
 
-      const hash = HashHMAC(messageBytes, hmacsha256);
-      hashHMACHex = HashEncode(hash);
+    const hash = HashHMAC(messageBytes, hmacsha256);
+    hashHMACHex = HashEncode(hash);
   } catch (ex) {
-      Logger.error("Error Message: [" + ex.message.toString() + "]");
-      return ex.message;
+    Logger.error("Error Message: [" + ex.message.toString() + "]");
+    return ex.message;
   }
   return hashHMACHex;
 };
@@ -147,41 +147,50 @@ export const DecryptStringFromEncrypt = (key, IV, cipherText) => {
 };
 // convert kutumba decryptData readable formate
 export const expandCodeParameters = (type, DataType, codes) => {
- let getLength = codes.length;
- let newArray = ['','','','','','','','','','','',''];
- let slicedData = newArray.slice(getLength+2);
- for(let i=0; i < getLength; i++){
-  slicedData.unshift(codes[i]);
+  let getLength = codes.length;
+  let newArray = ['', '', '', '', '', '', '', '', '', '', '', ''];
+  let slicedData = newArray.slice(getLength + 2);
+  for (let i = 0; i < getLength; i++) {
+    slicedData.unshift(codes[i]);
   };
   slicedData.unshift(DataType);
   slicedData.unshift(type);
- return slicedData;
+  return slicedData;
 };
 
 export const generateUniqueSubmissionId = async () => {
   let getData = await AppDataSource.query('select top 1 MAX(id) id from PariharaData');
-  return !getData[0]?.id ? "PARI0" : "PARI"+getData[0]?.id;
+  return !getData[0]?.id ? "PARI0" : "PARI" + getData[0]?.id;
 };
 
 
-export const checkXlsxKeysExistOrNot= (array, jsonData) => {
+export const checkXlsxKeysExistOrNot = (array, jsonData) => {
   let error = false;
-  let message= "";
+  let message = "";
   array.map(key => {
-    if(!jsonData.hasOwnProperty(key)) {
+    if (!jsonData.hasOwnProperty(key)) {
       error = true;
       message = `${key} is missing in xlsx.`;
-      return {error, message};
+      return { error, message };
     };
   });
-  return {error, message};
+  return { error, message };
 };
 
 
 export const GetEscomDataFromApi = async data => {
- return await axios.post("http://10.10.31.64/GetEscomData/api/GetEscomData", data, {
-  headers: {
-    "Accept": "application/json"
+  return await axios.post(process.env.ESCOM_API, data, {
+    headers: {
+      "Accept": "application/json"
+    }
+  });
+};
+
+export const GetRdMinorityData = async (id) => {
+  try {
+    return await axios.get(`${process.env.RD_API}?gscno=${id}`);
+  } catch (e) {
+    console.log("e", e)
+    return { code: 422, message: e.message };
   }
- });
-}
+};

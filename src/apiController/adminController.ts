@@ -61,7 +61,7 @@ adminRouter.post('/findAccessById', async (req, res) => {
     };
 });
 
-adminRouter.post('/verifyOtp', authenticateToken, async (req, res) => {
+adminRouter.post('/verifyOtp', async (req, res) => {
     try {
         let body = {...req.body, ...{UserId: req?.user?.UserId}};
         let result = await adminServices.verifyOtp(body);
@@ -206,7 +206,9 @@ adminRouter.post('/addRolesOrGet',authenticateToken, async (req, res) => {
     try {
         let body = {...req.body, ...{UserId: req?.user?.UserId}};
         let result = await adminServices.addRolesOrGet(body);
-        return webAppResponse(res, result, body, '/retriveMasters', WEBMESSAGES.GET_ALLDATA, req?.user?.UserId, req?.user?.RoleId);
+        let resdsf = webAppResponse(res, result, body, '/retriveMasters', WEBMESSAGES.GET_ALLDATA, req?.user?.UserId, req?.user?.RoleId);
+        console.log("Res", resdsf);
+        return res;
     } catch (error) {
         return webAppResponse(res, error, req.body, '/retriveMasters', WEBMESSAGES.GET_ALLDATA, req?.user?.UserId, req?.user?.RoleId);
     };

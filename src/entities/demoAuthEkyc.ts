@@ -51,6 +51,9 @@ import {
   
     @Column({ type: 'nvarchar', length: 200, default: null })
     UIDToken: string;
+  
+    @Column({ type: 'nvarchar', length: 200, default: null })
+    BeneficiaryAadaarName: string;
 
     @CreateDateColumn()
     created_at: Date;

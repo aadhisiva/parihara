@@ -15,7 +15,7 @@ export class PariharaData extends BaseEntity {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column({ type: 'nvarchar', length: 40, nullable: true })
+  @Column({ type: 'nvarchar', length: 40, nullable: false })
   SubmissionId: string;
 
   @Column({ type: 'nvarchar', default: null, length: 100 })
@@ -27,7 +27,7 @@ export class PariharaData extends BaseEntity {
   @Column({ type: 'nvarchar', default: null, length: 100 })
   ApplicantName: string;
 
-  @Column({ type: 'nvarchar', default: null, length: 100 })
+  @Column({ type: 'nvarchar', default: null, length: 12 })
   Mobile: string;
 
   @Column({ type: 'nvarchar', default: null, length: 100 })
@@ -180,6 +180,9 @@ export class PariharaData extends BaseEntity {
 
   @Column({ type: 'nvarchar', default: null, length: 200 })
   Verify: string;
+
+  @Column({ type: 'nvarchar', default: null, length: 50 })
+  VillageCode: string;
 
   @CreateDateColumn()
   CreatedDate: Date;
