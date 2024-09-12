@@ -45,7 +45,7 @@ export async function getDemoEkycDataFfromDBT(data) {
             integrationPassword : String(process.env.DEMO_INTEGRATION_PASS),
             txnNo : txnDateTime,
             txnDateTime : txnDateTime,
-            responseRedirectURL : String(process.env.DEMO_EKYC_REDIRECTION_URL)
+            responseRedirectURL : String(process.env.EKYC_REDIRECTION_URL)
         }
         let res = await ekycAxiosRequest(process.env.DEMO_EKYC_URL, bodyData);
         if (!res?.data?.Token) return {code: 422, message: "Something went wrong."};
@@ -58,21 +58,21 @@ export async function getDemoEkycDataFfromDBT(data) {
 export function mapToDemoAuthEkycDetails(data) {
     let demoAuth = new DemoAuthEkyc();
     demoAuth.TxnNo = data?.txnNo ?? "";
-    demoAuth.TxnDateTime = data?.txnDateTime ?? "";
-    demoAuth.BeneficiaryAadaarName = data?.beneficiaryAadaarName ?? "";
-    demoAuth.AadhaarDemoAuthError = data?.aadhaarDemoAuthError ?? "";
-    demoAuth.AadhaarDemoAuthStatus = data?.aadhaarDemoAuthStatus ?? "";
-    demoAuth.AadhaarHash = data?.aadhaarHash ?? "";
-    demoAuth.MaskedAadhaar = data?.maskedAadhaar ?? "";
-    demoAuth.BeneficiaryID = data?.beneficiaryID ?? "";
-    demoAuth.FinalStatus = data?.finalStatus ?? "";
-    demoAuth.MaskedAadhaar = data?.MaskedAadhaar ?? "";
-    demoAuth.NPCIError = data?.npciError ?? "";
-    demoAuth.NPCIStatus = data?.npciStatus ?? "";
-    demoAuth.NameMatchStatus = data?.nameMatchStatus ?? "";
-    demoAuth.NameMatchScore = data?.nameMatchScore ?? "";
-    demoAuth.VaultRefNumber = data?.vaultRefNumber ?? "";
-    demoAuth.UIDToken = data?.uidToken ?? "";
+    demoAuth.TxnDateTime = data?.txnDateTime+'' ?? "";
+    demoAuth.BeneficiaryAadaarName = data?.beneficiaryAadaarName+'' ?? "";
+    demoAuth.AadhaarDemoAuthError = data?.aadhaarDemoAuthError+'' ?? "";
+    demoAuth.AadhaarDemoAuthStatus = data?.aadhaarDemoAuthStatus+'' ?? "";
+    demoAuth.AadhaarHash = data?.aadhaarHash+'' ?? "";
+    demoAuth.MaskedAadhaar = data?.maskedAadhaar+'' ?? "";
+    demoAuth.BeneficiaryID = data?.beneficiaryID+'' ?? "";
+    demoAuth.FinalStatus = data?.finalStatus+'' ?? "";
+    demoAuth.MaskedAadhaar = data?.MaskedAadhaar+'' ?? "";
+    demoAuth.NPCIError = data?.npciError+'' ?? "";
+    demoAuth.NPCIStatus = data?.npciStatus+'' ?? "";
+    demoAuth.NameMatchStatus = data?.nameMatchStatus+'' ?? "";
+    demoAuth.NameMatchScore = data?.nameMatchScore+'' ?? "";
+    demoAuth.VaultRefNumber = data?.vaultRefNumber+'' ?? "";
+    demoAuth.UIDToken = data?.uidToken+'' ?? "";
     return demoAuth;
 };
 

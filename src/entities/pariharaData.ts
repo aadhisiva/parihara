@@ -39,20 +39,8 @@ export class PariharaData extends BaseEntity {
   @Column({ type: 'nvarchar', default: null, length: 100 })
   ApplicantStreet: string;
 
-  @Column({ type: 'nvarchar', default: null, length: 100 })
+  @Column({ type: 'nvarchar', default: null, length: 200 })
   ApplicantAadhar: string;
-
-  @Column({ type: 'nvarchar', default: null, length: 100 })
-  ApplicantDistrict: string;
-
-  @Column({ type: 'nvarchar', default: null, length: 100 })
-  ApplicantTaluk: string;
-
-  @Column({ type: 'nvarchar', default: null, length: 100 })
-  ApplicantVillage: string;
-
-  @Column({ type: 'nvarchar', default: null, length: 100 })
-  ApplicantHobli: string;
 
   @Column({ type: 'nvarchar', default: null, length: 100 })
   ApplicantGuardianName: string;
@@ -74,7 +62,6 @@ export class PariharaData extends BaseEntity {
 
   @Column({ type: 'nvarchar', default: null, length: 100 })
   DamageCauseType: string;
-
 
   @Column({ type: 'nvarchar', default: null, length: 100 })
   VA_DamageLength: string;
@@ -109,6 +96,9 @@ export class PariharaData extends BaseEntity {
   @Column({ type: 'nvarchar', default: null, length: 200 })
   LossHobli: string;
 
+  @Column({ type: 'nvarchar', default: null, length: 50 })
+  UrbanOrRural: string;
+
   @Column({ type: 'nvarchar', default: null, length: 200 })
   LossVillage: string;
 
@@ -134,6 +124,9 @@ export class PariharaData extends BaseEntity {
   PropertyType: string;
 
   @Column({ type: 'nvarchar', default: null, length: 200 })
+  RRNumber: string;
+
+  @Column({ type: 'nvarchar', default: null, length: 200 })
   FamilyCount: string;
 
   @Column({ type: 'nvarchar', default: null, length: 200 })
@@ -149,6 +142,9 @@ export class PariharaData extends BaseEntity {
   IFSCCode: string;
 
   @Column({ type: 'nvarchar', default: null, length: 200 })
+  KhataNo: string;
+
+  @Column({ type: 'nvarchar', default: null, length: 200 })
   RCNumber: string;
 
   @Column({ type: 'nvarchar', default: null, length: 200 })
@@ -159,6 +155,9 @@ export class PariharaData extends BaseEntity {
 
   @Column({ type: 'nvarchar', default: null, length: 200 })
   Disability: string;
+
+  @Column({ type: 'nvarchar', default: null, length: 200 })
+  ElectricityBoard: string;
 
   @Column({ type: 'nvarchar', default: null, length: 200 })
   ApplicantAge: string;
@@ -190,3 +189,5 @@ export class PariharaData extends BaseEntity {
   @UpdateDateColumn()
   UpdatedDate: Date;
 };
+
+

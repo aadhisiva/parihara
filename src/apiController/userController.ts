@@ -43,7 +43,7 @@ userRouter.post('/login', authVersion, async (req, res) => {
     }
 });
 
-userRouter.post('/senOtpForAuth', async (req, res) => {
+userRouter.post('/sendOtpForAuth', async (req, res) => {
     try {
         let body = req.body;
         let result = await userServices.sendOtpForAuth(body);
@@ -236,7 +236,6 @@ userRouter.post('/uploadImage', upload.single('image') ,authTokenAndVersion, asy
         if (!req.file) {
             return res.status(400).send('No file uploaded');
         };
-        console.log("req.file",req.file.originalname)
         let imageObj = {
             ImageName: req.file.originalname,
             ImageData: req.file.buffer,

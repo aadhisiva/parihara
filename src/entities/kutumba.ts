@@ -82,7 +82,7 @@ import {
     HasedResultValue: string;
   
     @Column({ type: 'nvarchar', default: null, length: 100 })
-    UserId: string;
+    MBR_AADHAR_NO: string;
   
     @Column({ type: 'nvarchar', default: null, length: '500' })
     status: string;

@@ -21,7 +21,7 @@ export class UpdatedSurveyLogs {
   
     @Column({ type: 'nvarchar', default: null, length: 100 })
     LossType: string;
-  
+  s
     @Column({ type: 'nvarchar', default: null, length: 100 })
     ApplicantName: string;
   

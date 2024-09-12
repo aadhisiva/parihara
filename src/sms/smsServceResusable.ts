@@ -52,7 +52,6 @@ export class OtpServices {
     async sendOtpAsReadyForDeliver(mobile_no, otp, order_number) {
         let text = `${otp} is the OTP for Spectacle Delivery for the order number ${order_number}
         -National Health mission ,GOK.`;
-        console.log("text",text)
         let sendSingleSms = await this.smsServices.sendSingleSMS(
             process.env.SMS_USERNAME,
             process.env.SMS_PASSWORD,

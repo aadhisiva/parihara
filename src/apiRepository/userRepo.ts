@@ -295,32 +295,33 @@ export class UserRepo {
   // };
   async retriveOnlyDistrict(code) {
     return await distictRepo.createQueryBuilder('md')
-      .select("DISTINCT DistrictCode, DistrictNameEn DistrictName")
-      .where("md.DistrictCode= :id", { id: code })
-      .getRawMany();
+    .select("DISTINCT DistrictCode, DistrictNameEn DistrictName")
+    .where("md.DistrictCode= :id", {id: code})
+    .getRawMany();
   };
-  async retriveOnlyTaluks(code) {
+  async retriveOnlyTaluks(code, Type) {
     return await talukRepo.createQueryBuilder('md')
-      .select("DISTINCT TalukCode, TalukNameEn TalukName")
-      .where("md.DistrictCode= :id", { id: code })
-      .getRawMany();
+    .select("DISTINCT TalukCode, TalukNameEn TalukName")
+    .where("md.DistrictCode= :id and md.Type = :Type", {id: code, Type})
+    .getRawMany();
   };
-  async retriveOnlyGp(code, dcode) {
+  async retriveOnlyGp(code, dcode, Type) {
     return await gramaPanchayatRepo.createQueryBuilder('md')
-      .select("DISTINCT GpCode, GpNameEn GpName")
-      .where("md.TalukCode= :id and md.DistrictCode = :dcode", { id: code, dcode })
-      .getRawMany();
+    .select("DISTINCT GpCode, GpNameEn GpName")
+    .where("md.TalukCode= :id and md.DistrictCode = :dcode and md.Type = :Type", {id: code, dcode, Type})
+    .getRawMany();
   };
   async retriveOnlyVillages(code, tcode, dcode) {
     return await villagesRepo.createQueryBuilder('md')
-      .select("DISTINCT VillageCode, VillageNameEn VillageName")
-      .where("md.GpCode= :id and md.DistrictCode = :dcode and md.TalukCode = :tcode", { id: code, dcode, tcode })
-      .getRawMany();
+    .select("DISTINCT VillageCode, VillageNameEn VillageName")
+    .where("md.GpCode= :id and md.DistrictCode = :dcode and md.TalukCode = :tcode", {id: code, dcode, tcode})
+    .getRawMany();
   };
 
   async updateEkycAfter(data) {
     const { SubmissionId, txnDateTime } = data;
     let findOne = await pariharaDataRepo.findOneBy({ SubmissionId: Equal(SubmissionId) });
+    if(!findOne) return {code: 422, message: "Access Denied"}
     let newData = { ...findOne, ...{ EkycStatus: "Completed", SurveyStatus: "Pending", txnDateTime: txnDateTime } }
     await updatedSurveyLogsRepo.save(data);
     return await pariharaDataRepo.save(newData);
@@ -334,6 +335,7 @@ export class UserRepo {
   };
 
   async saveDemoAuthResponse(data) {
+    console.log("## data", data);
     return await demoAuthEkycRepo.save(data);
   };
 

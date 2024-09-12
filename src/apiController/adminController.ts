@@ -111,7 +111,7 @@ adminRouter.post('/getSubmissionData', authenticateToken, async (req, res) => {
     };
 });
 
-adminRouter.post('/retriveMasters', async (req, res) => {
+adminRouter.post('/retriveMasters',authenticateToken, async (req, res) => {
     try {
         let body = {...req.body, ...{UserId: req?.user?.UserId}};
         let result = await adminServices.retriveMasters(body);
@@ -125,9 +125,9 @@ adminRouter.post('/assigningProcess',authenticateToken, async (req, res) => {
     try {
         let body = {...req.body, ...{UserId: req?.user?.UserId}};
         let result = await adminServices.assigningProcess(body);
-        return webAppResponse(res, result, body, '/retriveMasters', WEBMESSAGES.GET_ALLDATA, req?.user?.UserId, req?.user?.RoleId);
+        return webAppResponse(res, result, body, '/assigningProcess', WEBMESSAGES.GET_ALLDATA, req?.user?.UserId, req?.user?.RoleId);
     } catch (error) {
-        return webAppResponse(res, error, req.body, '/retriveMasters', WEBMESSAGES.GET_ALLDATA, req?.user?.UserId, req?.user?.RoleId);
+        return webAppResponse(res, error, req.body, '/assigningProcess', WEBMESSAGES.GET_ALLDATA, req?.user?.UserId, req?.user?.RoleId);
     };
 });
 
@@ -177,7 +177,6 @@ adminRouter.post('/getMasterDropdown',authenticateToken, async (req, res) => {
         let result = await adminServices.getMasterDropdown(body);
         return webAppResponse(res, result, body, '/getMasterDropdown', WEBMESSAGES.GET_ALLDATA, req?.user?.UserId, req?.user?.RoleId);
     } catch (error) {
-        console.log("Error",error);
         return webAppResponse(res, error, req.body, '/getMasterDropdown', WEBMESSAGES.GET_ALLDATA, req?.user?.UserId, req?.user?.RoleId);
     };
 });
@@ -196,9 +195,9 @@ adminRouter.post('/question',authenticateToken, async (req, res) => {
     try {
         let body = {...req.body, ...{UserId: req?.user?.UserId}};
         let result = await adminServices.question(body);
-        return webAppResponse(res, result, body, '/retriveMasters', WEBMESSAGES.GET_ALLDATA, req?.user?.UserId, req?.user?.RoleId);
+        return webAppResponse(res, result, body, '/question', WEBMESSAGES.GET_ALLDATA, req?.user?.UserId, req?.user?.RoleId);
     } catch (error) {
-        return webAppResponse(res, error, req.body, '/retriveMasters', WEBMESSAGES.GET_ALLDATA, req?.user?.UserId, req?.user?.RoleId);
+        return webAppResponse(res, error, req.body, '/question', WEBMESSAGES.GET_ALLDATA, req?.user?.UserId, req?.user?.RoleId);
     };
 });
 
@@ -206,11 +205,9 @@ adminRouter.post('/addRolesOrGet',authenticateToken, async (req, res) => {
     try {
         let body = {...req.body, ...{UserId: req?.user?.UserId}};
         let result = await adminServices.addRolesOrGet(body);
-        let resdsf = webAppResponse(res, result, body, '/retriveMasters', WEBMESSAGES.GET_ALLDATA, req?.user?.UserId, req?.user?.RoleId);
-        console.log("Res", resdsf);
-        return res;
+        return webAppResponse(res, result, body, '/addRolesOrGet', WEBMESSAGES.GET_ALLDATA, req?.user?.UserId, req?.user?.RoleId);
     } catch (error) {
-        return webAppResponse(res, error, req.body, '/retriveMasters', WEBMESSAGES.GET_ALLDATA, req?.user?.UserId, req?.user?.RoleId);
+        return webAppResponse(res, error, req.body, '/addRolesOrGet', WEBMESSAGES.GET_ALLDATA, req?.user?.UserId, req?.user?.RoleId);
     };
 });
 

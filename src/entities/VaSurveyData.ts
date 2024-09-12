@@ -37,6 +37,18 @@ import { LoginRoles } from "./loginRoles";
     @Column({ default: null, type: 'nvarchar', length: 12 })
     Mobile: string;
 
+    @Column({ default: null, type: 'nvarchar', length: 12 })
+    PDOMobile: string;
+
+    @Column({ default: null, type: 'nvarchar', length: 12 })
+    AEOMobile: string;
+
+    @Column({ default: null, type: 'nvarchar', length: 50 })
+    PDOName: string;
+
+    @Column({ default: null, type: 'nvarchar', length: 50 })
+    AEOName: string;
+
     @Column({ default: null, type: 'nvarchar', length: 100 })
     Name: string;
 

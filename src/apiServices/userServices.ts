@@ -56,24 +56,24 @@ export class UserServices {
         const { Mobile, RoleId } = data;
         if (!Mobile) return { code: 400, message: "Provide Mobile" };
         if (!RoleId) return { code: 400, message: "Provide RoleId" };
-        // data.Otp = generateOTP(4);
-        data.Otp = "1111";
+        data.Otp = generateOTP(4);
+        // data.Otp = "1111";
         let checkUserData = await this.userRepo.updateUser(data);
         if (checkUserData['code'] == 422) return checkUserData;
-        // let sendSingleSms = await this.otpServices.sendOtpAsSingleSms(
-        //     Mobile,
-        //     data?.Otp
-        // );
-        // await saveMobileOtps(
-        //     Mobile,
-        //     sendSingleSms?.otpMessage,
-        //     sendSingleSms?.response,
-        //     data?.UserId,
-        //     data?.Otp
-        // );
-        // if (sendSingleSms.code !== 200) {
-        //     return { code: 422, message: RESPONSEMSG.OTP_FAILED };
-        // }
+        let sendSingleSms = await this.otpServices.sendOtpAsSingleSms(
+            Mobile,
+            data?.Otp
+        );
+        await saveMobileOtps(
+            Mobile,
+            sendSingleSms?.otpMessage,
+            sendSingleSms?.response,
+            data?.UserId,
+            data?.Otp
+        );
+        if (sendSingleSms.code !== 200) {
+            return { code: 422, message: RESPONSEMSG.OTP_FAILED };
+        }
         return {
             message: RESPONSEMSG.OTP, data: checkUserData
         };
@@ -81,21 +81,22 @@ export class UserServices {
 
     async sendOtpForAuth(data){
         data.Otp = generateOTP(4);
+        // data.Otp = "1111";
         const {Mobile, Otp, UserId} = data;
-        // let sendSingleSms = await this.otpServices.sendOtpAsSingleSms(
-        //     Mobile,
-        //     Otp
-        // );
-        // await saveMobileOtps(
-        //     Mobile,
-        //     sendSingleSms?.otpMessage,
-        //     sendSingleSms?.response,
-        //     UserId,
-        //     Otp
-        // );
-        // if (sendSingleSms.code !== 200) {
-        //     return { code: 422, message: RESPONSEMSG.OTP_FAILED };
-        // };
+        let sendSingleSms = await this.otpServices.sendOtpAsSingleSms(
+            Mobile,
+            Otp
+        );
+        await saveMobileOtps(
+            Mobile,
+            sendSingleSms?.otpMessage,
+            sendSingleSms?.response,
+            UserId,
+            Otp
+        );
+        if (sendSingleSms.code !== 200) {
+            return { code: 422, message: RESPONSEMSG.OTP_FAILED };
+        };
         return {message: RESPONSEMSG.OTP ,data: Otp}
     }
 
@@ -203,40 +204,46 @@ export class UserServices {
     };
 
     async updateEkycProcess(data) {
-        const { SubmissionId, txnDateTime } = data;
+        const { txnDateTime } = data;
         let checkData = await this.userRepo.fetchEkycData(txnDateTime);
         if (!checkData) return { code: 422, message: "Ekyc access denied." };
         if (checkData?.finalStatus == 'F') return { code: 422, message: checkData.errorMessage, data: {} };
-        return await this.userRepo.updateEkycAfter(SubmissionId);
+        let updatedData = await this.userRepo.updateEkycAfter(data);
+        if(updatedData['code'] == 422) return {code: 422, message: updatedData['message']};
+        return updatedData;
     };
 
     async updateDemoAuthProcess(data) {
-        const { SubmissionId, txnDateTime } = data;
+        const { txnDateTime } = data;
         let checkData = await this.userRepo.fetchDemoEkycData(txnDateTime);
         if (!checkData) return { code: 422, message: "Demo Ekyc access denied." };
-        if((checkData?.NameMatchStatus !== "S") || !(checkData?.NameMatchScore > 50+'')) return {code: 422, message: "As per aadhaar, Your name has not matched."};
-        return await this.userRepo.updateEkycAfter(SubmissionId);
+        if(Number(checkData?.NameMatchScore) <= 50) return {code: 422, message: "As per aadhaar, Your name has not matched."};
+        if(checkData?.NameMatchStatus !== "S") return {code: 422, message: "Demo Auth Verfiication Failed"};
+        let updatedData = await this.userRepo.updateEkycAfter(data);
+        if(updatedData['code'] == 422) return {code: 422, message: updatedData['message']};
+        return updatedData;
     };
 
-async retriveMasters(data) {
-    const { DistrictCode } = data;
-    if (!DistrictCode) {
-        let getData = await this.userRepo.retriveDistrictWithCodes();
-        return getData;
-    } else {
-        let distict = await this.userRepo.retriveOnlyDistrict(DistrictCode);
-        distict[0]['TalukArray'] = await this.userRepo.retriveOnlyTaluks(distict[0]?.DistrictCode);
-        for (let i = 0; i < distict[0]['TalukArray'].length; i++) {
-            let each = distict[0]['TalukArray'][i];
-            each['GpArray'] = await this.userRepo.retriveOnlyGp(each.TalukCode, distict[0]?.DistrictCode);
-            for (let j = 0; j < each['GpArray'].length; j++) {
-                let eachHobliObj = each['GpArray'][j];
-                eachHobliObj['VillageArray'] = await this.userRepo.retriveOnlyVillages(eachHobliObj.GpCode,each.TalukCode, distict[0]?.DistrictCode);
+    async retriveMasters(data) {
+        const { DistrictCode, Type } = data;
+        if (!DistrictCode) {
+            let getData = await this.userRepo.retriveDistrictWithCodes();
+            return getData;
+        } else {
+            let distict = await this.userRepo.retriveOnlyDistrict(DistrictCode);
+            distict[0]['TalukArray'] = await this.userRepo.retriveOnlyTaluks(distict[0]?.DistrictCode, Type);
+            for (let i = 0; i < distict[0]['TalukArray'].length; i++) {
+                let each = distict[0]['TalukArray'][i];
+                each['GpArray'] = await this.userRepo.retriveOnlyGp(each.TalukCode, distict[0]?.DistrictCode, Type);
+                for (let j = 0; j < each['GpArray'].length; j++) {
+                    let eachHobliObj = each['GpArray'][j];
+                    eachHobliObj['VillageArray'] = await this.userRepo.retriveOnlyVillages(eachHobliObj.GpCode,each.TalukCode, distict[0]?.DistrictCode);
+                };
             };
+            return distict;
         };
-        return distict;
     };
-};
+
 
     async getDemoAuthToken(data) {
         data.txnDateTime = new Date().getFullYear() + "" + new Date().getTime();

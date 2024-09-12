@@ -145,16 +145,16 @@ export class AdminRepo {
     .where("md.DistrictCode= :id", {id: code})
     .getRawMany();
   };
-  async retriveOnlyTaluks(code) {
+  async retriveOnlyTaluks(code, Type) {
     return await talukRepo.createQueryBuilder('md')
     .select("DISTINCT TalukCode, TalukNameEn TalukName")
-    .where("md.DistrictCode= :id", {id: code})
+    .where("md.DistrictCode= :id and md.Type = :Type", {id: code, Type})
     .getRawMany();
   };
-  async retriveOnlyGp(code, dcode) {
+  async retriveOnlyGp(code, dcode, Type) {
     return await gramaPanchayatRepo.createQueryBuilder('md')
     .select("DISTINCT GpCode, GpNameEn GpName")
-    .where("md.TalukCode= :id and md.DistrictCode = :dcode", {id: code, dcode})
+    .where("md.TalukCode= :id and md.DistrictCode = :dcode and md.Type = :Type", {id: code, dcode, Type})
     .getRawMany();
   };
   async retriveOnlyVillages(code, tcode, dcode) {

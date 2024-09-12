@@ -1,7 +1,9 @@
 import { Service } from "typedi";
 import { AdminRepo } from "../apiRepository/adminRepo";
 import {
+    generateOTP,
     generateUniqueId,
+    saveMobileOtps,
 } from "../utils/resuableCode";
 import { API_MESSAGES } from "../utils/constants";
 import { OtpServices } from "../sms/smsServceResusable";
@@ -27,24 +29,25 @@ export class AdminServices {
     async checkMobileLogin(data) {
         const { Mobile } = data;
         if (!Mobile) return { code: 400, message: "Provide Mobile" };
-        data.Otp = "1111";
+        // data.Otp = "1111";
+        data.Otp = generateOTP(4);
         let finRoleByMobile = await this.adminRepo.checkMobileLogin(data);
         if (finRoleByMobile['code'] == 422) return { code: 422, message: finRoleByMobile['message'] };
-        // let sendSingleSms = await this.otpServices.sendOtpAsSingleSms(
-        //     Mobile,
-        //     data?.Otp
-        // );
-        // await saveMobileOtps(
-        //     Mobile,
-        //     sendSingleSms?.otpMessage,
-        //     sendSingleSms?.response,
-        //     data?.UserId,
-        //     data?.Otp
-        // );
-        // if (sendSingleSms.code !== 200) {
-        //     return { code: 422, message: RESPONSEMSG.OTP_FAILED };
-        // }
-        
+        let sendSingleSms = await this.otpServices.sendOtpAsSingleSms(
+            Mobile,
+            data?.Otp
+        );
+        await saveMobileOtps(
+            Mobile,
+            sendSingleSms?.otpMessage,
+            sendSingleSms?.response,
+            data?.UserId,
+            data?.Otp
+        );
+        if (sendSingleSms.code !== 200) {
+            return { code: 422, message: RESPONSEMSG.OTP_FAILED };
+        }
+
         // Options for the token
         const options = {
             expiresIn: '12h', // Token expiration time
@@ -69,7 +72,6 @@ export class AdminServices {
         const { Otp, Mobile } = data;
         if(!Mobile) return {code: 422, message: "Provide Mobile"};
         let checkUserData = await this.adminRepo.verfiyWithUserId(data);
-        console.log("check", checkUserData)
         if (!checkUserData) return { code: 422, message: "Your Data Does't Exist." };
         let checkOtp = checkUserData.Otp == Otp;
         if (!checkOtp) return { code: 422, message: API_MESSAGES.VERIFICATION_FAILED };
@@ -93,7 +95,6 @@ export class AdminServices {
 
     async getSubmissionList(data: PariharaData) {
         const { RoleId } = data;
-        // console.log(data);
         let getRoles = await this.adminRepo.FetchLoginAccessData(RoleId);
         let getData = await this.adminRepo.getSubmissionList(data, getRoles);
         return getData;
@@ -107,16 +108,16 @@ export class AdminServices {
     };
 
     async retriveMasters(data) {
-        const { DistrictCode } = data;
+        const { DistrictCode, Type } = data;
         if (!DistrictCode) {
             let getData = await this.adminRepo.retriveDistrictWithCodes();
             return getData;
         } else {
             let distict = await this.adminRepo.retriveOnlyDistrict(DistrictCode);
-            distict[0]['TalukArray'] = await this.adminRepo.retriveOnlyTaluks(distict[0]?.DistrictCode);
+            distict[0]['TalukArray'] = await this.adminRepo.retriveOnlyTaluks(distict[0]?.DistrictCode, Type);
             for (let i = 0; i < distict[0]['TalukArray'].length; i++) {
                 let each = distict[0]['TalukArray'][i];
-                each['GpArray'] = await this.adminRepo.retriveOnlyGp(each.TalukCode, distict[0]?.DistrictCode);
+                each['GpArray'] = await this.adminRepo.retriveOnlyGp(each.TalukCode, distict[0]?.DistrictCode, Type);
                 for (let j = 0; j < each['GpArray'].length; j++) {
                     let eachHobliObj = each['GpArray'][j];
                     eachHobliObj['VillageArray'] = await this.adminRepo.retriveOnlyVillages(eachHobliObj.GpCode,each.TalukCode, distict[0]?.DistrictCode);
