@@ -59,7 +59,7 @@ export function mapToDemoAuthEkycDetails(data) {
     let demoAuth = new DemoAuthEkyc();
     demoAuth.TxnNo = data?.txnNo ?? "";
     demoAuth.TxnDateTime = data?.txnDateTime+'' ?? "";
-    demoAuth.BeneficiaryAadaarName = data?.beneficiaryAadaarName+'' ?? "";
+    demoAuth.BeneficiaryAadaarName = data?.beneficiaryAadhaarName+'' ?? "";
     demoAuth.AadhaarDemoAuthError = data?.aadhaarDemoAuthError+'' ?? "";
     demoAuth.AadhaarDemoAuthStatus = data?.aadhaarDemoAuthStatus+'' ?? "";
     demoAuth.AadhaarHash = data?.aadhaarHash+'' ?? "";

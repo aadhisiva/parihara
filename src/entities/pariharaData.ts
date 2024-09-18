@@ -36,7 +36,7 @@ export class PariharaData extends BaseEntity {
   @Column({ type: 'nvarchar', default: null, length: 100 })
   ApplicantPropId: string;
 
-  @Column({ type: 'nvarchar', default: null, length: 100 })
+  @Column({ type: 'nvarchar', default: null, length: 500 })
   ApplicantStreet: string;
 
   @Column({ type: 'nvarchar', default: null, length: 200 })
@@ -109,7 +109,7 @@ export class PariharaData extends BaseEntity {
   CompensationCategory: string;
 
   @Column({ type: 'nvarchar', default: null, length: 200 })
-  HouseCompensationRecived: string;
+  HouseCompensationRecive: string;
 
   @Column({ type: 'nvarchar', default: null, length: 200 })
   Fallenhouse: string;
@@ -175,13 +175,46 @@ export class PariharaData extends BaseEntity {
   DamageExtent: string;
 
   @Column({ type: 'nvarchar', default: null, length: 200 })
+  RRConsumer_Name: string;
+
+  @Column({ type: 'nvarchar', default: null, length: 200 })
+  RRSub_division: string;
+
+  @Column({ type: 'nvarchar', default: null, length: 100 })
+  RDNumber: string;
+
+  @Column({ type: 'nvarchar', default: null, length: 'max' })
+  RRConsumer_Address: string;
+
+  @Column({ type: 'nvarchar', default: null, length: 200 })
   HouseLossPercentage: string;
+
+  @Column({ type: 'nvarchar', default: null, length: 200 })
+  RDdetials: string;
+
+  @Column({ type: 'nvarchar', default: null, length: 'max' })
+  RDAddress: string;
+
+  @Column({ type: 'nvarchar', default: null, length: 100 })
+  RDApplicantName: string;
+
+  @Column({ type: 'nvarchar', default: null, length: 100 })
+  RDApplicantFatherName: string;
+
+  @Column({ type: 'nvarchar', default: null, length: 100 })
+  RDCategory: string;
+
+  @Column({ type: 'nvarchar', default: null, length: 100 })
+  RDCaste: string;
+
+  @Column({ type: 'nvarchar', default: null, length: 100 })
+  RDDateOfIssue: string;
 
   @Column({ type: 'nvarchar', default: null, length: 200 })
   Verify: string;
 
   @Column({ type: 'nvarchar', default: null, length: 50 })
-  VillageCode: string;
+  VAVillageCode: string;
 
   @CreateDateColumn()
   CreatedDate: Date;
@@ -189,5 +222,3 @@ export class PariharaData extends BaseEntity {
   @UpdateDateColumn()
   UpdatedDate: Date;
 };
-
-

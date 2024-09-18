@@ -158,6 +158,14 @@ export class AdminServices {
         return await this.adminRepo.getAssignedData(data);
     };
 
+    async getCountsByRole(data) {
+        return await this.adminRepo.getCountsByRole(data);
+    };
+
+    async getLossDatabySearch(data) {
+        return await this.adminRepo.getLossDatabySearch(data);
+    };
+
     async assignRoleAccess(data) {
         const { RoleId, ReqType } = data;
         if (ReqType == "Get") {

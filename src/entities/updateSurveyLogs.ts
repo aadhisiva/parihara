@@ -21,7 +21,7 @@ export class UpdatedSurveyLogs {
   
     @Column({ type: 'nvarchar', default: null, length: 100 })
     LossType: string;
-  s
+  
     @Column({ type: 'nvarchar', default: null, length: 100 })
     ApplicantName: string;
   
@@ -34,23 +34,11 @@ export class UpdatedSurveyLogs {
     @Column({ type: 'nvarchar', default: null, length: 100 })
     ApplicantPropId: string;
   
-    @Column({ type: 'nvarchar', default: null, length: 100 })
+    @Column({ type: 'nvarchar', default: null, length: 500 })
     ApplicantStreet: string;
   
-    @Column({ type: 'nvarchar', default: null, length: 100 })
+    @Column({ type: 'nvarchar', default: null, length: 200 })
     ApplicantAadhar: string;
-  
-    @Column({ type: 'nvarchar', default: null, length: 100 })
-    ApplicantDistrict: string;
-  
-    @Column({ type: 'nvarchar', default: null, length: 100 })
-    ApplicantTaluk: string;
-  
-    @Column({ type: 'nvarchar', default: null, length: 100 })
-    ApplicantVillage: string;
-  
-    @Column({ type: 'nvarchar', default: null, length: 100 })
-    ApplicantHobli: string;
   
     @Column({ type: 'nvarchar', default: null, length: 100 })
     ApplicantGuardianName: string;
@@ -72,7 +60,6 @@ export class UpdatedSurveyLogs {
   
     @Column({ type: 'nvarchar', default: null, length: 100 })
     DamageCauseType: string;
-  
   
     @Column({ type: 'nvarchar', default: null, length: 100 })
     VA_DamageLength: string;
@@ -107,6 +94,9 @@ export class UpdatedSurveyLogs {
     @Column({ type: 'nvarchar', default: null, length: 200 })
     LossHobli: string;
   
+    @Column({ type: 'nvarchar', default: null, length: 50 })
+    UrbanOrRural: string;
+  
     @Column({ type: 'nvarchar', default: null, length: 200 })
     LossVillage: string;
   
@@ -117,7 +107,7 @@ export class UpdatedSurveyLogs {
     CompensationCategory: string;
   
     @Column({ type: 'nvarchar', default: null, length: 200 })
-    HouseCompensationRecived: string;
+    HouseCompensationRecive: string;
   
     @Column({ type: 'nvarchar', default: null, length: 200 })
     Fallenhouse: string;
@@ -130,6 +120,9 @@ export class UpdatedSurveyLogs {
   
     @Column({ type: 'nvarchar', default: null, length: 200 })
     PropertyType: string;
+  
+    @Column({ type: 'nvarchar', default: null, length: 200 })
+    RRNumber: string;
   
     @Column({ type: 'nvarchar', default: null, length: 200 })
     FamilyCount: string;
@@ -147,6 +140,9 @@ export class UpdatedSurveyLogs {
     IFSCCode: string;
   
     @Column({ type: 'nvarchar', default: null, length: 200 })
+    KhataNo: string;
+  
+    @Column({ type: 'nvarchar', default: null, length: 200 })
     RCNumber: string;
   
     @Column({ type: 'nvarchar', default: null, length: 200 })
@@ -157,6 +153,9 @@ export class UpdatedSurveyLogs {
   
     @Column({ type: 'nvarchar', default: null, length: 200 })
     Disability: string;
+  
+    @Column({ type: 'nvarchar', default: null, length: 200 })
+    ElectricityBoard: string;
   
     @Column({ type: 'nvarchar', default: null, length: 200 })
     ApplicantAge: string;
@@ -174,10 +173,46 @@ export class UpdatedSurveyLogs {
     DamageExtent: string;
   
     @Column({ type: 'nvarchar', default: null, length: 200 })
+    RRConsumer_Name: string;
+  
+    @Column({ type: 'nvarchar', default: null, length: 200 })
+    RRSub_division: string;
+  
+    @Column({ type: 'nvarchar', default: null, length: 100 })
+    RDNumber: string;
+  
+    @Column({ type: 'nvarchar', default: null, length: 'max' })
+    RRConsumer_Address: string;
+  
+    @Column({ type: 'nvarchar', default: null, length: 200 })
     HouseLossPercentage: string;
   
     @Column({ type: 'nvarchar', default: null, length: 200 })
+    RDdetials: string;
+  
+    @Column({ type: 'nvarchar', default: null, length: 'max' })
+    RDAddress: string;
+  
+    @Column({ type: 'nvarchar', default: null, length: 100 })
+    RDApplicantName: string;
+  
+    @Column({ type: 'nvarchar', default: null, length: 100 })
+    RDApplicantFatherName: string;
+  
+    @Column({ type: 'nvarchar', default: null, length: 100 })
+    RDCategory: string;
+  
+    @Column({ type: 'nvarchar', default: null, length: 100 })
+    RDCaste: string;
+  
+    @Column({ type: 'nvarchar', default: null, length: 100 })
+    RDDateOfIssue: string;
+  
+    @Column({ type: 'nvarchar', default: null, length: 200 })
     Verify: string;
+  
+    @Column({ type: 'nvarchar', default: null, length: 50 })
+    VillageCode: string;
 
     @Column({ type: 'nvarchar', default: null, length: 100 })
     Remarks: string;

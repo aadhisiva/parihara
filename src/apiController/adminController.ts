@@ -141,6 +141,26 @@ adminRouter.post('/getAssignedMasters',authenticateToken, async (req, res) => {
     };
 });
 
+adminRouter.post('/getCountsByRole',authenticateToken, async (req, res) => {
+    try {
+        let body = {...req.body, ...{UserId: req?.user?.UserId}};
+        let result = await adminServices.getCountsByRole(body);
+        return webAppResponse(res, result, body, '/getCountsByRole', WEBMESSAGES.GET_ALLDATA, req?.user?.UserId, req?.user?.RoleId);
+    } catch (error) {
+        return webAppResponse(res, error, req.body, '/getCountsByRole', WEBMESSAGES.GET_ALLDATA, req?.user?.UserId, req?.user?.RoleId);
+    };
+});
+
+adminRouter.post('/getLossDatabySearch',authenticateToken, async (req, res) => {
+    try {
+        let body = {...req.body, ...{UserId: req?.user?.UserId}};
+        let result = await adminServices.getLossDatabySearch(body);
+        return webAppResponse(res, result, body, '/getLossDatabySearch', WEBMESSAGES.GET_ALLDATA, req?.user?.UserId, req?.user?.RoleId);
+    } catch (error) {
+        return webAppResponse(res, error, req.body, '/getLossDatabySearch', WEBMESSAGES.GET_ALLDATA, req?.user?.UserId, req?.user?.RoleId);
+    };
+});
+
 adminRouter.post('/assignRoleAccess',authenticateToken, async (req, res) => {
     try {
         let body = {...req.body, ...{UserId: req?.user?.UserId}};

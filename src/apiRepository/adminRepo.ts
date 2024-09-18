@@ -195,6 +195,18 @@ export class AdminRepo {
     return await AppDataSource.query(query, [ReqType, Mobile, DataType]);
   };
 
+  async getCountsByRole(data) {
+      const { Mobile, ReqType, DataType } = data;
+    let query = `execute fetchCountsByRole @0,@1,@2`;
+    return await AppDataSource.query(query, [ReqType, Mobile, DataType]);
+  };
+
+  async getLossDatabySearch(data) {
+      const { Type, District, Taluk, Gp, Village, StartDate, EndDate } = data;
+    let query = `execute fetchLossDataBasedOnInputs @0,@1,@2`;
+    return await AppDataSource.query(query, [Type, District, Taluk, Gp, Village, StartDate, EndDate]);
+  };
+
   async assignRoleAccess(data) {
     let getOneObj = await loginAccessRepo.findOneBy({ id: Equal(data?.id) });
     let newData = { ...getOneObj, ...data };
