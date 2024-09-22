@@ -1,3 +1,4 @@
+import { Equal } from "typeorm";
 import { AppDataSource } from "../db/config";
 import { VaSurveyData, Version } from "../entities";
 import { API_VERSION_ISSUE, HEADERS_ISSUE } from "./constants";
@@ -38,9 +39,9 @@ export async function authTokenAndVersion(req, res, next) {
     const authVersion = req.headers["version"];
     if (!authVersion && !UserId) return res.status(200).send({ code: 403, status: "Failed", message: HEADERS_ISSUE });
     let getVersion = await AppDataSource.getRepository(Version).find();
-    let checkVersion = authVersion == getVersion[0]?.Version;
+    let checkVersion = (authVersion == getVersion[0]?.Version || authVersion == getVersion[1]?.Version || authVersion == getVersion[1]?.Version);
     if (!checkVersion) return res.status(200).send({ code: 403, status: "Failed", message: API_VERSION_ISSUE });
-    let getUser = await AppDataSource.getRepository(VaSurveyData).findOneBy({ UserId });
+    let getUser = await AppDataSource.getRepository(VaSurveyData).findOneBy({ UserId: Equal(UserId) });
     if (!getUser) return res.status(200).send({ code: 422, message: "User Doesn't Exist." });
     // Verify the token
     // let verifyToken = (getUser?.Token == token) && getUser?.TokenExpirationTime == generateCurrentTime();

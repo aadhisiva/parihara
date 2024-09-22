@@ -19,7 +19,7 @@ import {
 } from "../entities";
 import { Equal, createConnection } from "typeorm";
 import { PariharaData } from "../entities/pariharaData";
-import { generateUniqueSubmissionId } from "../utils/resuableCode";
+import { generateUniqueId, generateUniqueSubmissionId } from "../utils/resuableCode";
 import { UpdatedSurveyLogs } from "../entities/updateSurveyLogs";
 
 const vaSurveyDataRepo = AppDataSource.getRepository(VaSurveyData);
@@ -89,13 +89,17 @@ export class UserRepo {
     return await vaSurveyDataRepo.findOneBy({ Mobile: Equal(Mobile) });
   };
 
-  async saveSurveyData(data: PariharaData) {
+  async saveSurveyData(data) {
     const { ApplicantAadhar } = data;
     let findData = await pariharaDataRepo.findOneBy({ ApplicantAadhar: Equal(ApplicantAadhar) });
     if (findData) return { code: 422, message: "Already registered application with aadhar." };
     data.SurveyStatus = "Pending Ekyc";
-    data.SubmissionId = await generateUniqueSubmissionId();
-    return await pariharaDataRepo.save(data);
+    data.SubmissionId = "PARI"+"-"+generateUniqueId().slice(2)+"-"+Math.floor(Math.random() * 1000);
+    let findUser = await vaSurveyDataRepo.findOneBy({ UserId: Equal(data?.UserId) });
+    let createdData = {CreatedMobile: `${findUser.Mobile +'-AE-'+ findUser.AEOMobile+'-PD-'+findUser.PDOMobile}`, CreatedRole: "VA"}
+    let updateLogs = {...data, ...{History: "New Application Added"}, ...createdData}
+    await updatedSurveyLogsRepo.save(updateLogs);
+    return await pariharaDataRepo.save({...data, ...createdData});
   };
 
   async updateSurveyData(data) {
@@ -252,7 +256,7 @@ export class UserRepo {
   async assignedGpDetails(data) {
     const { DistrictCode, TalukCode,GpCode, Type } = data;
     let query = `execute getAssignedGpData @0,@1,@2,@3`;
-    return await AppDataSource.query(query, [DistrictCode, TalukCode, GpCode, Type])
+    return await AppDataSource.query(query, [DistrictCode, TalukCode, GpCode, Type]);
   }
 
   async checkAadharStatus(ApplicantAadhar) {
@@ -318,12 +322,14 @@ export class UserRepo {
     .getRawMany();
   };
 
-  async updateEkycAfter(data) {
+  async updateEkycAfter(data, AuthType) {
     const { SubmissionId, txnDateTime } = data;
     let findOne = await pariharaDataRepo.findOneBy({ SubmissionId: Equal(SubmissionId) });
-    if(!findOne) return {code: 422, message: "Access Denied"}
-    let newData = { ...findOne, ...{ EkycStatus: "Completed", SurveyStatus: "Pending", txnDateTime: txnDateTime } }
-    await updatedSurveyLogsRepo.save(data);
+    if(!findOne) return {code: 422, message: "Access Denied"};
+    let findUser = await vaSurveyDataRepo.findOneBy({ UserId: Equal(data?.UserId) });
+    let newData = { ...findOne, ...{ EkycStatus: "Completed", SurveyStatus: "Pending", txnDateTime: txnDateTime } };
+    let updateLogs = {...newData, ...{CreatedMobile: `${findUser.Mobile +'-AE-'+ findUser.AEOMobile+'-PD-'+findUser.PDOMobile}`, CreatedRole: "VA", History: `Updated With ${AuthType} Process`}}
+    await updatedSurveyLogsRepo.save(updateLogs);
     return await pariharaDataRepo.save(newData);
   };
 
@@ -335,7 +341,6 @@ export class UserRepo {
   };
 
   async saveDemoAuthResponse(data) {
-    console.log("## data", data);
     return await demoAuthEkycRepo.save(data);
   };
 

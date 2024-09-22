@@ -109,7 +109,7 @@ export class PariharaData extends BaseEntity {
   CompensationCategory: string;
 
   @Column({ type: 'nvarchar', default: null, length: 200 })
-  HouseCompensationRecive: string;
+  HouseCompensationToRecive: string;
 
   @Column({ type: 'nvarchar', default: null, length: 200 })
   Fallenhouse: string;
@@ -215,6 +215,27 @@ export class PariharaData extends BaseEntity {
 
   @Column({ type: 'nvarchar', default: null, length: 50 })
   VAVillageCode: string;
+
+  @Column({ type: 'nvarchar', default: null, length: 'max' })
+  RRRemarks: string;
+
+  @Column({ type: 'nvarchar', default: null, length: 100 })
+  PushedToRole: string;
+
+  @Column({ type: 'nvarchar', default: null, length: 100 })
+  CreatedMobile: string;
+
+  @Column({ type: 'nvarchar', default: null, length: 100 })
+  CreatedRole: string;
+
+  @Column({ type: 'nvarchar', default: null, length: 100 })
+  VerifiedBy: string;
+
+  @Column({ type: 'nvarchar', default: null, length: 100 })
+  VerifiedMobile: string;
+
+  @Column({ type: 'nvarchar', default: null, length: 100 })
+  CompensationSuggested: string;
 
   @CreateDateColumn()
   CreatedDate: Date;

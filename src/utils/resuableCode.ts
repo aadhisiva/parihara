@@ -160,7 +160,8 @@ export const expandCodeParameters = (type, DataType, codes) => {
 
 export const generateUniqueSubmissionId = async () => {
   let getData = await AppDataSource.query('select top 1 MAX(id) id from PariharaData');
-  return !getData[0]?.id ? "PARI0" : "PARI" + getData[0]?.id;
+  return !getData[0]?.id ? "PARI0" : "PARI" + getData[0]?.id+1;
+  return 
 };
 
 

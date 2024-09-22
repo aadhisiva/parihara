@@ -20,7 +20,9 @@ export const AppDataSource= new DataSource({
   password: process.env.PRO_DB_PASSWORD,
   database: process.env.PRO_DB_DATABASE,
   entities: entities(),
+  synchronize: true,
   options: {
+    useUTC: true,
     encrypt: true, // For Azure SQL or if encryption is needed
     trustServerCertificate: true // Set to true if you encounter issues with certificate validation
   },

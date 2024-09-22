@@ -161,6 +161,36 @@ adminRouter.post('/getLossDatabySearch',authenticateToken, async (req, res) => {
     };
 });
 
+adminRouter.post('/getLossDatabyBySubId',authenticateToken, async (req, res) => {
+    try {
+        let body = {...req.body, ...{UserId: req?.user?.UserId}};
+        let result = await adminServices.getLossDatabyBySubId(body);
+        return webAppResponse(res, result, body, '/getLossDatabyBySubId', WEBMESSAGES.GET_ALLDATA, req?.user?.UserId, req?.user?.RoleId);
+    } catch (error) {
+        return webAppResponse(res, error, req.body, '/getLossDatabyBySubId', WEBMESSAGES.GET_ALLDATA, req?.user?.UserId, req?.user?.RoleId);
+    };
+});
+
+adminRouter.post('/getRecordById',authenticateToken, async (req, res) => {
+    try {
+        let body = {...req.body, ...{UserId: req?.user?.UserId}};
+        let result = await adminServices.getRecordById(body);
+        return webAppResponse(res, result, body, '/getRecordById', WEBMESSAGES.GET_ALLDATA, req?.user?.UserId, req?.user?.RoleId);
+    } catch (error) {
+        return webAppResponse(res, error, req.body, '/getRecordById', WEBMESSAGES.GET_ALLDATA, req?.user?.UserId, req?.user?.RoleId);
+    };
+});
+
+adminRouter.post('/updateStatusFromWeb',authenticateToken, async (req, res) => {
+    try {
+        let body = {...req.body, ...{UserId: req?.user?.UserId}};
+        let result = await adminServices.updateStatusFromWeb(body);
+        return webAppResponse(res, result, body, '/updateStatusFromWeb', WEBMESSAGES.GET_ALLDATA, req?.user?.UserId, req?.user?.RoleId);
+    } catch (error) {
+        return webAppResponse(res, error, req.body, '/updateStatusFromWeb', WEBMESSAGES.GET_ALLDATA, req?.user?.UserId, req?.user?.RoleId);
+    };
+});
+
 adminRouter.post('/assignRoleAccess',authenticateToken, async (req, res) => {
     try {
         let body = {...req.body, ...{UserId: req?.user?.UserId}};

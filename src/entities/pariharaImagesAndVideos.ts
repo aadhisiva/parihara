@@ -30,6 +30,9 @@ export class PariharaImgAndVideo {
 
     @Column({ default: null, type: 'nvarchar', length: 100 })
     Longitude: string;
+
+    @Column({ default: null, type: 'nvarchar', length: 100 })
+    OfficerPhoto: string;
  
     @CreateDateColumn()
     createdDate: Date;

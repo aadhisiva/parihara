@@ -117,7 +117,7 @@ export class UserServices {
         if(getData?.code == 422) return {code: getData?.code, message: getData?.message};
         let imagesList = data?.ImagesList;
         let error;
-        for (let i = 0; i < imagesList.length; i++) {
+        for (let i = 0; i < imagesList?.length; i++) {
             let eachList = imagesList[i];
             eachList['SubmissionId'] = getData.SubmissionId;
             if (!eachList['SubmissionId']) return { code: 400, message: "Provide SubmissionId." };
@@ -208,7 +208,7 @@ export class UserServices {
         let checkData = await this.userRepo.fetchEkycData(txnDateTime);
         if (!checkData) return { code: 422, message: "Ekyc access denied." };
         if (checkData?.finalStatus == 'F') return { code: 422, message: checkData.errorMessage, data: {} };
-        let updatedData = await this.userRepo.updateEkycAfter(data);
+        let updatedData = await this.userRepo.updateEkycAfter(data, "Ekyc");
         if(updatedData['code'] == 422) return {code: 422, message: updatedData['message']};
         return updatedData;
     };
@@ -219,7 +219,7 @@ export class UserServices {
         if (!checkData) return { code: 422, message: "Demo Ekyc access denied." };
         if(Number(checkData?.NameMatchScore) <= 50) return {code: 422, message: "As per aadhaar, Your name has not matched."};
         if(checkData?.NameMatchStatus !== "S") return {code: 422, message: "Demo Auth Verfiication Failed"};
-        let updatedData = await this.userRepo.updateEkycAfter(data);
+        let updatedData = await this.userRepo.updateEkycAfter(data, "Demo");
         if(updatedData['code'] == 422) return {code: 422, message: updatedData['message']};
         return updatedData;
     };

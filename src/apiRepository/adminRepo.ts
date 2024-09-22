@@ -14,6 +14,7 @@ import {
   RoleToLoss,
   AssignMastersHistory,
   VaSurveyData,
+  PariharaImgAndVideo,
 } from "../entities";
 import { Equal } from "typeorm";
 import { PariharaData } from "../entities/pariharaData";
@@ -22,6 +23,7 @@ import { UpdatedSurveyLogs } from "../entities/updateSurveyLogs";
 
 const vaSurveyDataRepo = AppDataSource.getRepository(VaSurveyData);
 const pariharaDataRepo = AppDataSource.getRepository(PariharaData);
+const pariharaImgAndVideoRepo = AppDataSource.getRepository(PariharaImgAndVideo);
 const loginAccessRepo = AppDataSource.getRepository(LoginAccess);
 const loginRolesRepo = AppDataSource.getRepository(LoginRoles);
 const updatedSurveyLogsRepo = AppDataSource.getRepository(UpdatedSurveyLogs);
@@ -202,9 +204,57 @@ export class AdminRepo {
   };
 
   async getLossDatabySearch(data) {
-      const { Type, District, Taluk, Gp, Village, StartDate, EndDate } = data;
-    let query = `execute fetchLossDataBasedOnInputs @0,@1,@2`;
-    return await AppDataSource.query(query, [Type, District, Taluk, Gp, Village, StartDate, EndDate]);
+      const { Type = null, District = 'NULL', Taluk = 'NULL', Gp = 'NULL', Village = 'NULL', StartDate = 'NULL', EndDate = 'NULL', PageNumber = 1,  RowsPerPage = 10} = data;
+    let queryForCounts = `execute fetchLossDataCountsBasedOnInputs @0,@1,@2,@3,@4,@5,@6`;
+    let query = `execute fetchLossDataBasedOnInputs @0,@1,@2,@3,@4,@5,@6,@7,@8`;
+    let responseForCounts =  await AppDataSource.query(queryForCounts, [Type, District, Taluk, Gp, Village, StartDate, EndDate]);
+    let response =  await AppDataSource.query(query, [Type, District, Taluk, Gp, Village, StartDate, EndDate, PageNumber, RowsPerPage]);
+    return {
+      TotalCount : responseForCounts[0].TotalCount,
+      Page: PageNumber,
+      RowsPerPage: RowsPerPage,
+      TotalData: response
+    };
+  };
+
+  async getLossDatabyBySubId(data) {
+      const { Type= "NULL", SubmissionId, PageNumber = 1,  RowsPerPage = 10} = data;
+    let query = `execute fetchLossDataBySubId @0,@1,@2,@3`;
+    let queryForCounts = `execute fetchLossDataBySubIdCounts @0,@1`;
+    let response =  await AppDataSource.query(query, [Type, SubmissionId, PageNumber, RowsPerPage]);
+    let responseForCounts =  await AppDataSource.query(queryForCounts, [Type, SubmissionId]);
+    
+    return {
+      TotalCount : responseForCounts[0].TotalCount,
+      Page: PageNumber,
+      RowsPerPage: RowsPerPage,
+      TotalData: response
+    };
+  };
+
+  async getRecordById(data){
+    let result = await updatedSurveyLogsRepo.findOneBy({id: Equal(data?.id), SubmissionId: Equal(data?.SubmissionId)});
+    if(!result) return {code: 422, message: "Access Denied"};
+    return result;
+  };
+
+  async fectImagAndVideo(data){
+    let result = await pariharaImgAndVideoRepo.find({where:{SubmissionId: Equal(data?.SubmissionId)}});
+    return result;
+  };
+
+  async updateStatusFromWeb(data) {
+    let getOneObj = await pariharaDataRepo.findOneBy({ SubmissionId : Equal(data?.SubmissionId) });
+    let newData = { ...getOneObj, ...data };
+    let getOneObjFromUpdate = await updatedSurveyLogsRepo.createQueryBuilder('ud')
+    .where("ud.SubmissionId = :id", {id: data?.SubmissionId})
+    .orderBy("ud.CreatedDate", "DESC")
+    .getOne();
+    let newUpdatedDate = {...getOneObjFromUpdate, ...data};
+    delete newUpdatedDate.id;
+    await updatedSurveyLogsRepo.save(newUpdatedDate);
+    await pariharaDataRepo.save(newData);
+    return {};
   };
 
   async assignRoleAccess(data) {

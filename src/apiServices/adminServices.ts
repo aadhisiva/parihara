@@ -78,7 +78,7 @@ export class AdminServices {
         return { message: API_MESSAGES.VERIFICATION_SUCCESS, data: {} };
     }
 
-    async saveSurveyData(data: PariharaData) {
+    async saveSurveyData(data) {
         const { RoleId, LossType, DateOfDamage } = data;
         if (!RoleId) return { code: 400, message: "Provide RoleId." };
         if (!LossType) return { code: 400, message: "Provide LossType." };
@@ -164,6 +164,19 @@ export class AdminServices {
 
     async getLossDatabySearch(data) {
         return await this.adminRepo.getLossDatabySearch(data);
+    };
+
+    async getLossDatabyBySubId(data) {
+        return await this.adminRepo.getLossDatabyBySubId(data);
+    };
+
+    async getRecordById(data) {
+        if(data.ReqType == "Img") return await this.adminRepo.fectImagAndVideo(data);
+        return await this.adminRepo.getRecordById(data);
+    };
+
+    async updateStatusFromWeb(data) {
+        return await this.adminRepo.updateStatusFromWeb(data);
     };
 
     async assignRoleAccess(data) {
