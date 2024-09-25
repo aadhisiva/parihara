@@ -16,11 +16,13 @@ import {
   Taluk,
   Villages,
   RDMinority,
+  AssignMasters,
 } from "../entities";
-import { Equal, createConnection } from "typeorm";
+import { Brackets, Equal, createConnection } from "typeorm";
 import { PariharaData } from "../entities/pariharaData";
 import { generateUniqueId, generateUniqueSubmissionId } from "../utils/resuableCode";
 import { UpdatedSurveyLogs } from "../entities/updateSurveyLogs";
+import { COMPLETED, PENDING, PENDING_EKYC } from "../utils/constants";
 
 const vaSurveyDataRepo = AppDataSource.getRepository(VaSurveyData);
 const versionDataRepo = AppDataSource.getRepository(Version);
@@ -38,6 +40,8 @@ const talukRepo = AppDataSource.getRepository(Taluk);
 const gramaPanchayatRepo = AppDataSource.getRepository(GramaPanchayat);
 const villagesRepo = AppDataSource.getRepository(Villages);
 const rdMinorityRepo = AppDataSource.getRepository(RDMinority);
+const assignMastersRepo = AppDataSource.getRepository(AssignMasters);
+const loginAccessRepo = AppDataSource.getRepository(LoginAccess);
 
 @Service()
 export class UserRepo {
@@ -79,6 +83,39 @@ export class UserRepo {
       .getRawMany();
   };
 
+  async updateOtpInOfficerData(data) {
+    const { Mobile, RoleId } = data;
+    let getData = await assignMastersRepo.findOneBy({ Mobile: Equal(Mobile), RoleId: Equal(RoleId) });
+    if (!getData) return { code: 422, message: "Your Data Does't Exist." };
+    let accessData = await loginAccessRepo.findOneBy({ RoleId: Equal(RoleId) });
+    let checkDistrictAccess = accessData.Taluk == "Yes";
+    let checkTalukAccess = accessData.Gp == "Yes";
+    let newData = { ...getData, ...data };
+    await assignMastersRepo.save(newData);
+    if(checkDistrictAccess){
+      let districtData = await assignMastersRepo.createQueryBuilder('vs')
+      .innerJoinAndSelect(Districts, 'dd', 'dd.DistrictCode=vs.DistrictCode')
+      .select(["vs.DistrictCode DistrictCode, vs.Type Type",
+        "CONCAT('D-',dd.DistrictNameEn) as assignedDeatils"
+      ])
+      .where("vs.Mobile = :Mobile and vs.RoleId = :RoleId", { Mobile, RoleId })
+      .getRawMany();
+      return {Access: "District", AccessDetails: districtData};
+    } else if(checkTalukAccess) {
+      let talukData = await assignMastersRepo.createQueryBuilder('vs')
+      .innerJoinAndSelect(Districts, 'dd', 'dd.DistrictCode=vs.DistrictCode')
+      .innerJoinAndSelect(Taluk, 'td', 'td.DistrictCode=vs.DistrictCode and td.TalukCode=vs.TalukCode and td.Type=vs.Type')
+      .select(["vs.DistrictCode DistrictCode, vs.TalukCode TalukCode, vs.Type Type",
+        "CONCAT('D-',dd.DistrictNameEn,'-T-',td.TalukNameEn) as assignedDeatils"
+      ])
+      .where("vs.Mobile = :Mobile and vs.RoleId = :RoleId", { Mobile, RoleId })
+      .getRawMany();
+      return {Access: "Taluk", AccessDetails: talukData};
+    } else {
+      return { code: 422, message: "You are searching with wrong creadentials" };
+    }
+  };
+
   async checkLoginUser(data) {
     const { Mobile, RoleId } = data;
     return await vaSurveyDataRepo.findOneBy({ Mobile: Equal(Mobile), RoleId: Equal(RoleId) });
@@ -89,11 +126,30 @@ export class UserRepo {
     return await vaSurveyDataRepo.findOneBy({ Mobile: Equal(Mobile) });
   };
 
+  async verfiyOfficerData(data) {
+    const { Mobile, RoleId, Otp } = data;
+    return await assignMastersRepo.findOneBy({ Mobile: Equal(Mobile), RoleId: Equal(RoleId), Otp: Equal(Otp) });
+  };
+
+  async fetchLossData(data){
+    const { Type = null, DistrictCode = null, TalukCode = null, Status=null, LossType=null, PageNumber = 1, RowsPerPage = 10 } = data
+    let queryForCounts = `execute fetchLossDataCountsForMobile @0,@1,@2,@3,@4`;
+    let query = `execute fetchLossDataForMobile @0,@1,@2,@3,@4,@5,@6`;
+    let response=  await AppDataSource.query(query, [Type, DistrictCode, TalukCode, LossType, Status, PageNumber, RowsPerPage]);
+    let responseForCounts =  await AppDataSource.query(queryForCounts, [Type, DistrictCode, TalukCode, LossType, Status]);
+    return {
+      TotalCount : responseForCounts[0].TotalCount,
+      Page: PageNumber,
+      RowsPerPage: RowsPerPage,
+      TotalData: response
+    };
+    } 
+
   async saveSurveyData(data) {
     const { ApplicantAadhar } = data;
     let findData = await pariharaDataRepo.findOneBy({ ApplicantAadhar: Equal(ApplicantAadhar) });
     if (findData) return { code: 422, message: "Already registered application with aadhar." };
-    data.SurveyStatus = "Pending Ekyc";
+    data.SurveyStatus = PENDING_EKYC;
     data.SubmissionId = "PARI"+"-"+generateUniqueId().slice(2)+"-"+Math.floor(Math.random() * 1000);
     let findUser = await vaSurveyDataRepo.findOneBy({ UserId: Equal(data?.UserId) });
     let createdData = {CreatedMobile: `${findUser.Mobile +'-AE-'+ findUser.AEOMobile+'-PD-'+findUser.PDOMobile}`, CreatedRole: "VA"}
@@ -103,11 +159,19 @@ export class UserRepo {
   };
 
   async updateSurveyData(data) {
-    const { SubmissionId } = data;
-    let getData = await pariharaDataRepo.findOneBy({ SubmissionId: Equal(SubmissionId) });
-    if (!getData) return { code: 422, message: "Data doesn't exist." }
-    let newData = { ...getData, ...data };
-    await updatedSurveyLogsRepo.save(data);
+    let getOneObj = await pariharaDataRepo.findOneBy({ SubmissionId : Equal(data?.SubmissionId) });
+    let newData = { ...getOneObj, ...data };
+    let getOneObjFromUpdate = await updatedSurveyLogsRepo.createQueryBuilder('ud')
+    .where("ud.SubmissionId = :id", {id: data?.SubmissionId})
+    .orderBy("ud.CreatedDate", "DESC")
+    .getOne();
+    delete getOneObjFromUpdate.id;
+    delete getOneObjFromUpdate.CreatedDate;
+    delete getOneObjFromUpdate.UpdatedDate;
+    let findUser = await vaSurveyDataRepo.findOneBy({UserId: Equal(newData.UserId)});
+    let createdData = {CreatedMobile: `${findUser.Mobile +'-AE-'+ findUser.AEOMobile+'-PD-'+findUser.PDOMobile}`, CreatedRole: "VA"}
+    let newUpdatedDate = {...getOneObjFromUpdate, ...createdData, ...{History: "Updated Existing Record From Mobile"}, ...data};
+    await updatedSurveyLogsRepo.save(newUpdatedDate);
     return await pariharaDataRepo.save(newData);
   };
 
@@ -325,12 +389,20 @@ export class UserRepo {
   async updateEkycAfter(data, AuthType) {
     const { SubmissionId, txnDateTime } = data;
     let findOne = await pariharaDataRepo.findOneBy({ SubmissionId: Equal(SubmissionId) });
+    let newData = {...findOne, ...data};
+    let getOneObjFromUpdate = await updatedSurveyLogsRepo.createQueryBuilder('ud')
+    .where("ud.SubmissionId = :id", {id: data?.SubmissionId})
+    .orderBy("ud.CreatedDate", "DESC")
+    .getOne();
+    delete getOneObjFromUpdate.id;
+    delete getOneObjFromUpdate.CreatedDate;
+    delete getOneObjFromUpdate.UpdatedDate;
     if(!findOne) return {code: 422, message: "Access Denied"};
     let findUser = await vaSurveyDataRepo.findOneBy({ UserId: Equal(data?.UserId) });
-    let newData = { ...findOne, ...{ EkycStatus: "Completed", SurveyStatus: "Pending", txnDateTime: txnDateTime } };
-    let updateLogs = {...newData, ...{CreatedMobile: `${findUser.Mobile +'-AE-'+ findUser.AEOMobile+'-PD-'+findUser.PDOMobile}`, CreatedRole: "VA", History: `Updated With ${AuthType} Process`}}
-    await updatedSurveyLogsRepo.save(updateLogs);
-    return await pariharaDataRepo.save(newData);
+    let updatedHistory = { ...getOneObjFromUpdate, ...{ EkycStatus: COMPLETED, SurveyStatus: PENDING, txnDateTime: txnDateTime } };
+    let updateLogs = {...updatedHistory, ...{CreatedMobile: `${findUser.Mobile +'-AE-'+ findUser.AEOMobile+'-PD-'+findUser.PDOMobile}`, CreatedRole: "VA", History: `Updated With ${AuthType} Process`}}
+    await updatedSurveyLogsRepo.save({...updateLogs, ...data});
+    return await pariharaDataRepo.save({...newData, ...updatedHistory});
   };
 
   async saveKutumbaData(data) {

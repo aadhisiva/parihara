@@ -212,7 +212,7 @@ export class UpdatedSurveyLogs {
     Verify: string;
 
     @Column({ type: 'nvarchar', default: null, length: 50 })
-    VillageCode: string;
+    VAVillageCode: string;
 
     @Column({ type: 'nvarchar', default: null, length: 'max' })
     Remarks: string;
@@ -230,7 +230,7 @@ export class UpdatedSurveyLogs {
     CreatedRole: string;
 
     @Column({ type: 'nvarchar', default: null, length: 100 })
-    PushedToRole: string;
+    PushToRole: string;
   
     @Column({ type: 'nvarchar', default: null, length: 100 })
     VerifiedBy: string;
@@ -240,6 +240,9 @@ export class UpdatedSurveyLogs {
   
     @Column({ type: 'nvarchar', default: null, length: 100 })
     CompensationSuggested: string;
+  
+    @Column({ type: 'nvarchar', default: null, length: 20 })
+    ApplicantGender: string;
 
     @CreateDateColumn()
     CreatedDate: Date;

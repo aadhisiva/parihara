@@ -52,3 +52,11 @@ export const ZONE_OFFICER = "Zone Officer";
 export const BBMP_OFFICER = "BBMP Head";
 export const DIVISION_OFFICER = "Division Officer";
 export const GP_OFFICER = "GramaPanchayat Officer";
+
+
+export const SEEK = "Seek Clarification";
+export const PENDING = "Pending";
+export const PENDING_EKYC = "Pending Ekyc";
+export const REJECTED = "Rejected";
+export const APPROVED = "Approved";
+export const COMPLETED = "Completed";

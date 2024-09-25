@@ -21,6 +21,7 @@ export const AppDataSource= new DataSource({
   database: process.env.PRO_DB_DATABASE,
   entities: entities(),
   synchronize: true,
+  // logging: true,
   options: {
     useUTC: true,
     encrypt: true, // For Azure SQL or if encryption is needed

@@ -79,6 +79,33 @@ export class UserServices {
         };
     };
 
+    async loginWithOfficer(data) {
+        const { Mobile, RoleId } = data;
+        if (!Mobile) return { code: 400, message: "Provide Mobile" };
+        if (!RoleId) return { code: 400, message: "Provide RoleId" };
+        // data.Otp = generateOTP(4);
+        data.Otp = "1111";
+        let checkUserData = await this.userRepo.updateOtpInOfficerData(data);
+        if (checkUserData['code'] == 422) return checkUserData;
+        // let sendSingleSms = await this.otpServices.sendOtpAsSingleSms(
+        //     Mobile,
+        //     data?.Otp
+        // );
+        // await saveMobileOtps(
+        //     Mobile,
+        //     sendSingleSms?.otpMessage,
+        //     sendSingleSms?.response,
+        //     data?.UserId,
+        //     data?.Otp
+        // );
+        // if (sendSingleSms.code !== 200) {
+        //     return { code: 422, message: RESPONSEMSG.OTP_FAILED };
+        // }
+        return {
+            message: RESPONSEMSG.OTP, data: checkUserData
+        };
+    };
+
     async sendOtpForAuth(data){
         data.Otp = generateOTP(4);
         // data.Otp = "1111";
@@ -108,6 +135,17 @@ export class UserServices {
         if (!checkOtp) return { code: 422, message: API_MESSAGES.VERIFICATION_FAILED };
         return { message: API_MESSAGES.VERIFICATION_SUCCESS, data: {} };
     }
+
+    async verifyOfficerOtp(data) {
+        let checkUserData = await this.userRepo.verfiyOfficerData(data);
+        if (!checkUserData) return { code: 422, message: API_MESSAGES.VERIFICATION_FAILED };
+        return { message: API_MESSAGES.VERIFICATION_SUCCESS, data: {} };
+    };
+
+    async fetchLossData(data) {
+        let checkUserData = await this.userRepo.fetchLossData(data);
+        return checkUserData;
+    };
 
     async saveSurveyData(data) {
         const { RoleId, LossType, DateOfDamage } = data;

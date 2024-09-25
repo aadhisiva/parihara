@@ -219,8 +219,11 @@ export class PariharaData extends BaseEntity {
   @Column({ type: 'nvarchar', default: null, length: 'max' })
   RRRemarks: string;
 
+  @Column({ type: 'nvarchar', default: null, length: 'max' })
+  Remarks: string;
+
   @Column({ type: 'nvarchar', default: null, length: 100 })
-  PushedToRole: string;
+  PushToRole: string;
 
   @Column({ type: 'nvarchar', default: null, length: 100 })
   CreatedMobile: string;
@@ -236,6 +239,9 @@ export class PariharaData extends BaseEntity {
 
   @Column({ type: 'nvarchar', default: null, length: 100 })
   CompensationSuggested: string;
+
+  @Column({ type: 'nvarchar', default: null, length: 20 })
+  ApplicantGender: string;
 
   @CreateDateColumn()
   CreatedDate: Date;

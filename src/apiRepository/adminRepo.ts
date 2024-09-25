@@ -90,7 +90,7 @@ export class AdminRepo {
     let getData = await pariharaDataRepo.findOneBy({ SubmissionId: Equal(SubmissionId) });
     if (!getData) return { code: 422, message: "Data doesn't exist." }
     let newData = { ...getData, ...data };
-    await updatedSurveyLogsRepo.save(data);
+    await updatedSurveyLogsRepo.save(newData);
     return await pariharaDataRepo.save(newData);
   };
 
@@ -204,11 +204,11 @@ export class AdminRepo {
   };
 
   async getLossDatabySearch(data) {
-      const { Type = null, District = 'NULL', Taluk = 'NULL', Gp = 'NULL', Village = 'NULL', StartDate = 'NULL', EndDate = 'NULL', PageNumber = 1,  RowsPerPage = 10} = data;
-    let queryForCounts = `execute fetchLossDataCountsBasedOnInputs @0,@1,@2,@3,@4,@5,@6`;
-    let query = `execute fetchLossDataBasedOnInputs @0,@1,@2,@3,@4,@5,@6,@7,@8`;
-    let responseForCounts =  await AppDataSource.query(queryForCounts, [Type, District, Taluk, Gp, Village, StartDate, EndDate]);
-    let response =  await AppDataSource.query(query, [Type, District, Taluk, Gp, Village, StartDate, EndDate, PageNumber, RowsPerPage]);
+      const { Type = null, District = 'NULL', Taluk = 'NULL', Gp = 'NULL', Village = 'NULL', StartDate = 'NULL', EndDate = 'NULL', PageNumber = 1,  RowsPerPage = 10, LossType= 'NULL', SurveyStatus='NULL'} = data;
+    let queryForCounts = `execute fetchLossDataCountsBasedOnInputs @0,@1,@2,@3,@4,@5,@6,@7,@8`;
+    let query = `execute fetchLossDataBasedOnInputs @0,@1,@2,@3,@4,@5,@6,@7,@8,@9,@10`;
+    let responseForCounts =  await AppDataSource.query(queryForCounts, [Type, District, Taluk, Gp, Village, LossType, SurveyStatus, StartDate, EndDate]);
+    let response =  await AppDataSource.query(query, [Type, District, Taluk, Gp, Village, LossType, SurveyStatus, StartDate, EndDate, PageNumber, RowsPerPage]);
     return {
       TotalCount : responseForCounts[0].TotalCount,
       Page: PageNumber,
@@ -233,9 +233,10 @@ export class AdminRepo {
   };
 
   async getRecordById(data){
-    let result = await updatedSurveyLogsRepo.findOneBy({id: Equal(data?.id), SubmissionId: Equal(data?.SubmissionId)});
-    if(!result) return {code: 422, message: "Access Denied"};
-    return result;
+    const { id, SubmissionId} = data;
+    let query = `execute fetchAllDetailsById @0,@1`;
+    let response =  await AppDataSource.query(query, [id, SubmissionId]);
+    return response;
   };
 
   async fectImagAndVideo(data){
@@ -250,8 +251,10 @@ export class AdminRepo {
     .where("ud.SubmissionId = :id", {id: data?.SubmissionId})
     .orderBy("ud.CreatedDate", "DESC")
     .getOne();
+    delete getOneObjFromUpdate.id;
+    delete getOneObjFromUpdate.CreatedDate;
+    delete getOneObjFromUpdate.UpdatedDate;
     let newUpdatedDate = {...getOneObjFromUpdate, ...data};
-    delete newUpdatedDate.id;
     await updatedSurveyLogsRepo.save(newUpdatedDate);
     await pariharaDataRepo.save(newData);
     return {};

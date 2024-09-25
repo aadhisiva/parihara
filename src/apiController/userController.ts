@@ -43,6 +43,16 @@ userRouter.post('/login', authVersion, async (req, res) => {
     }
 });
 
+userRouter.post('/loginWithOfficer', authVersion, async (req, res) => {
+    try {
+        let body = req.body;
+        let result = await userServices.loginWithOfficer(body);
+        return mobileAppResponse(res, result, req.body, getRoleAndUserId(req, "login user"));
+    } catch (error) {
+        return mobileAppResponse(res, error);
+    }
+});
+
 userRouter.post('/sendOtpForAuth', async (req, res) => {
     try {
         let body = req.body;
@@ -57,6 +67,26 @@ userRouter.post('/verifyOtp', authVersion, async (req, res) => {
     try {
         let body = {...req.body, ...{UserId: req.headers.userid}};
         let result = await userServices.verifyOtp(body);
+        return mobileAppResponse(res, result, req.body, getRoleAndUserId(req, MOBILE_MESSAGES.VERIFY_OTP));
+    } catch (error) {
+        return mobileAppResponse(res, error);
+    }
+});
+
+userRouter.post('/verifyOfficerOtp', authVersion, async (req, res) => {
+    try {
+        let body = {...req.body, ...{UserId: req.headers.userid}};
+        let result = await userServices.verifyOfficerOtp(body);
+        return mobileAppResponse(res, result, req.body, getRoleAndUserId(req, MOBILE_MESSAGES.VERIFY_OTP));
+    } catch (error) {
+        return mobileAppResponse(res, error);
+    }
+});
+
+userRouter.post('/fetchLossData', authVersion, async (req, res) => {
+    try {
+        let body = {...req.body, ...{UserId: req.headers.userid}};
+        let result = await userServices.fetchLossData(body);
         return mobileAppResponse(res, result, req.body, getRoleAndUserId(req, MOBILE_MESSAGES.VERIFY_OTP));
     } catch (error) {
         return mobileAppResponse(res, error);

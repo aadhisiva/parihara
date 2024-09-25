@@ -63,7 +63,7 @@ export class SMSServices {
                 password: convertPasswordToSha1(password),
                 senderid: senderId.trim(),
                 content: message.trim(),
-                smsservicetype: "singlemsg",
+                smsservicetype: "otpmsg",
                 mobileno: mobileno,
                 key: hashGenerator(userName, senderId, message, secureKey),
                 templateid: templateId.trim()

@@ -27,31 +27,6 @@ export const mobileAppResponse = async (res, result, body = {}, logRes={userId: 
     }
 };
 
-// export const mobileAppResponse = async (res, result, body = {}, logRes={userId: '', role: '', logMessage: ''}) => {
-//     const { code, message, data } = result;
-//     const { userId, role, logMessage } = logRes;
-//     if (result instanceof Error) {
-//         await saveMobileLogs(logMessage, message, userId, body, result, role, RESPONSETYPE.FAILED)
-//         return res.status(500).send(ResponseMessages(ResponseCode.EXCEPTION, (message || RESPONSEMSG.EXCEPTION), RESPONSE_EMPTY_DATA));
-//     } else if (code == 422) {
-//         await saveMobileLogs(logMessage, message, userId, body, result, role, RESPONSETYPE.FAILED)
-//         return res.status(code).send(ResponseMessages(ResponseCode.UNPROCESS, (message || RESPONSEMSG.UNPROCESS), RESPONSE_EMPTY_DATA));
-//     } else if (code == 404) {
-//         await saveMobileLogs(logMessage, message, userId, body, result, role, RESPONSETYPE.FAILED)
-//         let response = ResponseMessages(ResponseCode.NOTFOUND, (message || RESPONSEMSG.ACCESS_DENIED), RESPONSE_EMPTY_DATA);
-//         res.status(code).send(response);
-//     } else if (code == 400) {
-//         await saveMobileLogs(logMessage, message, userId, body, result, role, RESPONSETYPE.FAILED)
-//         return res.status(code).send(ResponseMessages(ResponseCode.VALIDATE, (message || RESPONSEMSG.VALIDATE_FIELDS), RESPONSE_EMPTY_DATA));
-//     } else {
-//         await saveMobileLogs(logMessage, message, userId, body, result, role, RESPONSETYPE.SUCCESS)
-//         if (!data) {
-//             return res.status(200).send(ResponseMessages(ResponseCode.SUCCESS, (message || RESPONSEMSG.RETRIVE_SUCCESS), result));
-//         }
-//         return res.status(200).send(ResponseMessages(ResponseCode.SUCCESS, (message || RESPONSEMSG.RETRIVE_SUCCESS), data));
-//     }
-// };
-
 export const mobileAppResponseForLarge = async (res, result, body = {}, logRes={userId: '', role: '', logMessage: ''}) => {
     const { code, message, data } = result;
     const { userId, role, logMessage } = logRes;
