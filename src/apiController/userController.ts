@@ -13,7 +13,7 @@ import { UserServices } from '../apiServices/userServices';
 import { mobileAppResponse } from '../utils/errorHandling';
 import { getRoleAndUserId } from '../utils/resuableCode';
 import { MOBILE_MESSAGES } from '../utils/constants';
-import { authTokenAndVersion, authVersion } from '../utils/middlewares';
+import { authenticateToken, authTokenAndVersion, authVersion } from '../utils/middlewares';
 
 const userRouter = express.Router()
 
@@ -37,6 +37,16 @@ userRouter.post('/login', authVersion, async (req, res) => {
     try {
         let body = req.body;
         let result = await userServices.loginUser(body);
+        return mobileAppResponse(res, result, req.body, getRoleAndUserId(req, "login user"));
+    } catch (error) {
+        return mobileAppResponse(res, error);
+    }
+});
+
+userRouter.post('/loginSurveyer', authVersion, async (req, res) => {
+    try {
+        let body = req.body;
+        let result = await userServices.loginSurveyer(body);
         return mobileAppResponse(res, result, req.body, getRoleAndUserId(req, "login user"));
     } catch (error) {
         return mobileAppResponse(res, error);
@@ -73,6 +83,16 @@ userRouter.post('/verifyOtp', authVersion, async (req, res) => {
     }
 });
 
+userRouter.post('/verifySurveyerOtp', authVersion, async (req, res) => {
+    try {
+        let body = {...req.body, ...{UserId: req.headers.userid}};
+        let result = await userServices.verifySurveyerOtp(body);
+        return mobileAppResponse(res, result, req.body, getRoleAndUserId(req, MOBILE_MESSAGES.VERIFY_OTP));
+    } catch (error) {
+        return mobileAppResponse(res, error);
+    }
+});
+
 userRouter.post('/verifyOfficerOtp', authVersion, async (req, res) => {
     try {
         let body = {...req.body, ...{UserId: req.headers.userid}};
@@ -87,6 +107,16 @@ userRouter.post('/fetchLossData', authVersion, async (req, res) => {
     try {
         let body = {...req.body, ...{UserId: req.headers.userid}};
         let result = await userServices.fetchLossData(body);
+        return mobileAppResponse(res, result, req.body, getRoleAndUserId(req, MOBILE_MESSAGES.VERIFY_OTP));
+    } catch (error) {
+        return mobileAppResponse(res, error);
+    }
+});
+
+userRouter.post('/addImagesToApplication', authenticateToken, async (req, res) => {
+    try {
+        let body = {...req.body, ...{UserId: req.headers.userid}};
+        let result = await userServices.addImagesToApplication(body);
         return mobileAppResponse(res, result, req.body, getRoleAndUserId(req, MOBILE_MESSAGES.VERIFY_OTP));
     } catch (error) {
         return mobileAppResponse(res, error);

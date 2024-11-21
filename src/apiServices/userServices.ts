@@ -79,28 +79,55 @@ export class UserServices {
         };
     };
 
+    async loginSurveyer(data) {
+        const { Mobile, RoleId } = data;
+        if (!Mobile) return { code: 400, message: "Provide Mobile" };
+        if (!RoleId) return { code: 400, message: "Provide RoleId" };
+        data.Otp = generateOTP(4);
+        // data.Otp = "1111";
+            let checkUserData = await this.userRepo.updateSurveyerOtp(data);
+            if (checkUserData['code'] == 422) return checkUserData;
+            let sendSingleSms = await this.otpServices.sendOtpAsSingleSms(
+                Mobile,
+                data?.Otp
+            );
+            await saveMobileOtps(
+                Mobile,
+                sendSingleSms?.otpMessage,
+                sendSingleSms?.response,
+                data?.UserId,
+                data?.Otp
+            );
+            if (sendSingleSms.code !== 200) {
+                return { code: 422, message: RESPONSEMSG.OTP_FAILED };
+            }
+            return {
+                message: RESPONSEMSG.OTP, data: checkUserData
+            };
+    };
+
     async loginWithOfficer(data) {
         const { Mobile, RoleId } = data;
         if (!Mobile) return { code: 400, message: "Provide Mobile" };
         if (!RoleId) return { code: 400, message: "Provide RoleId" };
-        // data.Otp = generateOTP(4);
-        data.Otp = "1111";
+        data.Otp = generateOTP(4);
+        // data.Otp = "1111";
         let checkUserData = await this.userRepo.updateOtpInOfficerData(data);
         if (checkUserData['code'] == 422) return checkUserData;
-        // let sendSingleSms = await this.otpServices.sendOtpAsSingleSms(
-        //     Mobile,
-        //     data?.Otp
-        // );
-        // await saveMobileOtps(
-        //     Mobile,
-        //     sendSingleSms?.otpMessage,
-        //     sendSingleSms?.response,
-        //     data?.UserId,
-        //     data?.Otp
-        // );
-        // if (sendSingleSms.code !== 200) {
-        //     return { code: 422, message: RESPONSEMSG.OTP_FAILED };
-        // }
+        let sendSingleSms = await this.otpServices.sendOtpAsSingleSms(
+            Mobile,
+            data?.Otp
+        );
+        await saveMobileOtps(
+            Mobile,
+            sendSingleSms?.otpMessage,
+            sendSingleSms?.response,
+            data?.UserId,
+            data?.Otp
+        );
+        if (sendSingleSms.code !== 200) {
+            return { code: 422, message: RESPONSEMSG.OTP_FAILED };
+        }
         return {
             message: RESPONSEMSG.OTP, data: checkUserData
         };
@@ -136,6 +163,15 @@ export class UserServices {
         return { message: API_MESSAGES.VERIFICATION_SUCCESS, data: {} };
     }
 
+    async verifySurveyerOtp(data) {
+        const { Otp } = data;
+        let checkUserData = await this.userRepo.verfiySurveyerUserWithId(data);
+        if (!checkUserData) return { code: 422, message: "Your Data Does't Exist." }
+        let checkOtp = checkUserData.Otp == Otp;
+        if (!checkOtp) return { code: 422, message: API_MESSAGES.VERIFICATION_FAILED };
+        return { message: API_MESSAGES.VERIFICATION_SUCCESS, data: {} };
+    }
+
     async verifyOfficerOtp(data) {
         let checkUserData = await this.userRepo.verfiyOfficerData(data);
         if (!checkUserData) return { code: 422, message: API_MESSAGES.VERIFICATION_FAILED };
@@ -146,6 +182,20 @@ export class UserServices {
         let checkUserData = await this.userRepo.fetchLossData(data);
         return checkUserData;
     };
+
+    async addImagesToApplication(data){
+        const { imagesList, SubmissionId, OfficerPhoto } = data;
+        if (SubmissionId) return { code: 400, message: "Provide SubmissionId." };
+        if (imagesList) return { code: 400, message: "Provide imagesList." };
+        for (let i = 0; i < imagesList?.length; i++) {
+            let eachList = imagesList[i];
+            eachList['SubmissionId'] = SubmissionId;
+            eachList['UserId'] = data.UserId;
+            eachList['OfficerPhoto'] = OfficerPhoto;
+            await this.userRepo.saveSurveyImages(eachList);
+        };
+        return {};
+    }
 
     async saveSurveyData(data) {
         const { RoleId, LossType, DateOfDamage } = data;

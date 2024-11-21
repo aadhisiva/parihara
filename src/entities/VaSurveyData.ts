@@ -34,6 +34,14 @@ import { LoginRoles } from "./loginRoles";
     @JoinColumn({ name: "RoleId" })
     RoleId: LoginRoles;
 
+    @ManyToOne(() => LoginRoles, role => role.VaSurveyDataFK)
+    @JoinColumn({ name: "AEORoleId" })
+    AEORoleId: LoginRoles;
+
+    @ManyToOne(() => LoginRoles, role => role.VaSurveyDataFK)
+    @JoinColumn({ name: "PDORoleId" })
+    PDORoleId: LoginRoles;
+
     @Column({ default: null, type: 'nvarchar', length: 12 })
     Mobile: string;
 

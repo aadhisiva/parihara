@@ -68,19 +68,68 @@ export class UserRepo {
 
   async updateUser(data) {
     const { Mobile, RoleId } = data;
-    let getData = await vaSurveyDataRepo.findOneBy({ Mobile: Equal(Mobile), RoleId: Equal(RoleId) });
-    if (!getData) return { code: 422, message: "Your Data Does't Exist." }
-    let newData = { ...getData, ...data };
-    await vaSurveyDataRepo.save(newData);
-    return await vaSurveyDataRepo.createQueryBuilder('vs')
-      .innerJoinAndSelect(Districts, 'dd', 'dd.DistrictCode=vs.DistrictCode')
-      .innerJoinAndSelect(Taluk, 'td', 'td.DistrictCode=vs.DistrictCode and td.TalukCode=vs.TalukCode and td.Type=vs.Type')
-      .innerJoinAndSelect(GramaPanchayat, 'gp', 'gp.DistrictCode=vs.DistrictCode and gp.TalukCode=vs.TalukCode and gp.GpCode=vs.GpCode and gp.Type=vs.Type')
-      .select(["vs.DistrictCode DistrictCode, vs.TalukCode TalukCode, vs.GpCode GpCode, vs.Type Type", "vs.UserId UserId",
-        "CONCAT('D-',dd.DistrictNameEn,'-T-',td.TalukNameEn,'-G-',gp.GpNameEn) as assignedGp"
-      ])
-      .where("vs.Mobile = :Mobile and vs.RoleId = :RoleId", { Mobile, RoleId })
-      .getRawMany();
+      let getData = await vaSurveyDataRepo.findOneBy({ Mobile: Equal(Mobile), RoleId: Equal(RoleId) });
+      if (!getData) return { code: 422, message: "Your Data Does't Exist." }
+      let newData = { ...getData, ...data };
+      await vaSurveyDataRepo.save(newData);
+      return await vaSurveyDataRepo.createQueryBuilder('vs')
+        .innerJoinAndSelect(Districts, 'dd', 'dd.DistrictCode=vs.DistrictCode')
+        .innerJoinAndSelect(Taluk, 'td', 'td.DistrictCode=vs.DistrictCode and td.TalukCode=vs.TalukCode and td.Type=vs.Type')
+        .innerJoinAndSelect(GramaPanchayat, 'gp', 'gp.DistrictCode=vs.DistrictCode and gp.TalukCode=vs.TalukCode and gp.GpCode=vs.GpCode and gp.Type=vs.Type')
+        .select(["vs.DistrictCode DistrictCode, vs.TalukCode TalukCode, vs.GpCode GpCode, vs.Type Type", "vs.UserId UserId",
+          "CONCAT('D-',dd.DistrictNameEn,'-T-',td.TalukNameEn,'-G-',gp.GpNameEn) as assignedGp"
+        ])
+        .where("vs.Mobile = :Mobile and vs.RoleId = :RoleId", { Mobile, RoleId })
+        .getRawMany();
+  };
+
+  async updateSurveyerOtp(data) {
+    const { Mobile, RoleId, LoginType } = data;
+    if (LoginType == "VA") {
+      let getData = await vaSurveyDataRepo.findOneBy({ Mobile: Equal(Mobile), RoleId: Equal(RoleId) });
+      if (!getData) return { code: 422, message: "Your Data Does't Exist." }
+      let newData = { ...getData, ...data };
+      await vaSurveyDataRepo.save(newData);
+      return await vaSurveyDataRepo.createQueryBuilder('vs')
+        .innerJoinAndSelect(Districts, 'dd', 'dd.DistrictCode=vs.DistrictCode')
+        .innerJoinAndSelect(Taluk, 'td', 'td.DistrictCode=vs.DistrictCode and td.TalukCode=vs.TalukCode and td.Type=vs.Type')
+        .innerJoinAndSelect(GramaPanchayat, 'gp', 'gp.DistrictCode=vs.DistrictCode and gp.TalukCode=vs.TalukCode and gp.GpCode=vs.GpCode and gp.Type=vs.Type')
+        .select(["vs.DistrictCode DistrictCode, vs.TalukCode TalukCode, vs.GpCode GpCode, vs.Type Type", "vs.UserId UserId",
+          "CONCAT('D-',dd.DistrictNameEn,'-T-',td.TalukNameEn,'-G-',gp.GpNameEn) as assignedGp"
+        ])
+        .where("vs.Mobile = :Mobile and vs.RoleId = :RoleId", { Mobile, RoleId })
+        .getRawMany();
+    } else if (LoginType == "PDO") {
+      let getData = await vaSurveyDataRepo.findOneBy({ PDOMobile: Equal(Mobile), PDORoleId: Equal(RoleId) });
+      if (!getData) return { code: 422, message: "Your Data Does't Exist." }
+      let newData = { ...getData, ...data };
+      await vaSurveyDataRepo.save(newData);
+      return await vaSurveyDataRepo.createQueryBuilder('vs')
+        .innerJoinAndSelect(Districts, 'dd', 'dd.DistrictCode=vs.DistrictCode')
+        .innerJoinAndSelect(Taluk, 'td', 'td.DistrictCode=vs.DistrictCode and td.TalukCode=vs.TalukCode and td.Type=vs.Type')
+        .innerJoinAndSelect(GramaPanchayat, 'gp', 'gp.DistrictCode=vs.DistrictCode and gp.TalukCode=vs.TalukCode and gp.GpCode=vs.GpCode and gp.Type=vs.Type')
+        .select(["vs.DistrictCode DistrictCode, vs.TalukCode TalukCode, vs.GpCode GpCode, vs.Type Type", "vs.UserId UserId",
+          "CONCAT('D-',dd.DistrictNameEn,'-T-',td.TalukNameEn,'-G-',gp.GpNameEn) as assignedGp"
+        ])
+        .where("vs.PDOMobile = :Mobile and vs.RoleId = :RoleId", { Mobile, RoleId })
+        .getRawMany();
+    } else if (LoginType == "AEO") {
+      let getData = await vaSurveyDataRepo.findOneBy({ AEOMobile: Equal(Mobile), AEORoleId: Equal(RoleId) });
+      if (!getData) return { code: 422, message: "Your Data Does't Exist." }
+      let newData = { ...getData, ...data };
+      await vaSurveyDataRepo.save(newData);
+      return await vaSurveyDataRepo.createQueryBuilder('vs')
+        .innerJoinAndSelect(Districts, 'dd', 'dd.DistrictCode=vs.DistrictCode')
+        .innerJoinAndSelect(Taluk, 'td', 'td.DistrictCode=vs.DistrictCode and td.TalukCode=vs.TalukCode and td.Type=vs.Type')
+        .innerJoinAndSelect(GramaPanchayat, 'gp', 'gp.DistrictCode=vs.DistrictCode and gp.TalukCode=vs.TalukCode and gp.GpCode=vs.GpCode and gp.Type=vs.Type')
+        .select(["vs.DistrictCode DistrictCode, vs.TalukCode TalukCode, vs.GpCode GpCode, vs.Type Type", "vs.UserId UserId",
+          "CONCAT('D-',dd.DistrictNameEn,'-T-',td.TalukNameEn,'-G-',gp.GpNameEn) as assignedGp"
+        ])
+        .where("vs.AEOMobile = :Mobile and vs.RoleId = :RoleId", { Mobile, RoleId })
+        .getRawMany();
+    } else {
+      return { code: 422, message: "Req formate is wrong" }
+    }
   };
 
   async updateOtpInOfficerData(data) {
@@ -92,25 +141,25 @@ export class UserRepo {
     let checkTalukAccess = accessData.Gp == "Yes";
     let newData = { ...getData, ...data };
     await assignMastersRepo.save(newData);
-    if(checkDistrictAccess){
+    if (checkDistrictAccess) {
       let districtData = await assignMastersRepo.createQueryBuilder('vs')
-      .innerJoinAndSelect(Districts, 'dd', 'dd.DistrictCode=vs.DistrictCode')
-      .select(["vs.DistrictCode DistrictCode, vs.Type Type",
-        "CONCAT('D-',dd.DistrictNameEn) as assignedDeatils"
-      ])
-      .where("vs.Mobile = :Mobile and vs.RoleId = :RoleId", { Mobile, RoleId })
-      .getRawMany();
-      return {Access: "District", AccessDetails: districtData};
-    } else if(checkTalukAccess) {
+        .innerJoinAndSelect(Districts, 'dd', 'dd.DistrictCode=vs.DistrictCode')
+        .select(["vs.DistrictCode DistrictCode, vs.Type Type",
+          "CONCAT('D-',dd.DistrictNameEn) as assignedDeatils"
+        ])
+        .where("vs.Mobile = :Mobile and vs.RoleId = :RoleId", { Mobile, RoleId })
+        .getRawMany();
+      return { Access: "District", AccessDetails: districtData };
+    } else if (checkTalukAccess) {
       let talukData = await assignMastersRepo.createQueryBuilder('vs')
-      .innerJoinAndSelect(Districts, 'dd', 'dd.DistrictCode=vs.DistrictCode')
-      .innerJoinAndSelect(Taluk, 'td', 'td.DistrictCode=vs.DistrictCode and td.TalukCode=vs.TalukCode and td.Type=vs.Type')
-      .select(["vs.DistrictCode DistrictCode, vs.TalukCode TalukCode, vs.Type Type",
-        "CONCAT('D-',dd.DistrictNameEn,'-T-',td.TalukNameEn) as assignedDeatils"
-      ])
-      .where("vs.Mobile = :Mobile and vs.RoleId = :RoleId", { Mobile, RoleId })
-      .getRawMany();
-      return {Access: "Taluk", AccessDetails: talukData};
+        .innerJoinAndSelect(Districts, 'dd', 'dd.DistrictCode=vs.DistrictCode')
+        .innerJoinAndSelect(Taluk, 'td', 'td.DistrictCode=vs.DistrictCode and td.TalukCode=vs.TalukCode and td.Type=vs.Type')
+        .select(["vs.DistrictCode DistrictCode, vs.TalukCode TalukCode, vs.Type Type",
+          "CONCAT('D-',dd.DistrictNameEn,'-T-',td.TalukNameEn) as assignedDeatils"
+        ])
+        .where("vs.Mobile = :Mobile and vs.RoleId = :RoleId", { Mobile, RoleId })
+        .getRawMany();
+      return { Access: "Taluk", AccessDetails: talukData };
     } else {
       return { code: 422, message: "You are searching with wrong creadentials" };
     }
@@ -126,51 +175,62 @@ export class UserRepo {
     return await vaSurveyDataRepo.findOneBy({ Mobile: Equal(Mobile) });
   };
 
+  async verfiySurveyerUserWithId(data) {
+    const { Mobile, LoginType } = data;
+    if(LoginType == "VA"){
+      return await vaSurveyDataRepo.findOneBy({ Mobile: Equal(Mobile) });
+    } else if(LoginType == "PDO"){
+      return await vaSurveyDataRepo.findOneBy({ PDOMobile: Equal(Mobile) });
+    } else if(LoginType == "AEO"){
+      return await vaSurveyDataRepo.findOneBy({ AEOMobile: Equal(Mobile) });
+    };
+  };
+
   async verfiyOfficerData(data) {
     const { Mobile, RoleId, Otp } = data;
     return await assignMastersRepo.findOneBy({ Mobile: Equal(Mobile), RoleId: Equal(RoleId), Otp: Equal(Otp) });
   };
 
-  async fetchLossData(data){
-    const { Type = null, DistrictCode = null, TalukCode = null, Status=null, LossType=null, PageNumber = 1, RowsPerPage = 10 } = data
+  async fetchLossData(data) {
+    const { Type = null, DistrictCode = null, TalukCode = null, Status = null, LossType = null, PageNumber = 1, RowsPerPage = 10 } = data
     let queryForCounts = `execute fetchLossDataCountsForMobile @0,@1,@2,@3,@4`;
     let query = `execute fetchLossDataForMobile @0,@1,@2,@3,@4,@5,@6`;
-    let response=  await AppDataSource.query(query, [Type, DistrictCode, TalukCode, LossType, Status, PageNumber, RowsPerPage]);
-    let responseForCounts =  await AppDataSource.query(queryForCounts, [Type, DistrictCode, TalukCode, LossType, Status]);
+    let response = await AppDataSource.query(query, [Type, DistrictCode, TalukCode, LossType, Status, PageNumber, RowsPerPage]);
+    let responseForCounts = await AppDataSource.query(queryForCounts, [Type, DistrictCode, TalukCode, LossType, Status]);
     return {
-      TotalCount : responseForCounts[0].TotalCount,
+      TotalCount: responseForCounts[0].TotalCount,
       Page: PageNumber,
       RowsPerPage: RowsPerPage,
       TotalData: response
     };
-    } 
+  }
 
   async saveSurveyData(data) {
     const { ApplicantAadhar } = data;
     let findData = await pariharaDataRepo.findOneBy({ ApplicantAadhar: Equal(ApplicantAadhar) });
     if (findData) return { code: 422, message: "Already registered application with aadhar." };
     data.SurveyStatus = PENDING_EKYC;
-    data.SubmissionId = "PARI"+"-"+generateUniqueId().slice(2)+"-"+Math.floor(Math.random() * 1000);
+    data.SubmissionId = "PARI" + "-" + generateUniqueId().slice(2) + "-" + Math.floor(Math.random() * 1000);
     let findUser = await vaSurveyDataRepo.findOneBy({ UserId: Equal(data?.UserId) });
-    let createdData = {CreatedMobile: `${findUser.Mobile +'-AE-'+ findUser.AEOMobile+'-PD-'+findUser.PDOMobile}`, CreatedRole: "VA"}
-    let updateLogs = {...data, ...{History: "New Application Added"}, ...createdData}
+    let createdData = { CreatedMobile: `${findUser.Mobile + '-AE-' + findUser.AEOMobile + '-PD-' + findUser.PDOMobile}`, CreatedRole: "VA" }
+    let updateLogs = { ...data, ...{ History: "New Application Added" }, ...createdData }
     await updatedSurveyLogsRepo.save(updateLogs);
-    return await pariharaDataRepo.save({...data, ...createdData});
+    return await pariharaDataRepo.save({ ...data, ...createdData });
   };
 
   async updateSurveyData(data) {
-    let getOneObj = await pariharaDataRepo.findOneBy({ SubmissionId : Equal(data?.SubmissionId) });
+    let getOneObj = await pariharaDataRepo.findOneBy({ SubmissionId: Equal(data?.SubmissionId) });
     let newData = { ...getOneObj, ...data };
     let getOneObjFromUpdate = await updatedSurveyLogsRepo.createQueryBuilder('ud')
-    .where("ud.SubmissionId = :id", {id: data?.SubmissionId})
-    .orderBy("ud.CreatedDate", "DESC")
-    .getOne();
+      .where("ud.SubmissionId = :id", { id: data?.SubmissionId })
+      .orderBy("ud.CreatedDate", "DESC")
+      .getOne();
     delete getOneObjFromUpdate.id;
     delete getOneObjFromUpdate.CreatedDate;
     delete getOneObjFromUpdate.UpdatedDate;
-    let findUser = await vaSurveyDataRepo.findOneBy({UserId: Equal(newData.UserId)});
-    let createdData = {CreatedMobile: `${findUser.Mobile +'-AE-'+ findUser.AEOMobile+'-PD-'+findUser.PDOMobile}`, CreatedRole: "VA"}
-    let newUpdatedDate = {...getOneObjFromUpdate, ...createdData, ...{History: "Updated Existing Record From Mobile"}, ...data};
+    let findUser = await vaSurveyDataRepo.findOneBy({ UserId: Equal(newData.UserId) });
+    let createdData = { CreatedMobile: `${findUser.Mobile + '-AE-' + findUser.AEOMobile + '-PD-' + findUser.PDOMobile}`, CreatedRole: "VA" }
+    let newUpdatedDate = { ...getOneObjFromUpdate, ...createdData, ...{ History: "Updated Existing Record From Mobile" }, ...data };
     await updatedSurveyLogsRepo.save(newUpdatedDate);
     return await pariharaDataRepo.save(newData);
   };
@@ -318,7 +378,7 @@ export class UserRepo {
   };
 
   async assignedGpDetails(data) {
-    const { DistrictCode, TalukCode,GpCode, Type } = data;
+    const { DistrictCode, TalukCode, GpCode, Type } = data;
     let query = `execute getAssignedGpData @0,@1,@2,@3`;
     return await AppDataSource.query(query, [DistrictCode, TalukCode, GpCode, Type]);
   }
@@ -363,46 +423,46 @@ export class UserRepo {
   // };
   async retriveOnlyDistrict(code) {
     return await distictRepo.createQueryBuilder('md')
-    .select("DISTINCT DistrictCode, DistrictNameEn DistrictName")
-    .where("md.DistrictCode= :id", {id: code})
-    .getRawMany();
+      .select("DISTINCT DistrictCode, DistrictNameEn DistrictName")
+      .where("md.DistrictCode= :id", { id: code })
+      .getRawMany();
   };
   async retriveOnlyTaluks(code, Type) {
     return await talukRepo.createQueryBuilder('md')
-    .select("DISTINCT TalukCode, TalukNameEn TalukName")
-    .where("md.DistrictCode= :id and md.Type = :Type", {id: code, Type})
-    .getRawMany();
+      .select("DISTINCT TalukCode, TalukNameEn TalukName")
+      .where("md.DistrictCode= :id and md.Type = :Type", { id: code, Type })
+      .getRawMany();
   };
   async retriveOnlyGp(code, dcode, Type) {
     return await gramaPanchayatRepo.createQueryBuilder('md')
-    .select("DISTINCT GpCode, GpNameEn GpName")
-    .where("md.TalukCode= :id and md.DistrictCode = :dcode and md.Type = :Type", {id: code, dcode, Type})
-    .getRawMany();
+      .select("DISTINCT GpCode, GpNameEn GpName")
+      .where("md.TalukCode= :id and md.DistrictCode = :dcode and md.Type = :Type", { id: code, dcode, Type })
+      .getRawMany();
   };
   async retriveOnlyVillages(code, tcode, dcode) {
     return await villagesRepo.createQueryBuilder('md')
-    .select("DISTINCT VillageCode, VillageNameEn VillageName")
-    .where("md.GpCode= :id and md.DistrictCode = :dcode and md.TalukCode = :tcode", {id: code, dcode, tcode})
-    .getRawMany();
+      .select("DISTINCT VillageCode, VillageNameEn VillageName")
+      .where("md.GpCode= :id and md.DistrictCode = :dcode and md.TalukCode = :tcode", { id: code, dcode, tcode })
+      .getRawMany();
   };
 
   async updateEkycAfter(data, AuthType) {
     const { SubmissionId, txnDateTime } = data;
     let findOne = await pariharaDataRepo.findOneBy({ SubmissionId: Equal(SubmissionId) });
-    let newData = {...findOne, ...data};
+    let newData = { ...findOne, ...data };
     let getOneObjFromUpdate = await updatedSurveyLogsRepo.createQueryBuilder('ud')
-    .where("ud.SubmissionId = :id", {id: data?.SubmissionId})
-    .orderBy("ud.CreatedDate", "DESC")
-    .getOne();
+      .where("ud.SubmissionId = :id", { id: data?.SubmissionId })
+      .orderBy("ud.CreatedDate", "DESC")
+      .getOne();
     delete getOneObjFromUpdate.id;
     delete getOneObjFromUpdate.CreatedDate;
     delete getOneObjFromUpdate.UpdatedDate;
-    if(!findOne) return {code: 422, message: "Access Denied"};
+    if (!findOne) return { code: 422, message: "Access Denied" };
     let findUser = await vaSurveyDataRepo.findOneBy({ UserId: Equal(data?.UserId) });
     let updatedHistory = { ...getOneObjFromUpdate, ...{ EkycStatus: COMPLETED, SurveyStatus: PENDING, txnDateTime: txnDateTime } };
-    let updateLogs = {...updatedHistory, ...{CreatedMobile: `${findUser.Mobile +'-AE-'+ findUser.AEOMobile+'-PD-'+findUser.PDOMobile}`, CreatedRole: "VA", History: `Updated With ${AuthType} Process`}}
-    await updatedSurveyLogsRepo.save({...updateLogs, ...data});
-    return await pariharaDataRepo.save({...newData, ...updatedHistory});
+    let updateLogs = { ...updatedHistory, ...{ CreatedMobile: `${findUser.Mobile + '-AE-' + findUser.AEOMobile + '-PD-' + findUser.PDOMobile}`, CreatedRole: "VA", History: `Updated With ${AuthType} Process` } }
+    await updatedSurveyLogsRepo.save({ ...updateLogs, ...data });
+    return await pariharaDataRepo.save({ ...newData, ...updatedHistory });
   };
 
   async saveKutumbaData(data) {
@@ -422,8 +482,8 @@ export class UserRepo {
   };
 
   async saveRdMinority(data) {
-    let findData = await rdMinorityRepo.findOneBy({GSCNo: Equal(data?.GSCNo)});
-    let newData = {...findData, ...data};
+    let findData = await rdMinorityRepo.findOneBy({ GSCNo: Equal(data?.GSCNo) });
+    let newData = { ...findData, ...data };
     return await rdMinorityRepo.save(newData);
   };
 

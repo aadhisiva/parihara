@@ -81,7 +81,7 @@ export class RDMinority {
   @Column({ type: 'nvarchar', default: null, length: 200 })
   AnnualIncomeInWords: string;
 
-  @Column({ type: 'nvarchar', default: null, length: 200 })
+  @Column({ type: 'text', default: null })
   Photo: string;
 
   @Column({ type: 'nvarchar', default: null, length: 200 })
