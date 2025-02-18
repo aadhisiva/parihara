@@ -89,6 +89,7 @@ export class UserRepo {
       let getData = await vaSurveyDataRepo.findOneBy({ Mobile: Equal(Mobile), RoleId: Equal(RoleId) });
       if (!getData) return { code: 422, message: "Your Data Does't Exist." }
       let newData = { ...getData, ...data };
+      delete newData.RoleId;
       await vaSurveyDataRepo.save(newData);
       return await vaSurveyDataRepo.createQueryBuilder('vs')
         .innerJoinAndSelect(Districts, 'dd', 'dd.DistrictCode=vs.DistrictCode')
@@ -103,6 +104,7 @@ export class UserRepo {
       let getData = await vaSurveyDataRepo.findOneBy({ PDOMobile: Equal(Mobile), PDORoleId: Equal(RoleId) });
       if (!getData) return { code: 422, message: "Your Data Does't Exist." }
       let newData = { ...getData, ...data };
+      delete newData.RoleId;
       await vaSurveyDataRepo.save(newData);
       return await vaSurveyDataRepo.createQueryBuilder('vs')
         .innerJoinAndSelect(Districts, 'dd', 'dd.DistrictCode=vs.DistrictCode')
@@ -117,6 +119,7 @@ export class UserRepo {
       let getData = await vaSurveyDataRepo.findOneBy({ AEOMobile: Equal(Mobile), AEORoleId: Equal(RoleId) });
       if (!getData) return { code: 422, message: "Your Data Does't Exist." }
       let newData = { ...getData, ...data };
+      delete newData.RoleId;
       await vaSurveyDataRepo.save(newData);
       return await vaSurveyDataRepo.createQueryBuilder('vs')
         .innerJoinAndSelect(Districts, 'dd', 'dd.DistrictCode=vs.DistrictCode')
